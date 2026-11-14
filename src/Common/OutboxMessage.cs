@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="OutboxMessage.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
@@ -49,7 +55,7 @@ public class OutboxMessage
     public static OutboxMessage Create<T>(string routingKey, T payload) => new()
     {
         RoutingKey = routingKey,
-        Payload = JsonSerializer.Serialize(payload)
+        Payload = JsonSerializer.Serialize(payload),
     };
 }
 

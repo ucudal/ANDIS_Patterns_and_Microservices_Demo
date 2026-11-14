@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Demo13CompetingConsumersScalingTests.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Diagnostics;
 using System.Net.Http.Json;
 using System.Text.Json.Nodes;
@@ -42,6 +48,7 @@ public class Demo13CompetingConsumersScalingTests : DemoTest
             ids.Add((await response.Content.ReadFromJsonAsync<JsonObject>())!["id"]!.GetValue<int>());
             response.Dispose();
         }
+
         await Api.WaitProcessedAsync(ids, TimeSpan.FromSeconds(180));
         return watch.Elapsed;
     }

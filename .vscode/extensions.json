@@ -3,6 +3,8 @@
     "ms-vscode.azurecli",
     "cweijan.vscode-database-client2",
     "yzhang.markdown-all-in-one",
-    "davidanson.vscode-markdownlint"
+    "davidanson.vscode-markdownlint",
+    "streetsidesoftware.code-spell-checker",
+    "streetsidesoftware.code-spell-checker-spanish"
   ]
 }

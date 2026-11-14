@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="ProductImages.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Diagnostics.Metrics;
 using System.Globalization;
 using Azure.Storage.Blobs;
@@ -29,6 +35,7 @@ public class ProductImages
     private static readonly Meter Meter = new(MeterName);
     private static readonly Counter<long> ReceivedBytes = Meter.CreateCounter<long>("products.images.received", "By",
         "Bytes de imágenes que recibió Products para subirlas él mismo, sin Valet Key");
+
     private static readonly Counter<long> IssuedKeys = Meter.CreateCounter<long>("products.images.valet_keys", "{key}",
         "Claves de acceso a las imágenes que entregó Products, por permiso: write o read");
 
@@ -44,6 +51,7 @@ public class ProductImages
         // Azurite en localhost:10000, con su cuenta y su clave de desarrollo.
         var service = new BlobServiceClient(config["Storage:ConnectionString"] ?? "UseDevelopmentStorage=true");
         _container = service.GetBlobContainerClient(ContainerName);
+
         // Products llega a Azurite por la red de Docker, como azurite:10000; el
         // cliente, como localhost:10000. La firma no incluye el host: se
         // cambia la dirección de la URL y la firma sigue siendo válida.
@@ -85,7 +93,7 @@ public class ProductImages
         await _container.GetBlobClient(productId.ToString(CultureInfo.InvariantCulture)).UploadAsync(buffer,
             new Azure.Storage.Blobs.Models.BlobUploadOptions
             {
-                HttpHeaders = new Azure.Storage.Blobs.Models.BlobHttpHeaders { ContentType = contentType }
+                HttpHeaders = new Azure.Storage.Blobs.Models.BlobHttpHeaders { ContentType = contentType },
             }, cancellationToken);
 
         ReceivedBytes.Add(buffer.Length);
@@ -126,6 +134,7 @@ public class ProductImages
         if (lifetime <= TimeSpan.Zero || lifetime > MaxKeyLifetime)
             lifetime = MaxKeyLifetime;
         var expiresOn = DateTimeOffset.UtcNow.Add(lifetime);
+
         // La firma se calcula con la clave de la cuenta, sin llamar a Azurite.
         var sas = _container.GetBlobClient(productId.ToString(CultureInfo.InvariantCulture)).GenerateSasUri(permissions, expiresOn);
         var url = new Uri(sas.ToString().Replace(_internalEndpoint, _publicEndpoint));

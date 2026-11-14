@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Demo10SagaTests.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using Ucu.Andis.DemoTests.Support;
 
 namespace Ucu.Andis.DemoTests.Availability;
@@ -10,10 +16,10 @@ namespace Ucu.Andis.DemoTests.Availability;
 /// </summary>
 public class Demo10SagaTests : DemoTest
 {
+    private const int Stock = 20;
+
     private static readonly string[] InvoicedEvents = ["OrderCreated", "OrderConfirmed", "OrderInvoiced"];
     private static readonly string[] CancelledEvents = ["OrderCreated", "OrderConfirmed", "OrderCancelled"];
-
-    private const int Stock = 20;
     private static readonly int Product = DemoData.Shoes.Id;
     private int _initialStock;
 

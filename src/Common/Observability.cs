@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Observability.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,16 +29,19 @@ public static class ObservabilityExtensions
     [
         // Duración y cantidad de solicitudes recibidas, por ruta y código HTTP.
         "Microsoft.AspNetCore.Hosting",
+
         // Solicitudes aceptadas y rechazadas por el rate limiter: Throttling.
         "Microsoft.AspNetCore.RateLimiting",
+
         // Duración de las llamadas a otros servicios.
         "System.Net.Http",
+
         // Eventos de los pipelines de resiliencia: reintentos, aperturas del
         // circuito, rechazos del bulkhead y timeouts.
         "Polly",
         ChaosExtensions.MeterName,
         ExternalConfigurationExtensions.MeterName,
-        HealthMetricsPublisher.MeterName
+        HealthMetricsPublisher.MeterName,
     ];
 
     public static WebApplicationBuilder AddObservability(this WebApplicationBuilder builder, params string[] meters)

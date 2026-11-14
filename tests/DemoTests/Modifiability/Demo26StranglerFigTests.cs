@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Demo26StranglerFigTests.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Net;
 using Ucu.Andis.DemoTests.Support;
 
@@ -71,6 +77,7 @@ public class Demo26StranglerFigTests : DemoTest
             using var response = await Api.Http.SendAsync(request);
             results.Add((response.StatusCode, Api.Header(response, "X-Served-By"), Summary(await response.Content.ReadAsStringAsync())));
         }
+
         return results;
     }
 

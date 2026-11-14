@@ -1,13 +1,21 @@
+// -----------------------------------------------------------------------
+// <copyright file="ProductsDbContext.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using Ucu.Andis.ProductsService.Models;
 using Ucu.Andis.Common;
+using Ucu.Andis.ProductsService.Models;
 
 namespace Ucu.Andis.ProductsService.Data;
 
 public class ProductsDbContext : DbContext, IOutboxDbContext
 {
-    public ProductsDbContext(DbContextOptions<ProductsDbContext> options) : base(options) { }
+    public ProductsDbContext(DbContextOptions<ProductsDbContext> options)
+        : base(options) { }
+
     public DbSet<Product> Products { get; set; }
     public DbSet<StockReservation> StockReservations { get; set; }
     public DbSet<OutboxMessage> OutboxMessages { get; set; }
@@ -25,8 +33,11 @@ public class ProductsDbContext : DbContext, IOutboxDbContext
     public static bool IsDuplicateKey(Exception ex)
     {
         for (var e = ex; e is not null; e = e.InnerException)
+        {
             if (e is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
                 return true;
+        }
+
         return false;
     }
 }

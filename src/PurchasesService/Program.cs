@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Program.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using Ucu.Andis.PurchasesService;
 using Ucu.Andis.PurchasesService.AntiCorruption;
 

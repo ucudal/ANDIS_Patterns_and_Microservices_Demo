@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Demo11CacheAsideTests.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Json;

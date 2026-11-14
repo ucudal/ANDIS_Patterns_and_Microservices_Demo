@@ -471,6 +471,9 @@ services:
   # publica puertos: se llega por la entrada de despliegue del gateway, en el
   # 8091. Los demás servicios siguen llamando a users-service, la versión 1.
   users-service-v2:
+    build:
+      context: ./src
+      dockerfile: ./UsersService/Dockerfile
     image: users-service:latest
     environment:
       SERVICE_NAME: "users-service-v2"

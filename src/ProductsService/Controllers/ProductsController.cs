@@ -1,8 +1,14 @@
+// -----------------------------------------------------------------------
+// <copyright file="ProductsController.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Ucu.Andis.Common;
 using Ucu.Andis.ProductsService.Data;
 using Ucu.Andis.ProductsService.Models;
-using Ucu.Andis.Common;
 
 namespace Ucu.Andis.ProductsService.Controllers;
 
@@ -104,6 +110,7 @@ public class ProductsController : ControllerBase
             .ExecuteUpdateAsync(s => s
                 .SetProperty(p => p.Name, product.Name)
                 .SetProperty(p => p.Price, product.Price));
+
         // Fecha del cambio: los proyectores la usan para no pisar un nombre más nuevo
         // con uno más viejo -ver Events.cs-.
         var changedAt = DateTime.UtcNow;

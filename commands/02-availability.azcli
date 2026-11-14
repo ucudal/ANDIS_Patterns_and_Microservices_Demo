@@ -1081,9 +1081,14 @@ curl -s -X PUT http://localhost/products/3/stock -H "Content-Type: application/j
 # a levantar con docker compose --profile observability start
 docker compose --profile observability stop
 
+# Borrar el clúster de Kubernetes, con todo lo que tiene adentro, y sus imágenes
+./demos/k8s-down.sh
+docker rmi users-service:v1 users-service:v2 users-service:v3-bad
+docker rmi $(docker images -q kindest/node)
+
 # Borrar todo: contenedores, redes, volúmenes, imágenes, caché de build y las
 # carpetas de las bases de datos
-docker compose --profile observability down -v
+docker compose --profile observability --profile feature-flags down -v
 
 docker rmi api-gateway:latest orders-service:latest users-service:latest products-service:latest
 docker rmi mysql:26 mongo:9 postgres:18 rabbitmq:4.4-management redis:8 nginx:1.25-alpine

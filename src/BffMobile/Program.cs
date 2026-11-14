@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Program.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Net;
 using Ucu.Andis.BffMobile;
 
@@ -24,7 +30,7 @@ app.MapGet("/mobile/orders/user/{userId}", async (string userId, IHttpClientFact
     return Results.Ok(new
     {
         count = details.Count,
-        orders = details.Select(d => new { product = d.ProductName, status = d.Status })
+        orders = details.Select(d => new { product = d.ProductName, status = d.Status }),
     });
 });
 

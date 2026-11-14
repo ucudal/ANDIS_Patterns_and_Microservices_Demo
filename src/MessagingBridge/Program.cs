@@ -1,5 +1,11 @@
-using Ucu.Andis.MessagingBridge;
+// -----------------------------------------------------------------------
+// <copyright file="Program.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using Ucu.Andis.Common;
+using Ucu.Andis.MessagingBridge;
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddSingleton<RabbitMq>();

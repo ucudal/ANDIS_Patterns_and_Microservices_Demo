@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="EnergyController.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ucu.Andis.OrdersService.Controllers;

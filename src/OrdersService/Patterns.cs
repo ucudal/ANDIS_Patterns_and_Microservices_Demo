@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Patterns.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Diagnostics.Metrics;
 using System.Text.Json;
 using Polly.CircuitBreaker;
@@ -103,7 +109,7 @@ public static class PatternExtensions
             Measurement("retry", settings.Retry),
             Measurement("circuit breaker", settings.CircuitBreaker),
             Measurement("bulkhead", settings.Bulkhead),
-            Measurement("throttling", settings.Throttling)
+            Measurement("throttling", settings.Throttling),
         }, description: "Patrones de resiliencia prendidos en Orders: 1 prendido, 0 apagado");
 
         // Estado del circuito de cada dependencia, como métrica: -1 con el
@@ -138,7 +144,7 @@ public static class PatternExtensions
     {
         CircuitState.Closed => 0,
         CircuitState.HalfOpen => 1,
-        _ => 2
+        _ => 2,
     };
 
     private static Measurement<int> Measurement(string pattern, bool enabled) =>

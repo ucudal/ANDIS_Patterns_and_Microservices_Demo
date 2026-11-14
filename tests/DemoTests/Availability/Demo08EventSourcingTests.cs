@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Demo08EventSourcingTests.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Net;
 using System.Text.Json.Nodes;
 using Ucu.Andis.DemoTests.Support;
@@ -16,6 +22,7 @@ public class Demo08EventSourcingTests : DemoTest
     public async Task EventsReplayToTheCurrentState()
     {
         var id = await Api.CreateOrderAsync(DemoData.User2, DemoData.Trousers.Id, 3);
+
         // Después de confirmarla, el ERP la factura: se espera ese último evento
         // para que el historial no cambie entre la lectura y la verificación.
         await Eventually.GetAsync(() => Api.EventTypesAsync(id), t => t.Contains("OrderInvoiced"));

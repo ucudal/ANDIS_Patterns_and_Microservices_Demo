@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Demo06HealthTests.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json.Nodes;
@@ -48,6 +54,7 @@ public class Demo06HealthTests : DemoTest
         catch (System.Text.Json.JsonException)
         {
         }
+
         return (response.StatusCode, body);
     }
 }

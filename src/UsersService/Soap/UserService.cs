@@ -1,9 +1,14 @@
+// -----------------------------------------------------------------------
+// <copyright file="UserService.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.ServiceModel;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using Ucu.Andis.Users.Models;
-
 using Ucu.Andis.Common;
+using Ucu.Andis.Users.Models;
 
 namespace Ucu.Andis.Users.Soap;
 
@@ -31,6 +36,7 @@ public class UserService : IUserService
             return null;
 
         var user = await _users.Find(u => u.Id == id).FirstOrDefaultAsync();
+
         // A/B Testing: solo la versión 2 trae el experimento -ver Experiment.cs-.
         if (user is not null && _release.Version >= 2)
             await _experiment.ApplyAsync(user);
@@ -66,6 +72,7 @@ public class UserService : IUserService
         var user = await _users.FindOneAndUpdateAsync(u => u.Id == id,
             Builders<User>.Update.Set(u => u.Name, name).Set(u => u.Email, email),
             new FindOneAndUpdateOptions<User> { ReturnDocument = ReturnDocument.After });
+
         // Fecha del cambio: los proyectores la usan para no pisar un nombre más nuevo
         // con uno más viejo -ver Events.cs-.
         var changedAt = DateTime.UtcNow;

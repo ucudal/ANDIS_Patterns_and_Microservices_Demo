@@ -1,8 +1,14 @@
+// -----------------------------------------------------------------------
+// <copyright file="Program.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using Microsoft.EntityFrameworkCore;
-using Ucu.Andis.ProductsService;
-using Ucu.Andis.ProductsService.Data;
 using StackExchange.Redis;
 using Ucu.Andis.Common;
+using Ucu.Andis.ProductsService;
+using Ucu.Andis.ProductsService.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +30,7 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
         AbortOnConnectFail = false,
         ConnectTimeout = 1000,
         SyncTimeout = 500,
-        AsyncTimeout = 500
+        AsyncTimeout = 500,
     }));
 builder.Services.AddSingleton<ProductCache>();
 

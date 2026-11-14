@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="IUserService.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.ServiceModel;
 using Ucu.Andis.Users.Models;
 

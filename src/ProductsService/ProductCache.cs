@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="ProductCache.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Diagnostics.Metrics;
 using System.Text.Json;
 using StackExchange.Redis;
@@ -18,7 +24,7 @@ namespace Ucu.Andis.ProductsService;
 public class CacheSettings
 {
     /// <summary>
-    /// Obtiene o establece si la caché está habilitada.
+    /// Obtiene o establece un valor que indica si obtiene o establece si la caché está habilitada.
     /// </summary>
     /// <remarks>
     /// Si es <c>false</c>, toda lectura va a PostgreSQL: sirve para comparar con y sin

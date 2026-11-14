@@ -78,3 +78,44 @@ csharp_style_namespace_declarations = file_scoped
 # patrón, en lugar de métodos generados con [LoggerMessage].
 dotnet_diagnostic.CA1848.severity = none
 dotnet_diagnostic.CA1873.severity = none
+
+# StyleCop: reglas que no se aplican en esta demo.
+#
+# Documentación: los /// van en lo que aparece en el sitio de Doxygen, con
+# <summary> y <remarks>; no hace falta documentar todo -ver también CS1591, en
+# Directory.Build.props- ni cada parámetro, valor de retorno o tipo genérico.
+dotnet_diagnostic.SA1600.severity = none
+dotnet_diagnostic.SA1611.severity = none
+dotnet_diagnostic.SA1615.severity = none
+dotnet_diagnostic.SA1618.severity = none
+
+# Nombres: los campos privados empiezan con _ y los miembros propios se usan sin
+# this., como en el resto del código de las demos.
+dotnet_diagnostic.SA1101.severity = none
+dotnet_diagnostic.SA1309.severity = none
+
+# Llaves y líneas: un if de una sola sentencia puede ir sin llaves, y un
+# elemento o una sentencia vacía, como partial class Program { }, en una línea.
+dotnet_diagnostic.SA1501.severity = none
+dotnet_diagnostic.SA1502.severity = none
+
+# Visibilidad: partial class Program, que acompaña a las sentencias de nivel
+# superior, y los tipos internos de un proyecto, como los records de los BFF,
+# se declaran sin modificador de acceso.
+dotnet_diagnostic.SA1205.severity = none
+dotnet_diagnostic.SA1400.severity = none
+dotnet_diagnostic.SA1503.severity = none
+
+# Parámetros: las llamadas largas, como las de logger.Log…, se parten donde se
+# leen mejor.
+dotnet_diagnostic.SA1116.severity = none
+dotnet_diagnostic.SA1117.severity = none
+
+# Orden y archivos: los miembros siguen el orden de la explicación del patrón, y
+# un archivo agrupa los tipos de un mismo concepto, como los eventos de
+# Events.cs, con el nombre del concepto.
+dotnet_diagnostic.SA1201.severity = none
+dotnet_diagnostic.SA1202.severity = none
+dotnet_diagnostic.SA1204.severity = none
+dotnet_diagnostic.SA1402.severity = none
+dotnet_diagnostic.SA1649.severity = none

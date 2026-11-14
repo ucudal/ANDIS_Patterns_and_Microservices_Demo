@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="OrdersTranslator.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Text.Json.Serialization;
 
 namespace Ucu.Andis.PurchasesService.AntiCorruption;
@@ -24,7 +30,7 @@ public class OrdersTranslator
     public async Task<IReadOnlyList<TranslatedOrder>> ForProductAsync(int productId, CancellationToken cancellationToken)
     {
         // Orders no tiene una consulta por Product: se piden todas y se filtran.
-        var orders = await _client.GetFromJsonAsync<List<OrderRecord>>("", cancellationToken) ?? [];
+        var orders = await _client.GetFromJsonAsync<List<OrderRecord>>(string.Empty, cancellationToken) ?? [];
 
         return orders
             .Where(o => o.ProductId == productId && o.Status is not ("Rejected" or "Cancelled"))

@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="MongoHealthCheck.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using MongoDB.Bson;
 using MongoDB.Driver;

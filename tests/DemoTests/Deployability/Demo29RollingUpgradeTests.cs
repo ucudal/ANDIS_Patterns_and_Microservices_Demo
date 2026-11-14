@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Demo29RollingUpgradeTests.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using Ucu.Andis.DemoTests.Support;
 
 namespace Ucu.Andis.DemoTests.Deployability;
@@ -27,6 +33,7 @@ public class Demo29RollingUpgradeTests : DemoTest
                 await Shell.DemoAsync($"pool_replace {n}", TimeSpan.FromMinutes(5));
                 await Task.Delay(TimeSpan.FromSeconds(6));
             }
+
             during = await probe.StopAsync();
         }
 

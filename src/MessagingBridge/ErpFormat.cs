@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="ErpFormat.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Globalization;
 using Ucu.Andis.Common;
 
@@ -27,7 +33,7 @@ public static class ErpFormat
     public static string ToOrderRecord(OrderConfirmed order) =>
         OrderRecord
         + order.OrderId.ToString("D10", CultureInfo.InvariantCulture)
-        + (order.UserId ?? "").PadRight(24)
+        + (order.UserId ?? string.Empty).PadRight(24)
         + order.ProductId.ToString("D8", CultureInfo.InvariantCulture)
         + order.Quantity.ToString("D5", CultureInfo.InvariantCulture);
 

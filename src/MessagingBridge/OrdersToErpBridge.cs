@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="OrdersToErpBridge.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Text.Json;
 using Apache.NMS;
 using RabbitMQ.Client;
@@ -56,6 +62,7 @@ public class OrdersToErpBridge : BackgroundService
             {
                 order = null;
             }
+
             if (order is null)
             {
                 _logger.LogWarning("[MESSAGING BRIDGE] Se descarta un mensaje mal formado");

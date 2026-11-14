@@ -869,7 +869,7 @@ confirmados, y otros participantes pudieron verlos.
 | 2 | `Orders`, el *worker* | Verifica el `User` y confirma la `Order` | `order.confirmed` | `order.rejected` | Cancela la `Order`, con `order.invoice-failed` |
 | 3 | El ERP, por el [Messaging Bridge](#messaging-bridge) | Factura la `Order` | `order.invoiced` | `order.invoice-failed` | — |
 
-El ERP tiene una regla de negocio -para simualar fallas- por la que no factura
+El ERP tiene una regla de negocio -para simular fallas- por la que no factura
 pedidos de más de 10 unidades: es la falla que dispara las dos compensaciones.
 La factura es el último paso, así que no tiene compensación.
 
@@ -1832,12 +1832,12 @@ Las políticas de autorización están en el filtro `rbac`:
 
 ```yaml
 policies:
-  lecturas:
+  reads:
     permissions:
       - header: { name: ":method", string_match: { exact: GET } }
     principals:
       - any: true
-  administracion:
+  admin:
     permissions:
       - any: true
     principals:
@@ -2755,7 +2755,7 @@ Qué se muestra:
 
 * Dos versiones están en ejecución al mismo tiempo, con sus contenedores
 levantados y sanos, aunque solo una reciba tráfico. Pasar de una a otra
--connmutarlas- y volver atrás es inmediato: no hay que levantar nada.
+-conmutarlas- y volver atrás es inmediato: no hay que levantar nada.
 * Reemplazo de instancias por pasos, verificando su salud.
 * Una fracción del tráfico derivada a la versión nueva, y la vuelta atrás cuando
   falla.

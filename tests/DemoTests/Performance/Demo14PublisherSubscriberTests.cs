@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Demo14PublisherSubscriberTests.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Text.Json.Nodes;
 using Ucu.Andis.DemoTests.Support;
 
@@ -29,6 +35,7 @@ public class Demo14PublisherSubscriberTests : DemoTest
             .ToDictionary(g => g.Key, g => g.Select(b => b!["routing_key"]!.GetValue<string>()).ToList());
 
         Assert.That(keys["orders.process"], Is.EquivalentTo(WorkerKeys));
+
         // Los proyectores reciben todos los eventos de las Orders, con un comodín.
         Assert.That(keys["orders.details-view"], Is.EquivalentTo(ProjectorKeys));
         Assert.That(keys["products.stock"], Is.EquivalentTo(StockKeys));

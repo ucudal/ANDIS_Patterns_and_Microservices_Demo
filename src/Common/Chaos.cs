@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Chaos.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Diagnostics.Metrics;
 using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
@@ -60,8 +66,10 @@ public static class ChaosExtensions
         var logger = app.ApplicationServices.GetRequiredService<ILoggerFactory>().CreateLogger("Chaos");
 
         if (settings.FailureRate > 0 || settings.DelayMs > 0)
+        {
             logger.LogWarning("Chaos desde el arranque: failureRate={FailureRate}, delayMs={DelayMs}",
                 settings.FailureRate, settings.DelayMs);
+        }
 
         // La falla inyectada también se publica como métrica, para ver en
         // Grafana en qué momento empezó y cuándo terminó.

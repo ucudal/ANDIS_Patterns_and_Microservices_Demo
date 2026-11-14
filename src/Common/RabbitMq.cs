@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="RabbitMq.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
@@ -32,7 +38,7 @@ public class RabbitMq : IAsyncDisposable
             Password = config["RabbitMq:Password"] ?? "guest",
             ClientProvidedName = Environment.MachineName,
             AutomaticRecoveryEnabled = true,
-            TopologyRecoveryEnabled = true
+            TopologyRecoveryEnabled = true,
         };
     }
 

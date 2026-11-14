@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Dependencies.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Net;
 using System.Text;
 using System.Xml.Linq;
@@ -13,7 +19,7 @@ namespace Ucu.Andis.OrdersService;
 /// Representa el resultado de llamar a Usuarios o Productos.
 /// </summary>
 /// <remarks>
-/// Distingue tres casos:
+/// Distingue tres casos.
 /// <ul>
 /// <li><c>Value</c>: la dependencia respondió con el recurso.</li>
 /// <li><c>NotFound</c>: la dependencia respondió 404, o 400 si el id no es válido;
@@ -64,9 +70,9 @@ public static class Dependencies
                         new XElement(Users + "GetUser",
                             new XElement(Users + "id", userId)))));
 
-            using var request = new HttpRequestMessage(HttpMethod.Post, "")
+            using var request = new HttpRequestMessage(HttpMethod.Post, string.Empty)
             {
-                Content = new StringContent(envelope.ToString(SaveOptions.DisableFormatting), Encoding.UTF8, "text/xml")
+                Content = new StringContent(envelope.ToString(SaveOptions.DisableFormatting), Encoding.UTF8, "text/xml"),
             };
             request.Headers.Add("SOAPAction", $"\"{Users.NamespaceName}/IUserService/GetUser\"");
 
@@ -88,7 +94,7 @@ public static class Dependencies
             var user = new UserDto
             {
                 Id = (string?)result.Element(Users + "Id"),
-                Name = (string?)result.Element(Users + "Name")
+                Name = (string?)result.Element(Users + "Name"),
             };
             return new CallResult<UserDto>(user, false, null);
         });
@@ -109,6 +115,7 @@ public static class Dependencies
         {
             return new(default, false, "circuito abierto");
         }
+
         // Bulkhead: el compartimento de la dependencia estaba lleno -lugares y
         // fila- y la llamada se rechazó sin salir a la red -ver Resilience.cs-.
         catch (RateLimiterRejectedException)

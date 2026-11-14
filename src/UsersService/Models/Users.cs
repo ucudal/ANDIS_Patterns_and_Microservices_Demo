@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Users.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Runtime.Serialization;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;

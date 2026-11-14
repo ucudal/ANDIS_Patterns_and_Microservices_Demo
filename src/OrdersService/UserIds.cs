@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="UserIds.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Text.RegularExpressions;
 
 namespace Ucu.Andis.OrdersService;

@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Demo22ValetKeyTests.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json.Nodes;
@@ -75,7 +81,7 @@ public class Demo22ValetKeyTests : DemoTest
     {
         var carol = await Identity.TokenAsync("carol");
         var https = await Identity.HttpsAsync();
-        var query = seconds is null ? "" : $"?seconds={seconds}";
+        var query = seconds is null ? string.Empty : $"?seconds={seconds}";
         using var response = await https.SendAsync(Identity.Request(HttpMethod.Post,
             $"{DemoData.HttpsGateway}/products/{Product.Id}/image/upload-url{query}", carol));
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));

@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Api.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Json;
@@ -13,6 +19,11 @@ namespace Ucu.Andis.DemoTests.Support;
 /// </summary>
 public static class Api
 {
+    /// <summary>
+    /// Namespace XML del contrato SOAP de Users.
+    /// </summary>
+    public const string UsersNamespace = "http://ucu.edu.uy/andis/users";
+
     private static readonly string[] Patterns = ["retry", "circuitBreaker", "bulkhead", "throttling"];
 
     /// <summary>
@@ -27,11 +38,6 @@ public static class Api
     {
         Timeout = TimeSpan.FromSeconds(30),
     };
-
-    /// <summary>
-    /// Namespace XML del contrato SOAP de Users.
-    /// </summary>
-    public const string UsersNamespace = "http://ucu.edu.uy/andis/users";
 
     // Chaos y patrones
 
@@ -196,8 +202,10 @@ public static class Api
     public static async Task EnsureSuccessAsync(HttpResponseMessage response)
     {
         if (!response.IsSuccessStatusCode)
+        {
             throw new HttpRequestException(
                 $"{(int)response.StatusCode} {response.RequestMessage?.Method} {response.RequestMessage?.RequestUri}: {await response.Content.ReadAsStringAsync()}");
+        }
     }
 
     /// <summary>
@@ -301,6 +309,7 @@ public static class Api
         using var request = SoapRequest($"{baseUrl}/users/UserService.svc", "GetUser", $"<id>{id}</id>");
         if (segment is not null)
             request.Headers.Add("X-Segment", segment);
+
         // Una conexión nueva por solicitud, como curl en las demos. Si se
         // reutilizara, durante una conmutación podría quedar colgada una
         // conexión hacia un destino que ya no existe, y se mediría el cliente
@@ -386,6 +395,7 @@ public static class Api
     {
         using var response = await Http.PutAsync($"{DemoData.Consul}/v1/kv/andis/{key}", new StringContent(value));
         response.EnsureSuccessStatusCode();
+
         // Los servicios leen el almacén cada 2 segundos.
         await Task.Delay(TimeSpan.FromSeconds(3));
     }

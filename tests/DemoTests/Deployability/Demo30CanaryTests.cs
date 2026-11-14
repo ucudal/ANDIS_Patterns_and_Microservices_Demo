@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Demo30CanaryTests.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Net;
 using Ucu.Andis.DemoTests.Support;
 

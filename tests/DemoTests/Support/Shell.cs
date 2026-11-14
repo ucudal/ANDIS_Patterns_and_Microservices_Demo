@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Shell.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Diagnostics;
 using System.Globalization;
 
@@ -33,6 +39,7 @@ public static class Shell
             RedirectStandardOutput = true,
             RedirectStandardError = true,
         };
+
         // Con bash -c, el argumento siguiente es $0. common.sh hace
         // cd "$(dirname "$0")/..": con demos/tests, queda en la raíz.
         info.ArgumentList.Add("-c");
@@ -52,6 +59,7 @@ public static class Shell
             process.Kill(entireProcessTree: true);
             throw new TimeoutException($"El comando no terminó a tiempo: {script}");
         }
+
         return new Result(process.ExitCode, (await output).Trim(), (await error).Trim());
     }
 
@@ -100,6 +108,7 @@ public static class Shell
             if (parts.Length == 3 && parts[0] == queue)
                 return (int.Parse(parts[1], CultureInfo.InvariantCulture), int.Parse(parts[2], CultureInfo.InvariantCulture));
         }
+
         throw new InvalidOperationException($"No existe la cola {queue}");
     }
 

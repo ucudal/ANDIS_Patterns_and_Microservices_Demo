@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="OrderProjection.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Text.Json;
 
 namespace Ucu.Andis.OrdersService.Models;
@@ -27,7 +33,7 @@ public static class OrderProjection
                         UserId = created.UserId,
                         ProductId = created.ProductId,
                         Quantity = created.Quantity,
-                        Status = OrderStatus.Pending
+                        Status = OrderStatus.Pending,
                     };
                     break;
                 case OrderEventTypes.OrderConfirmed when order is not null:

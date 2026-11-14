@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Models.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Runtime.Serialization;
 
 namespace Ucu.Andis.Monolith;
@@ -5,9 +11,12 @@ namespace Ucu.Andis.Monolith;
 [DataContract(Namespace = "http://ucu.edu.uy/andis/users")]
 public class User
 {
-    [DataMember] public string Id { get; set; } = string.Empty;
-    [DataMember] public string Name { get; set; } = string.Empty;
-    [DataMember] public string Email { get; set; } = string.Empty;
+    [DataMember]
+    public string Id { get; set; } = string.Empty;
+    [DataMember]
+    public string Name { get; set; } = string.Empty;
+    [DataMember]
+    public string Email { get; set; } = string.Empty;
 }
 
 public class Product

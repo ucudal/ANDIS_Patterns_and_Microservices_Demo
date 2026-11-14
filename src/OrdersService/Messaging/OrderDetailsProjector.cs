@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="OrderDetailsProjector.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using RabbitMQ.Client;
@@ -24,7 +30,7 @@ namespace Ucu.Andis.OrdersService.Messaging;
 /// pueden procesarse a la vez. Los proyectores no guardan nada en memoria, pero
 /// eso no alcanzaba: con uno solo, su resultado dependía del orden de los
 /// mensajes. Sin lo que sigue, con varias réplicas pasaría esto, sin errores
-/// visibles:
+/// visibles.
 /// <ol>
 /// <li>Estado perdido por desorden. La réplica A recibe <c>order.created</c> y
 /// llama a Users y a Products, que tardan. El worker confirma la Order y la réplica
@@ -188,6 +194,7 @@ public class OrderDetailsProjector : BackgroundService
                         invoiced.InvoiceNumber, invoiced.OrderId);
                     return true;
                 }
+
                 _logger.LogInformation("[MESSAGING BRIDGE] Order {OrderId} facturada: {InvoiceNumber}", invoiced.OrderId, invoiced.InvoiceNumber);
                 return true;
 
@@ -304,6 +311,7 @@ public class OrderDetailsProjector : BackgroundService
         string userId, int? productId, int quantity, CancellationToken cancellationToken)
     {
         var now = DateTime.UtcNow;
+
         // MySQL cuenta 1 fila si insertó, y 2 o 0 si la fila ya existía.
         var rows = await db.Database.ExecuteSqlAsync($"""
             INSERT INTO order_details (order_id, user_id, product_id, quantity, status, updated_at)

@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Events.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 namespace Ucu.Andis.Common;
 
 /// <summary>

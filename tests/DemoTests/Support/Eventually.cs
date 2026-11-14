@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Eventually.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 namespace Ucu.Andis.DemoTests.Support;
 
 /// <summary>
@@ -27,6 +33,7 @@ public static class Eventually
                 await Task.Delay(interval ?? TimeSpan.FromSeconds(1));
                 continue;
             }
+
             if (done(value) || DateTime.UtcNow >= deadline)
                 return value;
             await Task.Delay(interval ?? TimeSpan.FromSeconds(1));

@@ -1,5 +1,11 @@
-using Microsoft.EntityFrameworkCore;
+// -----------------------------------------------------------------------
+// <copyright file="Program.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Threading.RateLimiting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Ucu.Andis.Common;
 using Ucu.Andis.OrdersService;
@@ -18,9 +24,7 @@ builder.Services.AddSingleton<PatternSettings>();
 builder.Services.AddDbContext<OrdersDbContext>(options =>
     options.UseMySQL(
         builder.Configuration.GetConnectionString("OrdersDb")
-            ?? throw new InvalidOperationException("Falta la cadena de conexión OrdersDb")
-    )
-);
+            ?? throw new InvalidOperationException("Falta la cadena de conexión OrdersDb")));
 
 // Circuit Breaker, Retry y Bulkhead: cada dependencia tiene su propio pipeline
 // de resiliencia -ver Resilience.cs-. Como cada HttpClient con nombre tiene su
@@ -73,14 +77,14 @@ builder.Services.AddRateLimiter(options =>
     // 503 y no 429: el problema no es que este cliente pida demasiado, sino que
     // el servicio está saturado.
     options.RejectionStatusCode = StatusCodes.Status503ServiceUnavailable;
-    //
+
     // Con el Throttling apagado -ver Patterns.cs-, la política no limita.
     options.AddPolicy("throttling", context =>
         context.RequestServices.GetRequiredService<PatternSettings>().Throttling
             ? RateLimitPartition.GetConcurrencyLimiter("throttling", _ => new ConcurrencyLimiterOptions
             {
                 PermitLimit = 20,
-                QueueLimit = 0
+                QueueLimit = 0,
             })
             : RateLimitPartition.GetNoLimiter("sin throttling"));
     options.OnRejected = (context, _) =>
@@ -128,9 +132,11 @@ builder.AddObservability(OrderProcessingWorker.MeterName, OutboxRelay.MeterName,
 builder.Services.AddControllers();
 
 var app = builder.Build();
+
 // Throttling: el middleware que aplica las políticas de AddRateLimiter. Va antes
 // de los controladores para que una solicitud rechazada no llegue a ejecutarse.
 app.UseRateLimiter();
+
 // Después del rate limiter: la demora simulada ocurre mientras la solicitud
 // ocupa un lugar del throttling.
 app.UseChaos("/orders");

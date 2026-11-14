@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="UserService.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.ServiceModel;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,9 +15,14 @@ namespace Ucu.Andis.Monolith;
 [ServiceContract(Namespace = "http://ucu.edu.uy/andis/users")]
 public interface IUserService
 {
-    [OperationContract] Task<User?> GetUser(string id);
-    [OperationContract] Task<User[]> ListUsers();
-    [OperationContract] Task<User> UpdateUser(string id, string name, string email);
+    [OperationContract]
+    Task<User?> GetUser(string id);
+
+    [OperationContract]
+    Task<User[]> ListUsers();
+
+    [OperationContract]
+    Task<User> UpdateUser(string id, string name, string email);
 }
 
 public class UserService : IUserService

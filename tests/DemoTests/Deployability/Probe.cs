@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Probe.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using Ucu.Andis.DemoTests.Support;
 
 namespace Ucu.Andis.DemoTests.Deployability;
@@ -56,6 +62,7 @@ public sealed class Probe : IAsyncDisposable
         catch (OperationCanceledException)
         {
         }
+
         _running.Dispose();
     }
 
@@ -65,10 +72,12 @@ public sealed class Probe : IAsyncDisposable
         while (!token.IsCancellationRequested)
         {
             responses.Add(await Api.GetUserAsync(baseUrl, DemoData.User1));
+
             // Sin el token: al detenerse, la sonda termina la vuelta y devuelve lo
             // que juntó, en lugar de cortar con una excepción.
             await Task.Delay(TimeSpan.FromMilliseconds(100), CancellationToken.None);
         }
+
         return responses;
     }
 }

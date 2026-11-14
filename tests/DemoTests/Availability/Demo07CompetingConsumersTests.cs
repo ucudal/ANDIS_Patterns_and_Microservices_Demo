@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Demo07CompetingConsumersTests.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using Ucu.Andis.DemoTests.Support;
 
 namespace Ucu.Andis.DemoTests.Availability;
@@ -57,6 +63,7 @@ public class Demo07CompetingConsumersTests : DemoTest
             var confirmed = events.Single(e => e!["type"]!.GetValue<string>() == "OrderConfirmed");
             workers.Add(confirmed!["data"]!["ProcessedBy"]!.GetValue<string>());
         }
+
         return workers;
     }
 }

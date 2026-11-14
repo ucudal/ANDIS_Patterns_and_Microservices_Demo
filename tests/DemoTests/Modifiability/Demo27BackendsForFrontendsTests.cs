@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Demo27BackendsForFrontendsTests.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Net;
 using System.Text.Json.Nodes;
 using Ucu.Andis.DemoTests.Support;
@@ -57,6 +63,7 @@ public class Demo27BackendsForFrontendsTests : DemoTest
             statuses.Add(response.StatusCode);
             await Task.Delay(TimeSpan.FromMilliseconds(200), CancellationToken.None);
         }
+
         return statuses;
     }
 

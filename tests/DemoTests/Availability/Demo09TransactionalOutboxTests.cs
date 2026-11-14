@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Demo09TransactionalOutboxTests.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Globalization;
 using Ucu.Andis.DemoTests.Support;
 
@@ -63,6 +69,7 @@ public class Demo09TransactionalOutboxTests : DemoTest
         {
             await Shell.ComposeAsync("unpause products-service");
         }
+
         await Eventually.GetAsync(PendingAsync, p => p == 0);
 
         var types = await Api.EventTypesAsync(id);

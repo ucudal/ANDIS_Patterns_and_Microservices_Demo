@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Program.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Globalization;
 using Ucu.Andis.BffWeb;
 
@@ -18,15 +24,17 @@ app.MapGet("/web/orders/user/{userId}", async (string userId, IHttpClientFactory
 {
     // Orders no tiene una consulta por User con el id de cada Product: se piden
     // todas y se filtran.
-    var orders = (await clients.CreateClient("Orders").GetFromJsonAsync<List<OrderRecord>>("", cancellationToken) ?? [])
+    var orders = (await clients.CreateClient("Orders").GetFromJsonAsync<List<OrderRecord>>(string.Empty, cancellationToken) ?? [])
         .Where(o => o.UserId == userId)
         .ToList();
 
     // El nombre y el precio de cada Product, una sola vez por Product.
     var products = new Dictionary<int, ProductRecord>();
     foreach (var productId in orders.Select(o => o.ProductId).Distinct())
+    {
         products[productId] = await clients.CreateClient("Products").GetFromJsonAsync<ProductRecord>(productId.ToString(CultureInfo.InvariantCulture), cancellationToken)
             ?? new ProductRecord("desconocido", 0);
+    }
 
     var rows = orders.Select(o => new
     {
@@ -35,7 +43,7 @@ app.MapGet("/web/orders/user/{userId}", async (string userId, IHttpClientFactory
         quantity = o.Quantity,
         unitPrice = products[o.ProductId].Price,
         total = o.Quantity * products[o.ProductId].Price,
-        status = o.Status
+        status = o.Status,
     }).ToList();
 
     return Results.Ok(new { user = userId, orders = rows, total = rows.Sum(r => r.total) });

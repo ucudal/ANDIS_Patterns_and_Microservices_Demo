@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Erp.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Globalization;
 using Apache.NMS;
 using Apache.NMS.ActiveMQ;
@@ -13,6 +19,7 @@ public class Erp : BackgroundService
     public Erp(IConfiguration config, ILogger<Erp> logger)
     {
         _brokerUri = $"failover:(tcp://{config["LegacyBroker:Host"] ?? "localhost"}:61616)?transport.startupMaxReconnectAttempts=0";
+
         // Saga: un pedido de más unidades necesita una aprobación que el ERP no
         // pide; lo rechaza, y Orders cancela la Order -ver la demo 10-.
         _maxQuantity = config.GetValue("Erp:MaxQuantity", 10);
@@ -26,6 +33,7 @@ public class Erp : BackgroundService
 
         using var connection = await new ConnectionFactory(_brokerUri).CreateConnectionAsync();
         await connection.StartAsync();
+
         // Transaccional: el pedido se consume y la factura se envía juntos, o nada.
         using var session = await connection.CreateSessionAsync(AcknowledgementMode.Transactional);
         using var orders = await session.GetQueueAsync("ERP.PEDIDOS");

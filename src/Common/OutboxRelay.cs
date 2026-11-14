@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="OutboxRelay.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Diagnostics.Metrics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -50,6 +56,7 @@ public class OutboxRelay<TDbContext> : BackgroundService
         _rabbitMq = rabbitMq;
         _scopeFactory = scopeFactory;
         _logger = loggerFactory.CreateLogger("OutboxRelay");
+
         // Mensajes que esperan ser publicados: sube si RabbitMQ no está y vuelve
         // a cero cuando el relay se pone al día.
         OutboxRelay.Meter.CreateObservableGauge("outbox.pending", () => Interlocked.Read(ref _pending), "{message}",

@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Demo12QueueBasedLoadLevelingTests.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Json;
@@ -29,6 +35,7 @@ public class Demo12QueueBasedLoadLevelingTests : DemoTest
             ids.Add((await response.Content.ReadFromJsonAsync<JsonObject>())!["id"]!.GetValue<int>());
             response.Dispose();
         }
+
         var statuses = await Api.WaitProcessedAsync(ids, TimeSpan.FromSeconds(180));
 
         Assert.That(statuses.Values, Has.All.EqualTo("Confirmed"));

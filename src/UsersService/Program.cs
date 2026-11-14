@@ -1,13 +1,19 @@
-using Ucu.Andis.Common;
-using Ucu.Andis.Users;
-using Ucu.Andis.Users.Data;
-using Ucu.Andis.Users.Soap;
+// -----------------------------------------------------------------------
+// <copyright file="Program.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using MongoDB.Driver;
 using OpenFeature;
 using OpenFeature.Providers.Unleash;
 using SoapCore;
-using Unleash;
+using Ucu.Andis.Common;
+using Ucu.Andis.Users;
+using Ucu.Andis.Users.Data;
 using Ucu.Andis.Users.Models;
+using Ucu.Andis.Users.Soap;
+using Unleash;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +23,7 @@ builder.Services.AddSingleton<IMongoCollection<User>>(_ =>
 {
     var url = MongoUrl.Create(builder.Configuration.GetConnectionString("UsersDb"));
     var settings = MongoClientSettings.FromUrl(url);
+
     // Falla rápido si la base no está disponible, en lugar de esperar 30 segundos.
     settings.ServerSelectionTimeout = TimeSpan.FromSeconds(3);
     return new MongoClient(settings).GetDatabase(url.DatabaseName).GetCollection<User>("users");
@@ -51,11 +58,13 @@ if (!string.IsNullOrEmpty(unleashUrl))
         AppName = "users-service",
         UnleashApi = new Uri(unleashUrl),
         CustomHttpHeaders = new() { ["Authorization"] = builder.Configuration["Unleash:Token"]! },
+
         // Cada cuánto vuelve a leer los flags. Por defecto son 30 segundos: en
         // la demo se acorta, para ver enseguida un cambio del reparto.
         FetchTogglesInterval = TimeSpan.FromSeconds(2),
     }));
 }
+
 builder.Services.AddSingleton<IFeatureClient>(Api.Instance.GetClient("users-service"));
 
 // Users expone SOAP en lugar de REST: SoapCore recibe los sobres XML, los
@@ -72,10 +81,12 @@ var app = builder.Build();
 // Primero, para que también las respuestas de /health y de la inyección de
 // fallas digan qué versión respondió.
 app.UseReleaseHeader();
+
 // La inyección de fallas va antes que el endpoint SOAP, para que también lo afecte.
 app.UseChaos("/users");
 app.MapMetrics();
 app.MapHealthChecks("/health", new() { ResponseWriter = HealthResponse.WriteJson });
+
 // WebApplication es a la vez IApplicationBuilder e IEndpointRouteBuilder, y
 // SoapCore tiene una sobrecarga para cada uno: se elige la de middleware.
 ((IApplicationBuilder)app).UseSoapEndpoint<IUserService>("/users/UserService.svc", new SoapEncoderOptions(), SoapSerializer.DataContractSerializer);

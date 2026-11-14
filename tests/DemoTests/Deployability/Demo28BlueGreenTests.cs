@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Demo28BlueGreenTests.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using Ucu.Andis.DemoTests.Support;
 
 namespace Ucu.Andis.DemoTests.Deployability;

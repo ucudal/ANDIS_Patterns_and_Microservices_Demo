@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="TestEnvironment.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 [assembly: NonParallelizable]
 [assembly: LevelOfParallelism(1)]
 

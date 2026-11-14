@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Identity.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Net;
 using System.Net.Http.Json;
 using System.Security.Cryptography.X509Certificates;
@@ -89,7 +95,7 @@ public static class Identity
     private static string Base64UrlDecode(string value)
     {
         var base64 = value.Replace('-', '+').Replace('_', '/');
-        base64 = base64.PadRight(base64.Length + (4 - base64.Length % 4) % 4, '=');
+        base64 = base64.PadRight(base64.Length + ((4 - (base64.Length % 4)) % 4), '=');
         return Encoding.UTF8.GetString(Convert.FromBase64String(base64));
     }
 }

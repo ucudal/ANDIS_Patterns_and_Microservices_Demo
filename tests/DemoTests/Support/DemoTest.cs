@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="DemoTest.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Net;
 
 namespace Ucu.Andis.DemoTests.Support;
@@ -23,6 +29,7 @@ public abstract class DemoTest
     {
         if (_checked)
             return;
+
         // Se espera un poco: un contenedor que se está recreando tarda en volver.
         foreach (var service in new[] { "users", "products", "orders" })
         {
@@ -34,6 +41,7 @@ public abstract class DemoTest
             Assert.That(status, Is.EqualTo(HttpStatusCode.OK),
                 $"/health/{service} no responde 200. Hay que levantar la aplicación con docker compose up -d --build --wait");
         }
+
         _checked = true;
     }
 

@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="StockMetrics.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Diagnostics.Metrics;
 using Microsoft.EntityFrameworkCore;
 using Ucu.Andis.ProductsService.Data;
@@ -27,16 +33,18 @@ public class StockMetrics : BackgroundService
     private static readonly Counter<long> Reservations = Meter.CreateCounter<long>("products.stock.reservations", "{reservation}",
         "Reservas de stock de la Saga, por resultado: Reserved, Rejected o Released");
 
-    // Se reemplaza entera en cada lectura: Prometheus nunca ve una lista a medias.
-    private volatile IReadOnlyList<(int Id, string Name, int Stock)> _stock = [];
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<StockMetrics> _logger;
+
+    // Se reemplaza entera en cada lectura: Prometheus nunca ve una lista a medias.
+    private volatile IReadOnlyList<(int Id, string Name, int Stock)> _stock = [];
     private bool _failing;
 
     public StockMetrics(IServiceScopeFactory scopeFactory, ILogger<StockMetrics> logger)
     {
         _scopeFactory = scopeFactory;
         _logger = logger;
+
         // Cada resultado arranca en 0. Si no, la serie de un resultado aparece
         // recién con su primera reserva, y Prometheus no cuenta ese primer
         // incremento.
@@ -61,7 +69,7 @@ public class StockMetrics : BackgroundService
                 var products = await db.Products.AsNoTracking()
                     .Select(p => new { p.Id, p.Name, p.Stock })
                     .ToListAsync(stoppingToken);
-                _stock = products.Select(p => (p.Id, p.Name ?? "", p.Stock)).ToList();
+                _stock = products.Select(p => (p.Id, p.Name ?? string.Empty, p.Stock)).ToList();
                 _failing = false;
             }
             catch (Exception ex) when (ex is not OperationCanceledException)

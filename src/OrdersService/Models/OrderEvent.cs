@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="OrderEvent.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 
@@ -34,7 +40,7 @@ public class OrderEvent
     {
         OrderId = orderId,
         Type = type,
-        Data = JsonSerializer.Serialize(data)
+        Data = JsonSerializer.Serialize(data),
     };
 }
 

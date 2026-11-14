@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Demo24ExternalConfigurationStoreTests.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Globalization;
 using System.Net;
 using Ucu.Andis.DemoTests.Support;

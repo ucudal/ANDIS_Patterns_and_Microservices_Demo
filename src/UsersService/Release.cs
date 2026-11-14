@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Release.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Globalization;
 
 namespace Ucu.Andis.Users;

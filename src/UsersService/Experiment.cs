@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Experiment.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Diagnostics.Metrics;
 using OpenFeature;
 using OpenFeature.Model;

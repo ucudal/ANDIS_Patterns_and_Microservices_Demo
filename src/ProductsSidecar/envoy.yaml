@@ -88,14 +88,14 @@ static_resources:
                         action: ALLOW
                         policies:
                           # Cualquiera puede leer, con o sin token.
-                          lecturas:
+                          reads:
                             permissions:
                               - header: { name: ":method", string_match: { exact: GET } }
                             principals:
                               - any: true
                           # Para todo lo demás, un token con el rol admin en
                           # realm_access.roles.
-                          administracion:
+                          admin:
                             permissions:
                               - any: true
                             principals:

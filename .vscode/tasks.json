@@ -7,6 +7,67 @@
       "type": "process",
       "args": ["build", "${workspaceFolder}/ANDIS2_UT4_DEMO1.sln"],
       "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "docs",
+      "command": "doxygen",
+      "type": "process",
+      "args": [
+        "${workspaceFolder}/docs/Doxyfile"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/docs"
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "up",
+      "command": "docker",
+      "type": "process",
+      "args": ["compose", "up", "-d", "--build", "--wait"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "k8s-up",
+      "command": "${workspaceFolder}/demos/k8s-up.sh",
+      "type": "process",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "test",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "test",
+        "${workspaceFolder}/tests/DemoTests",
+        "--filter",
+        "TestCategory!=Gatekeeper&TestCategory!=Kubernetes"
+      ],
+      "dependsOn": "up",
+      "problemMatcher": "$msCompile",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "test: full",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "test",
+        "${workspaceFolder}/tests/DemoTests"
+      ],
+      "dependsOn": ["up", "k8s-up"],
+      "dependsOrder": "sequence",
+      "problemMatcher": "$msCompile",
+      "group": "test"
     }
   ]
 }

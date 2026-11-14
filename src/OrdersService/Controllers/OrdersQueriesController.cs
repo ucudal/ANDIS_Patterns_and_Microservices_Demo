@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="OrdersQueriesController.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Ucu.Andis.OrdersService.Data;
@@ -59,7 +65,7 @@ public class OrdersQueriesController : ControllerBase
                 customer_name = d.CustomerName,
                 product_name = d.ProductName,
                 quantity = d.Quantity,
-                status = d.Status
+                status = d.Status,
             })
             .ToListAsync();
 

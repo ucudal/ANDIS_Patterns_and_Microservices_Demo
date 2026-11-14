@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------
+// <copyright file="Resilience.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.RateLimiting;
 using Microsoft.Extensions.Http.Resilience;
 using Polly;
@@ -21,6 +28,8 @@ namespace Ucu.Andis.OrdersService;
 /// ejecución -ver <c>PatternSettings</c>-: apagados, dejan pasar las
 /// llamadas sin hacer nada.
 /// </remarks>
+[SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1203:Constants should appear before fields",
+    Justification = "Las constantes y los TimeSpan se agrupan por patrón: Bulkhead, Retry, Circuit Breaker y Timeouts.")]
 public static class Resilience
 {
     /// <summary>
@@ -151,7 +160,7 @@ public static class Resilience
             var bulkhead = new ConcurrencyLimiter(new ConcurrencyLimiterOptions
             {
                 PermitLimit = bulkheadPermitLimit,
-                QueueLimit = bulkheadQueueLimit
+                QueueLimit = bulkheadQueueLimit,
             });
             pipeline.AddRateLimiter(new HttpRateLimiterStrategyOptions
             {
@@ -163,7 +172,7 @@ public static class Resilience
                     logger.LogWarning("[BULKHEAD] {Dependency}: compartimento lleno [{PermitLimit} en curso, {QueueLimit} en espera]; se rechaza la llamada",
                         dependency, bulkheadPermitLimit, bulkheadQueueLimit);
                     return default;
-                }
+                },
             });
 
             pipeline.AddTimeout(TotalTimeout);
@@ -183,7 +192,7 @@ public static class Resilience
                     logger.LogWarning("[RETRY] {Dependency}: reintento {Attempt} de {MaxAttempts} en {DelayMs}ms [causa: {Cause}]",
                         dependency, args.AttemptNumber + 1, MaxRetries, (int)args.RetryDelay.TotalMilliseconds, Cause(args.Outcome));
                     return default;
-                }
+                },
             });
 
             // Con el Circuit Breaker apagado, ninguna falla cuenta para abrir el
@@ -214,7 +223,7 @@ public static class Resilience
                 {
                     logger.LogInformation("[CIRCUIT BREAKER] {Dependency}: circuito CERRADO; la dependencia se recuperó", dependency);
                     return default;
-                }
+                },
             });
 
             pipeline.AddTimeout(AttemptTimeout);

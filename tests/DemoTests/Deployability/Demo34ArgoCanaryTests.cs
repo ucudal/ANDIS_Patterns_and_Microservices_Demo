@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Demo34ArgoCanaryTests.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using Ucu.Andis.DemoTests.Support;
 
 namespace Ucu.Andis.DemoTests.Deployability;
@@ -33,6 +39,7 @@ public class Demo34ArgoCanaryTests : KubernetesTest
     {
         await using var probe = await Probe.StartAsync(DemoData.KubernetesDeploy);
         await KubernetesAsync($"rollouts set image users users=users-service:{version}");
+
         // Hasta que Argo ve la imagen nueva, el Rollout sigue Healthy con la
         // versión anterior: primero se espera a que empiece a desplegar.
         await Eventually.GetAsync(PhaseAsync, p => p != "Healthy", TimeSpan.FromSeconds(60));

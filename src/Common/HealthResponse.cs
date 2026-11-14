@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="HealthResponse.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
@@ -21,7 +27,7 @@ public static class HealthResponse
                 {
                     status = e.Value.Status.ToString(),
                     description = e.Value.Description ?? e.Value.Exception?.Message,
-                    duration_ms = (int)e.Value.Duration.TotalMilliseconds
-                })
+                    duration_ms = (int)e.Value.Duration.TotalMilliseconds,
+                }),
         });
 }

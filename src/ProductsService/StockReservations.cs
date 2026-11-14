@@ -1,11 +1,17 @@
+// -----------------------------------------------------------------------
+// <copyright file="StockReservations.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
-using Ucu.Andis.ProductsService.Data;
-using Ucu.Andis.ProductsService.Controllers;
-using Ucu.Andis.ProductsService.Models;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using Ucu.Andis.Common;
+using Ucu.Andis.ProductsService.Controllers;
+using Ucu.Andis.ProductsService.Data;
+using Ucu.Andis.ProductsService.Models;
 
 namespace Ucu.Andis.ProductsService;
 
@@ -154,9 +160,11 @@ public class StockReservations : BackgroundService
 
         string? reason = null;
         if (!reserved)
+        {
             reason = await db.Products.AnyAsync(p => p.Id == order.ProductId, cancellationToken)
                 ? $"No hay stock suficiente del producto {order.ProductId}"
                 : $"El producto {order.ProductId} no existe";
+        }
 
         db.StockReservations.Add(new StockReservation
         {
@@ -164,7 +172,7 @@ public class StockReservations : BackgroundService
             ProductId = order.ProductId,
             Quantity = order.Quantity,
             Status = reserved ? ReservationStatus.Reserved : ReservationStatus.Rejected,
-            Reason = reason
+            Reason = reason,
         });
         db.OutboxMessages.Add(reserved
             ? OutboxMessage.Create(Events.StockReserved, new StockReserved(order.OrderId, order.ProductId, order.Quantity))
@@ -181,6 +189,7 @@ public class StockReservations : BackgroundService
                 order.OrderId, Events.OrderCreated);
             return;
         }
+
         await transaction.CommitAsync(cancellationToken);
         StockMetrics.CountReservation(reserved ? ReservationStatus.Reserved : ReservationStatus.Rejected);
 

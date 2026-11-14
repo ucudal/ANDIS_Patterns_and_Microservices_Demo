@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="OrdersController.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +19,9 @@ namespace Ucu.Andis.OrdersService.Controllers;
 [Route("orders")]
 public class OrdersController : ControllerBase
 {
+    private const string IdempotencyKeyHeader = "Idempotency-Key";
+    private const string IdempotentReplayedHeader = "Idempotent-Replayed";
+
     private readonly OrdersDbContext _db;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IConfiguration _config;
@@ -83,6 +92,7 @@ public class OrdersController : ControllerBase
         // Las claves no vencen en la demo; en producción se borran después de un
         // plazo, y un reintento posterior crearía otra Order.
         var idempotencyKey = Request.Headers[IdempotencyKeyHeader].FirstOrDefault();
+
         // La clave es del User del token, o de nadie -texto vacío- si la
         // solicitud es anónima.
         var keyOwner = caller?.UserId ?? string.Empty;
@@ -108,13 +118,17 @@ public class OrdersController : ControllerBase
                 new OrderCreatedData(order.UserId ?? string.Empty, order.ProductId, order.Quantity)));
             _db.OutboxMessages.Add(OutboxMessage.Create(Events.OrderCreated,
                 new OrderCreated(order.Id, order.UserId ?? string.Empty, order.ProductId, order.Quantity)));
+
             // La clave se guarda en la misma transacción que la Order: no puede
             // quedar una sin la otra.
             if (requestHash is not null)
+            {
                 _db.IdempotencyKeys.Add(new IdempotencyKey
                 {
-                    Key = idempotencyKey!, UserId = keyOwner, RequestHash = requestHash, OrderId = order.Id
+                    Key = idempotencyKey!, UserId = keyOwner, RequestHash = requestHash, OrderId = order.Id,
                 });
+            }
+
             await _db.SaveChangesAsync();
             await transaction.CommitAsync();
         }
@@ -132,9 +146,6 @@ public class OrdersController : ControllerBase
         Response.Headers.RetryAfter = "2";
         return Accepted($"/orders/{order.Id}/status", new { id = order.Id, status = order.Status, msg = "Order accepted" });
     }
-
-    private const string IdempotencyKeyHeader = "Idempotency-Key";
-    private const string IdempotentReplayedHeader = "Idempotent-Replayed";
 
     private Task<IdempotencyKey?> FindKeyAsync(string key, string userId) =>
         _db.IdempotencyKeys.AsNoTracking().FirstOrDefaultAsync(k => k.Key == key && k.UserId == userId);
@@ -201,6 +212,7 @@ public class OrdersController : ControllerBase
     public async Task<ActionResult<List<object>>> ListOrders()
     {
         var caller = CallerIdentity.From(Request);
+
         // Un cliente sin id de User no ve ninguna: no coincide con ninguna Order.
         var onlyUserId = caller is { IsAdmin: false } ? caller.UserId ?? string.Empty : null;
 
@@ -211,6 +223,7 @@ public class OrdersController : ControllerBase
         // base. La capa anticorrupción de Purchases lee solo los campos que usa:
         // la demo 23 muestra que Purchases responde igual.
         if (_config.GetValue<bool>("Features:OrderDates"))
+        {
             return Ok(await (
                 from o in orders
                 join e in _db.OrderEvents.Where(e => e.Type == OrderEventTypes.OrderCreated)
@@ -223,9 +236,10 @@ public class OrdersController : ControllerBase
                     product_id = o.ProductId,
                     quantity = o.Quantity,
                     status = o.Status,
-                    created_at = (DateTime?)e.OccurredAt
+                    created_at = (DateTime?)e.OccurredAt,
                 })
                 .ToListAsync());
+        }
 
         return Ok(await orders
             .Select(o => new
@@ -234,7 +248,7 @@ public class OrdersController : ControllerBase
                 user_id = o.UserId,
                 product_id = o.ProductId,
                 quantity = o.Quantity,
-                status = o.Status
+                status = o.Status,
             })
             .ToListAsync());
     }
@@ -279,7 +293,7 @@ public class OrdersController : ControllerBase
         {
             order_id = id,
             events = events.Select(e => new { e.Id, e.Type, data = System.Text.Json.JsonDocument.Parse(e.Data).RootElement, occurred_at = e.OccurredAt }),
-            replayed_state = state is null ? null : new { state.UserId, state.ProductId, state.Quantity, state.Status }
+            replayed_state = state is null ? null : new { state.UserId, state.ProductId, state.Quantity, state.Status },
         });
     }
 
@@ -358,6 +372,7 @@ public class OrdersController : ControllerBase
         var showPrices = _config.GetValue<bool>("Features:ProductPrices");
 
         var result = new List<object>();
+
         // Una llamada a Products por Order, de a una. Cada llamada pasa por el
         // compartimento del Bulkhead de Products por separado: si está lleno,
         // esa Order queda con "no disponible [bulkhead lleno]" y se sigue con la
@@ -375,7 +390,7 @@ public class OrdersController : ControllerBase
                     product_name = productName,
                     quantity = order.Quantity,
                     status = order.Status,
-                    unit_price = product.Value?.Price
+                    unit_price = product.Value?.Price,
                 }
                 : new
                 {
@@ -383,7 +398,7 @@ public class OrdersController : ControllerBase
                     customer_name = customerName,
                     product_name = productName,
                     quantity = order.Quantity,
-                    status = order.Status
+                    status = order.Status,
                 });
         }
 

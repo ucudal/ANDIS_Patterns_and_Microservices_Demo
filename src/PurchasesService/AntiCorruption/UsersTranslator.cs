@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="UsersTranslator.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Text;
 using System.Xml.Linq;
 
@@ -32,9 +38,9 @@ public class UsersTranslator
                     new XElement(Users + "GetUser",
                         new XElement(Users + "id", userId)))));
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, "")
+        using var request = new HttpRequestMessage(HttpMethod.Post, string.Empty)
         {
-            Content = new StringContent(envelope.ToString(SaveOptions.DisableFormatting), Encoding.UTF8, "text/xml")
+            Content = new StringContent(envelope.ToString(SaveOptions.DisableFormatting), Encoding.UTF8, "text/xml"),
         };
         request.Headers.Add("SOAPAction", $"\"{Users.NamespaceName}/IUserService/GetUser\"");
 

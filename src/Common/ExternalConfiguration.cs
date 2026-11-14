@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="ExternalConfiguration.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Diagnostics.Metrics;
 using System.Globalization;
 using System.Net;
@@ -141,6 +147,7 @@ public class ConsulConfigurationProvider : ConfigurationProvider, IDisposable
             Data = current;
             OnReload();
         }
+
         return changed;
     }
 
@@ -149,6 +156,7 @@ public class ConsulConfigurationProvider : ConfigurationProvider, IDisposable
         var data = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
 
         using var response = await _client.GetAsync($"/v1/kv/{Prefix}?recurse=true", cancellationToken);
+
         // Consul responde 404 si no hay ninguna clave con ese prefijo.
         if (response.StatusCode == HttpStatusCode.NotFound)
             return data;
@@ -160,6 +168,7 @@ public class ConsulConfigurationProvider : ConfigurationProvider, IDisposable
             var key = entry.Key[Prefix.Length..].Replace('/', ':');
             data[key] = Encoding.UTF8.GetString(Convert.FromBase64String(entry.Value!));
         }
+
         return data;
     }
 
@@ -219,6 +228,7 @@ public class ConsulConfigurationPoller : BackgroundService
                     _logger.LogWarning("[EXTERNAL CONFIG] Consul no responde; se siguen usando los últimos valores");
                 _storeDown = true;
             }
-        } while (await timer.WaitForNextTickAsync(stoppingToken));
+        }
+        while (await timer.WaitForNextTickAsync(stoppingToken));
     }
 }

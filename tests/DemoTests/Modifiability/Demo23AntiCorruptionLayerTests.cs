@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Demo23AntiCorruptionLayerTests.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Text.Json.Nodes;
 using Ucu.Andis.DemoTests.Support;
 

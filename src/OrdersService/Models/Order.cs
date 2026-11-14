@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Order.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Ucu.Andis.OrdersService.Models;
@@ -36,6 +42,7 @@ public static class OrderStatus
     public const string Pending = "Pending";
     public const string Confirmed = "Confirmed";
     public const string Rejected = "Rejected";
+
     /// <summary>
     /// Estado de una Order confirmada que el ERP no pudo facturar.
     /// </summary>

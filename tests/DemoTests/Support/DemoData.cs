@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="DemoData.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 namespace Ucu.Andis.DemoTests.Support;
 
 /// <summary>
@@ -39,14 +45,14 @@ public static class DemoData
     public const string User2Name = "bob";
     public const string User2Email = "bob@example.com";
 
+    /// <summary>
+    /// Id de un User que no existe, para las Orders que se rechazan.
+    /// </summary>
+    public const string MissingUser = "000000000000000000000000";
+
     public record Product(int Id, string Name, decimal Price);
 
     public static readonly Product Shirt = new(1, "Camisa", 1200.50m);
     public static readonly Product Trousers = new(2, "Pantalón", 2300.00m);
     public static readonly Product Shoes = new(3, "Zapatos", 3500.75m);
-
-    /// <summary>
-    /// Id de un User que no existe, para las Orders que se rechazan.
-    /// </summary>
-    public const string MissingUser = "000000000000000000000000";
 }

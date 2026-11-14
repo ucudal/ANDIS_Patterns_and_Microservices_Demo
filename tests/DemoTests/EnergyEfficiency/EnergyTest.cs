@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="EnergyTest.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Globalization;
 using Ucu.Andis.DemoTests.Deployability;
 using Ucu.Andis.DemoTests.Support;

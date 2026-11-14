@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Demo21SidecarTests.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Net;
 using Ucu.Andis.DemoTests.Support;
 
@@ -54,7 +60,7 @@ public class Demo21SidecarTests : DemoTest
     // call_inside en demos/common.sh. Devuelve el código HTTP.
     private static async Task<string> InsideAsync(string url, string json, string? token)
     {
-        var auth = token is null ? "" : $"-H 'Authorization: Bearer {token}'";
+        var auth = token is null ? string.Empty : $"-H 'Authorization: Bearer {token}'";
         var result = await Shell.ComposeAsync(
             $"exec -T api-gateway curl -s -o /dev/null -w '%{{http_code}}' -X PUT -H 'Content-Type: application/json' {auth} -d '{json}' {url}");
         return result.Output;

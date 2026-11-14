@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="OrdersDbContext.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using Microsoft.EntityFrameworkCore;
 using MySql.Data.MySqlClient;
 using Ucu.Andis.Common;
@@ -7,7 +13,9 @@ namespace Ucu.Andis.OrdersService.Data;
 
 public class OrdersDbContext : DbContext, IOutboxDbContext
 {
-    public OrdersDbContext(DbContextOptions<OrdersDbContext> options) : base(options) { }
+    public OrdersDbContext(DbContextOptions<OrdersDbContext> options)
+        : base(options) { }
+
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderEvent> OrderEvents { get; set; }
     public DbSet<OutboxMessage> OutboxMessages { get; set; }
@@ -30,8 +38,11 @@ public class OrdersDbContext : DbContext, IOutboxDbContext
     public static bool IsDuplicateKey(Exception ex)
     {
         for (var e = ex; e is not null; e = e.InnerException)
+        {
             if (e is MySqlException { Number: DuplicateEntry })
                 return true;
+        }
+
         return false;
     }
 }

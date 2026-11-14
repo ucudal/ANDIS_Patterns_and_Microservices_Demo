@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="OrderProcessingWorker.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Diagnostics.Metrics;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
@@ -66,6 +72,7 @@ public class OrderProcessingWorker : BackgroundService
         _rabbitMq = rabbitMq;
         _scopeFactory = scopeFactory;
         _logger = logger;
+
         // Demora artificial para que se vea cómo se reparten las órdenes entre réplicas.
         _processingDelay = TimeSpan.FromMilliseconds(config.GetValue("Worker:ProcessingDelayMs", 2000));
     }
@@ -135,7 +142,7 @@ public class OrderProcessingWorker : BackgroundService
             Events.StockReserved => ConfirmAsync(JsonSerializer.Deserialize<StockReserved>(body.Span)!.OrderId, cancellationToken),
             Events.StockRejected => RejectAsync(JsonSerializer.Deserialize<StockRejected>(body.Span)!, cancellationToken),
             Events.OrderInvoiceFailed => CancelAsync(JsonSerializer.Deserialize<OrderInvoiceFailed>(body.Span)!, cancellationToken),
-            _ => Task.FromResult(true)
+            _ => Task.FromResult(true),
         };
 
     private async Task<IConnection> ConnectAsync(CancellationToken stoppingToken)
@@ -276,7 +283,7 @@ public class OrderProcessingWorker : BackgroundService
         await transaction.CommitAsync(cancellationToken);
 
         _logger.LogInformation("[SAGA] Worker {Worker}: orden {OrderId} {Status}{Reason}",
-            _workerName, orderId, to, reason is null ? "" : $" [{reason}]");
+            _workerName, orderId, to, reason is null ? string.Empty : $" [{reason}]");
         Count(to);
     }
 

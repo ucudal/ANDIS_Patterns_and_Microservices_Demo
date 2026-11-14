@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="ErpToOrdersBridge.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using Apache.NMS;
 using Ucu.Andis.Common;
 

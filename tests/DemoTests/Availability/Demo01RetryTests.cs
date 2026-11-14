@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="Demo01RetryTests.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Net;
 using Ucu.Andis.DemoTests.Support;
 
@@ -34,6 +40,7 @@ public class Demo01RetryTests : DemoTest
             Assert.That(details.Status, Is.EqualTo(HttpStatusCode.OK));
             failed += details.Rows.Count(r => r!["product_name"]!.GetValue<string>().StartsWith("no disponible", StringComparison.Ordinal));
         }
+
         return failed;
     }
 }

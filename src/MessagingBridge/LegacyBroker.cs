@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="LegacyBroker.cs" company="Universidad Católica del Uruguay">
+// Copyright (c) Análisis y diseño de aplicaciones II. Derechos reservados.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using Apache.NMS;
 using Apache.NMS.ActiveMQ;
 
@@ -37,6 +43,7 @@ public class LegacyBroker : IDisposable
                 await connection.StartAsync();
                 _connection = connection;
             }
+
             return _connection;
         }
         finally
