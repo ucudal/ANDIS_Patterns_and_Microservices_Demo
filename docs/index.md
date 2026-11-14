@@ -62,7 +62,7 @@ Endpoints disponibles a través del gateway, en `http://localhost`. Por la
 entrada HTTPS, `https://localhost`, son los mismos, salvo los de administración
 ‑`/chaos`, `/patterns`, `/cache` y `/orders/projections/rebuild`‑, y necesitan
 un token de Keycloak: ver [Demos de seguridad](../PATTERNS.md#demos-de-seguridad)
-en PATTERNS.md.
+en `PATTERNS.md`.
 
 | Método | Ruta | Descripción |
 | ------ | ---- | ----------- |
@@ -75,7 +75,7 @@ en PATTERNS.md.
 | `PUT` | `/products/{id}/image` | Sube la imagen de un `Product` a través de `Products`, sin Valet Key |
 | `POST` | `/products/{id}/image/upload-url` | Entrega una URL firmada para subir la imagen de un `Product` directamente a Azurite: Valet Key |
 | `GET` | `/products/{id}/image` | Redirige a una URL firmada para bajar la imagen de un `Product` |
-| `PUT`, `DELETE` | `/products/cache` | Prende o apaga la caché y simula una base lenta, para las pruebas: ver [Qué agrega a las demos de disponibilidad](../PATTERNS.md#qué-agrega-a-las-demos-de-disponibilidad) en PATTERNS.md |
+| `PUT`, `DELETE` | `/products/cache` | Prende o apaga la caché y simula una base lenta, para las pruebas: ver [Qué agrega a las demos de disponibilidad](../PATTERNS.md#qué-agrega-a-las-demos-de-disponibilidad) en `PATTERNS.md` |
 | `GET` | `/orders/` | Lista las `Orders` con su estado |
 | `GET` | `/orders/{id}` | Obtiene una `Order` |
 | `POST` | `/orders/` | Crea una `Order` en estado `Pending` y la encola para procesarla; responde `202 Accepted` con `Location` |
@@ -85,7 +85,7 @@ en PATTERNS.md.
 | `GET` | `/orders/{id}/events` | Eventos de una `Order` y el estado que resulta de reproducirlos |
 | `POST` | `/orders/projections/rebuild` | Reconstruye la tabla de `Orders` a partir de los eventos |
 | `GET` | `/health/users`, `/health/products`, `/health/orders` | Salud de cada servicio |
-| `PUT`, `DELETE` | `/users/chaos`, `/products/chaos`, `/orders/chaos` | Inyección de fallas para las pruebas: ver [Qué agrega a la aplicación base](../PATTERNS.md#qué-agrega-a-la-aplicación-base) en PATTERNS.md |
+| `PUT`, `DELETE` | `/users/chaos`, `/products/chaos`, `/orders/chaos` | Inyección de fallas para las pruebas: ver [Qué agrega a la aplicación base](../PATTERNS.md#qué-agrega-a-la-aplicación-base) en `PATTERNS.md` |
 | `GET`, `PUT`, `DELETE` | `/orders/patterns` | Prende y apaga el Retry, el Circuit Breaker, el Bulkhead y el Throttling de `Orders`, para que cada prueba muestre un patrón por vez |
 
 `orders-service` llama a `users-service` y a `products-service` al armar el
@@ -157,4 +157,4 @@ muestra cada prueba están en las secciones [Demos de disponibilidad](../PATTERN
 [Demos de facilidad de modificación](../PATTERNS.md#demos-de-facilidad-de-modificación),
 [Demos de facilidad de despliegue](../PATTERNS.md#demos-de-facilidad-de-despliegue) y
 [Demos de eficiencia energética](../PATTERNS.md#demos-de-eficiencia-energética)
-de PATTERNS.md.
+de `PATTERNS.md`.

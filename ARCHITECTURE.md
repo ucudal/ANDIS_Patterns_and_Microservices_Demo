@@ -251,7 +251,7 @@ que la respuesta lo redirige a la `Order` con su resultado. Si no recibe el
 clave en cada intento: `Orders` guarda la clave junto con la `Order` y, si la
 vuelve a recibir, responde con la `Order` que ya creó en lugar de crear otra.
 Ver [Asynchronous Request-Reply](PATTERNS.md#asynchronous-request-reply) en
-PATTERNS.md.
+`PATTERNS.md`.
 
 ### Consulta de detalle desde la vista: eventos
 
@@ -466,7 +466,7 @@ distintos servicios no coincidan.
   en `user.updated` ni en `product.updated`.** `Orders` y `Products` guardan el
   evento en su *outbox* en la misma transacción que el cambio y el *relay* lo
   publica después: ver [Transactional Outbox](PATTERNS.md#transactional-outbox)
-  en PATTERNS.md. Para `user.updated` y `product.updated`, `Users` y `Products`
+  en `PATTERNS.md`. Para `user.updated` y `product.updated`, `Users` y `Products`
   guardan el cambio y después publican: si [RabbitMQ](https://www.rabbitmq.com/)
   no está, el evento se pierde.
 * **Crear una `Order` cambia tres sistemas y no hay una transacción que los
@@ -547,17 +547,17 @@ Todos los mensajes pasan por RabbitMQ; los del ERP pasan, además, por el
   vista los copia una vez y los actualiza con los eventos: no depende de nadie,
   pero puede estar desactualizada; y si se pierde un `product.updated`, queda
   con el nombre anterior hasta que el `Product` vuelva a cambiar. Ver
-  [Materialized View](PATTERNS.md#materialized-view) en PATTERNS.md.
+  [Materialized View](PATTERNS.md#materialized-view) en `PATTERNS.md`.
 * **La caché de `Products` se invalida al escribir.** Un cambio borra la clave
   de [Redis](https://redis.io/); si Redis no está en ese momento, el dato viejo
   puede volver a leerse hasta que venza, a los 60 segundos. Ver
-  [Cache-Aside](PATTERNS.md#cache-aside) en PATTERNS.md.
+  [Cache-Aside](PATTERNS.md#cache-aside) en `PATTERNS.md`.
 * **El precio no se guarda en la `Order`.** Si cambia el precio de un `Product`,
   no queda registro de cuánto valía cuando se creó la `Order`.
 * **Los eventos son la fuente de verdad de `Orders`.** Cada cambio de una
   `Order` se guarda como un evento y la tabla de `Orders` se puede reconstruir a
   partir de ellos: ver [Event Sourcing](PATTERNS.md#event-sourcing) en
-  PATTERNS.md.
+  `PATTERNS.md`.
 
 **Para analizar:**
 
@@ -1028,7 +1028,7 @@ puede llegar a `Orders`. No hay TLS entre los servicios.
 
 Hay cinco cambios que la aplicación absorbe sin tocar su lógica de dominio; la
 forma como se implementó cada uno está en [Demos de facilidad de
-modificación](PATTERNS.md#demos-de-facilidad-de-modificación), en PATTERNS.md.
+modificación](PATTERNS.md#demos-de-facilidad-de-modificación), en `PATTERNS.md`.
 
 El costo de cada uno y la forma como se midió están en [Tamaño del
 cambio](PATTERNS.md#tamaño-del-cambio).
@@ -1086,7 +1086,7 @@ componentes:
 La demo muestra cuatro formas de poner en producción la versión `v2` de `Users`,
 que conviven con la versión `v1`. La forma como se implementó cada una está en
 [Demos de facilidad de despliegue](PATTERNS.md#demos-de-facilidad-de-despliegue),
-en PATTERNS.md.
+en `PATTERNS.md`.
 
 Las cuatro dependen de que cada servicio se pueda desplegar solo: la versión
 `v2` de `Users` entra y sale de producción sin que `Orders`, `Products`, ni los
@@ -1169,7 +1169,7 @@ componentes:
 
 Las demos 35 a 37 miden la energía que consume el *worker* de `Orders` y la
 reducen. La forma como se implementó cada patrón está en [Demos de eficiencia
-energética](PATTERNS.md#demos-de-eficiencia-energética), en PATTERNS.md.
+energética](PATTERNS.md#demos-de-eficiencia-energética), en `PATTERNS.md`.
 
 El *worker* es el componente donde más se nota: recibe el trabajo en picos, a
 través de la cola `orders.process`, y entre un pico y otro no tiene nada que
@@ -1205,11 +1205,11 @@ Mejorar la eficiencia energética cambia otros atributos de calidad:
 | [Queue Non-Urgent Processing Requests](PATTERNS.md#queue-non-urgent-processing-requests) | El tiempo hasta que la `Order` se confirma, y la consistencia | La `Order` queda `Pending` hasta la ventana y su stock queda reservado mientras tanto |
 
 Y al revés: varios patrones de disponibilidad consumen más energía.
-[Retry](PATTERNS.md#retry) multiplica las llamadas, y las réplicas de [Competing
+[Retry](PATTERNS.md#retry) multiplica las llamadas y las réplicas de [Competing
 Consumers](PATTERNS.md#competing-consumers-para-disponibilidad) reservan CPU
 aunque no tengan trabajo ‑ver [Patrones existentes y la eficiencia
 energética](PATTERNS.md#patrones-existentes-y-la-eficiencia-energética), en
-PATTERNS.md‑.
+`PATTERNS.md`‑.
 
 **Para analizar:**
 

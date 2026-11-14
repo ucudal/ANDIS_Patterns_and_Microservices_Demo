@@ -90,7 +90,7 @@ Los comandos están en la carpeta [commands](commands/), en siete archivos:
   clúster está en el puerto 8092 y el Prometheus de ese clúster en el
   puerto 30090. La explicación de cada concepto de Kubernetes y de su análogo en
   Docker Compose está en [Conceptos de Kubernetes](PATTERNS.md#conceptos-de-kubernetes),
-  en PATTERNS.md.
+  en `PATTERNS.md`.
 * [07-energy-efficiency.azcli](commands/07-energy-efficiency.azcli): demos de
   los patrones de eficiencia energética, de la 35 a la 37. El *worker* de
   `Orders` corre en el mismo clúster y usa los servicios de Docker Compose.
@@ -109,7 +109,7 @@ espera a que todos los contenedores estén sanos según su
 [`healthcheck`](https://docs.docker.com/reference/compose-file/services/#healthcheck).
 La explicación de cada concepto de Docker que usan las demos ‑imagen,
 contenedor, servicio, réplicas, red, volumen, perfil‑ está en [Contenedores y
-Docker Compose](PATTERNS.md#contenedores-y-docker-compose), en PATTERNS.md.
+Docker Compose](PATTERNS.md#contenedores-y-docker-compose), en `PATTERNS.md`.
 
 Las bases de datos se crean con datos de ejemplo la primera vez que se levantan
 los contenedores, con los scripts de `src/*/mysqlinit`, `src/*/mongoinit` y
@@ -166,7 +166,7 @@ Mientras corren las pruebas, también se puede mirar:
 * Las colas, sus consumidores y los enlaces del exchange `andis.events` en la
   consola de [RabbitMQ](https://www.rabbitmq.com/): <http://localhost:15672>, usuario y contraseña `guest`.
 * El tamaño de cada cambio: `./demos/measure-change-size.sh`, explicado en
-  [Tamaño del cambio](PATTERNS.md#tamaño-del-cambio), en PATTERNS.md.
+  [Tamaño del cambio](PATTERNS.md#tamaño-del-cambio), en `PATTERNS.md`.
 * La configuración central en la consola de [Consul](https://developer.hashicorp.com/consul): <http://localhost:8500>.
 * Las colas del ERP en la consola de [ActiveMQ](https://activemq.apache.org/): <http://localhost:8161/admin/>,
   usuario y contraseña `admin`.

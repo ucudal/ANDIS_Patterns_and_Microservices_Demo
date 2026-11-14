@@ -19,7 +19,9 @@
 #
 # Doxygen convierte en enlace toda URL, aunque esté en código en línea, como
 # `http://localhost`; GitHub no. El filtro le antepone %, que Doxygen no
-# muestra, para que quede como código.
+# muestra, para que quede como código. Lo mismo hace con ARCHITECTURE.md,
+# PATTERNS.md y README.md en código en línea: Doxygen los enlazaría a la página
+# vacía del archivo.
 #
 # En los enlaces a secciones, como [*worker*](PATTERNS.md#…) o [*sidecar*](#…),
 # Doxygen muestra el texto sin procesar, con los asteriscos. El filtro cambia la
@@ -43,7 +45,11 @@ perl -0777 -pe '
       $parts[$i] =~ s/^(> \[!\w+\]\n)>[ \t]*\n/$1/mg;
       my @spans = split /(`[^`\n]*`)/, $parts[$i];
       for my $j (0 .. $#spans) {
-        if ($j % 2) { $spans[$j] =~ s{(?<!%)(https?://)}{%$1}g; next; }
+        if ($j % 2) {
+          $spans[$j] =~ s{(?<!%)(https?://)}{%$1}g;
+          $spans[$j] =~ s/(?<![\w\/%])((?:ARCHITECTURE|PATTERNS|README)\.md)(?![\w#])/%$1/g;
+          next;
+        }
         $spans[$j] =~ s/\$([^\s\$](?:[^\$\n]*[^\s\$])?)\$/\\f\$$1\\f\$/g;
         $spans[$j] =~ s/(?<![\w\/%(.\[])((?:ARCHITECTURE|PATTERNS|README)\.md)(?![\w)#])/%$1/g;
         $spans[$j] =~ s{\[([^\[\]]*)\](?=\((?:#|[\w-]+\.md#))}{my $t = $1; $t =~ s/(?<!\*)\*([^*\s](?:[^*]*[^*\s])?)\*(?!\*)/<em>$1<\/em>/g; "[$t]"}ge;

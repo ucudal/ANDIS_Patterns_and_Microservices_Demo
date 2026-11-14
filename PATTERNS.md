@@ -87,7 +87,7 @@ monolito, `Purchases` y los BFF‑. Todos están en
 [docker-compose.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/docker-compose.yaml);
 lo que hace cada uno está en [Servicios y datos](ARCHITECTURE.md#servicios-y-datos)
 y en [Facilidad de modificación](ARCHITECTURE.md#facilidad-de-modificación), en
-ARCHITECTURE.md.
+`ARCHITECTURE.md`.
 
 Las dependencias que más se aprovechan son dos. En `GET /orders/user/{userId}/details`,
 `Orders` llama de forma sincrónica a `Users` y a `Products`: es el punto natural
@@ -160,9 +160,9 @@ sus propias rutas.
 | `orders-worker` ‑3 réplicas‑ | La misma imagen que `orders-service`, con el *worker* habilitado ‑`WORKER__ENABLED=true`‑. Consume la cola y confirma o rechaza cada `Order`. |
 | Estado de la [`Order`](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/OrdersService/Models/Order.cs) | `POST /orders/` guarda la `Order` como `Pending`. `Products` reserva el stock; un *worker* verifica que el `User` exista y la pasa a `Confirmed` o `Rejected`. Si el ERP no la factura, pasa a `Cancelled`. Ver [Saga](#saga). |
 | Stock del [`Product`](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/ProductsService/Models/Product.cs) | Las unidades disponibles. `GET /products/{id}` lo muestra y `PUT /products/{id}/stock` lo fija. |
-| Inyección de fallas | `PUT /users/chaos`, `PUT /products/chaos` y `PUT /orders/chaos` hacen que el servicio falle o demore a propósito, sin reiniciarlo. Así se provocan las situaciones que activan cada patrón. Está en el método `UseChaos` de la clase `ChaosExtensions`, en [Chaos.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/Common/Chaos.cs). Los ajustes quedan en la memoria de la réplica que recibe el `PUT` ‑ver [Stateless y estado por réplica](ARCHITECTURE.md#stateless-y-estado-por-réplica) en ARCHITECTURE.md‑. |
+| Inyección de fallas | `PUT /users/chaos`, `PUT /products/chaos` y `PUT /orders/chaos` hacen que el servicio falle o demore a propósito, sin reiniciarlo. Así se provocan las situaciones que activan cada patrón. Está en el método `UseChaos` de la clase `ChaosExtensions`, en [Chaos.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/Common/Chaos.cs). Los ajustes quedan en la memoria de la réplica que recibe el `PUT` ‑ver [Stateless y estado por réplica](ARCHITECTURE.md#stateless-y-estado-por-réplica) en `ARCHITECTURE.md`‑. |
 | Interruptores de los patrones | `PUT /orders/patterns` prende y apaga el Retry, el Circuit Breaker, el Bulkhead y el Throttling de `Orders`, sin reiniciarlo; `DELETE /orders/patterns` los vuelve a prender. Cada demo deja prendido solo su patrón, para que no intervengan los demás. Está en la clase `PatternSettings` y en el método `MapPatterns` de la clase `PatternExtensions`, en [Patterns.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/OrdersService/Patterns.cs). |
-| Observabilidad y carga ‑opcional‑ | [Perfil](https://docs.docker.com/compose/how-tos/profiles/) `observability` de [Docker Compose](https://docs.docker.com/compose/) con [Prometheus](https://prometheus.io/) y un *dashboard* de [Grafana](https://grafana.com/oss/grafana/) ya configurado, y escenarios de carga con [k6](https://k6.io/) en [k6](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/tree/main/k6). Muestra los patrones bajo carga y a lo largo del tiempo. Las instrucciones para usarlos están en [Observabilidad y pruebas de carga](README.md#observabilidad-y-pruebas-de-carga), en el README. |
+| Observabilidad y carga ‑opcional‑ | [Perfil](https://docs.docker.com/compose/how-tos/profiles/) `observability` de [Docker Compose](https://docs.docker.com/compose/) con [Prometheus](https://prometheus.io/) y un *dashboard* de [Grafana](https://grafana.com/oss/grafana/) ya configurado, y escenarios de carga con [k6](https://k6.io/) en [k6](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/tree/main/k6). Muestra los patrones bajo carga y a lo largo del tiempo. Las instrucciones para usarlos están en [Observabilidad y pruebas de carga](README.md#observabilidad-y-pruebas-de-carga), en el `README.md`. |
 
 Ejemplo de inyección de fallas:
 
@@ -185,18 +185,19 @@ curl -X DELETE http://localhost/products/chaos
 
 ### Patrones de disponibilidad
 
-Cada patrón tiene un *script* en [demos](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/tree/main/demos) que provoca la situación y
-muestra el resultado. Los de Retry, Circuit Breaker, Bulkhead y Throttling dejan
-prendido solo su patrón, para que se vea el efecto de cada uno por separado.
-Las instrucciones para ejecutarlos están en [Cómo probar los
-patrones](README.md#cómo-probar-los-patrones), en el README. Los eventos de cada
-patrón también aparecen en los *logs* de [Docker](https://www.docker.com/) de
-`orders-service`, con una etiqueta: `[RETRY]`, `[CIRCUIT BREAKER]`,
-`[BULKHEAD]`, `[THROTTLING]` y `[OUTBOX]`. Los de la Saga aparecen en los de
-`products-service` y `orders-worker`, con la etiqueta `[SAGA]`. Los patrones
-que dependen de la carga ‑Circuit Breaker, Bulkhead, Throttling, Rate Limiting y
-Competing Consumers‑ tienen además un escenario de [k6](https://k6.io/) para
-verlos en el *dashboard*.
+Cada patrón tiene un *script* en
+[demos](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/tree/main/demos)
+que provoca la situación y muestra el resultado. Los de Retry, Circuit Breaker,
+Bulkhead y Throttling dejan prendido solo su patrón, para que se vea el efecto
+de cada uno por separado. Las instrucciones para ejecutarlos están en [Cómo
+probar los patrones](README.md#cómo-probar-los-patrones), en el `README.md`. Los
+eventos de cada patrón también aparecen en los *logs* de
+[Docker](https://www.docker.com/) de `orders-service`, con una etiqueta:
+`[RETRY]`, `[CIRCUIT BREAKER]`, `[BULKHEAD]`, `[THROTTLING]` y `[OUTBOX]`. Los
+de la Saga aparecen en los de `products-service` y `orders-worker`, con la
+etiqueta `[SAGA]`. Los patrones que dependen de la carga ‑Circuit Breaker,
+Bulkhead, Throttling, Rate Limiting y Competing Consumers‑ tienen además un
+escenario de [k6](https://k6.io/) para verlos en el *dashboard*.
 
 #### Retry
 
@@ -214,7 +215,7 @@ segundos, con *jitter*‑. Solo se reintentan los errores transitorios: 5xx, 408
 Reintentar solo es seguro si la operación es idempotente: una llamada que falla
 por *timeout* pudo haberse ejecutado igual. La forma como lo resuelve la
 aplicación está en [Idempotencia](ARCHITECTURE.md#idempotencia), en
-ARCHITECTURE.md.
+`ARCHITECTURE.md`.
 
 **Cómo funciona:**
 
@@ -266,20 +267,21 @@ muestran cada `[RETRY]` con su demora y su causa; el comando para verlos está e
 desperdicia recursos, demora las respuestas y la sobrecarga justo cuando intenta
 recuperarse.
 
-**Implementación:** un circuito por dependency, en el mismo *pipeline* que el
-Retry. Se abre si fallan al menos la mitad de las llamadas en 10 segundos, con
-un mínimo de 5 llamadas. Abierto, las llamadas fallan de inmediato durante 15
-segundos; después pasa a semiabierto, deja pasar una llamada de prueba y, si
-funciona, se cierra. El detalle de `Orders` no devuelve error: muestra `"no
-disponible [circuito abierto]"` en lugar del nombre: lo arma el método
-`GetOrdersForUser` de la clase `OrdersController`, en
+**Implementación:** un circuito por cada servicio del que se depende, en el
+mismo *pipeline* que el Retry. Se abre si fallan al menos la mitad de las
+llamadas en 10 segundos, con un mínimo de 5 llamadas. Cuando está abierto, las
+llamadas fallan de inmediato durante 15 segundos; después pasa a semiabierto,
+deja pasar una llamada de prueba y, si funciona, se cierra. El detalle de
+`Orders` no devuelve error: muestra `"no disponible [circuito abierto]"` en
+lugar del nombre: lo arma el método `GetOrdersForUser` de la clase
+`OrdersController`, en
 [OrdersController.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/OrdersService/Controllers/OrdersController.cs).
 
 El estado del circuito vive en la memoria de cada proceso: con tres *workers*,
 cada uno tiene sus propios circuitos. El estado que vive en cada réplica y lo
 que hizo falta para que los componentes se puedan replicar están en [Stateless y
 estado por réplica](ARCHITECTURE.md#stateless-y-estado-por-réplica), en
-ARCHITECTURE.md.
+`ARCHITECTURE.md`.
 
 **Cómo funciona:**
 
@@ -347,7 +349,7 @@ pero se llama en cada consulta, tiene 20 en curso y 5 en espera. Los
 compartimentos son de cada proceso: `orders-service`, cada *worker* y cada
 proyector tienen los suyos, así que `Products` puede recibir 5 llamadas a la vez
 de cada uno ‑ver [Stateless y estado por
-réplica](ARCHITECTURE.md#stateless-y-estado-por-réplica) en ARCHITECTURE.md‑.
+réplica](ARCHITECTURE.md#stateless-y-estado-por-réplica) en `ARCHITECTURE.md`‑.
 
 **Cómo funciona:**
 
@@ -424,7 +426,7 @@ Es el límite que respeta el cliente de la demo de Rate Limiting.
 Los dos límites están en la memoria de cada instancia: con N réplicas de
 `orders-service`, el servicio atiende hasta 20 × N consultas de detalle a la
 vez, y con dos *gateways*, un cliente puede crear el doble de `Orders` ‑ver
-[Stateless y estado por réplica](ARCHITECTURE.md#stateless-y-estado-por-réplica) en ARCHITECTURE.md‑.
+[Stateless y estado por réplica](ARCHITECTURE.md#stateless-y-estado-por-réplica) en `ARCHITECTURE.md`‑.
 
 **Cómo funciona:**
 
@@ -635,9 +637,9 @@ Cada mensaje lo recibe una sola réplica. Si una réplica se cae antes de
 confirmarlo, RabbitMQ se lo entrega a otra. Funciona porque el *worker* es
 *stateless*: la `Order` está en MySQL y el mensaje en la cola, así que cualquier
 réplica puede terminar lo que otra empezó ‑ver [Stateless y estado por
-réplica](ARCHITECTURE.md#stateless-y-estado-por-réplica) en ARCHITECTURE.md‑. El recorrido completo de una
+réplica](ARCHITECTURE.md#stateless-y-estado-por-réplica) en `ARCHITECTURE.md`‑. El recorrido completo de una
 `Order`, desde el `POST` hasta su confirmación, está en [Creación de una Order:
-asíncrona](ARCHITECTURE.md#creación-de-una-order-asíncrona), en ARCHITECTURE.md.
+asíncrona](ARCHITECTURE.md#creación-de-una-order-asíncrona), en `ARCHITECTURE.md`.
 
 **Código:**
 
@@ -709,7 +711,7 @@ copias a la vez:
 estando, sin seguimiento de cambios ‑`AsNoTracking`‑. No decide nada: solo evita
 llamar a `Users` cuando una copia llega después de que la `Order` ya se procesó. El
 índice único de `order_events` por `Order` y tipo de evento queda como segunda
-barrera. Ver [Idempotencia](ARCHITECTURE.md#idempotencia) en ARCHITECTURE.md.
+barrera. Ver [Idempotencia](ARCHITECTURE.md#idempotencia) en `ARCHITECTURE.md`.
 
 **Cómo verlo:** la demo [07 de Competing
 Consumers](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/07-competing-consumers.sh) crea 9 `Orders`. Cada *worker* tarda
@@ -802,13 +804,13 @@ siguen `Pending`, y descarta la copia si otra réplica ya la procesó ‑ver
 [Competing Consumers para
 disponibilidad](#competing-consumers-para-disponibilidad)‑. Los proyectores de
 la vista materializada escriben cada fila con un *upsert* ‑ver [Materialized
-View](#materialized-view)‑. Ver [Idempotencia](ARCHITECTURE.md#idempotencia) en ARCHITECTURE.md.
+View](#materialized-view)‑. Ver [Idempotencia](ARCHITECTURE.md#idempotencia) en `ARCHITECTURE.md`.
 
 `Users` publica `user.updated` y `Products` publica `product.updated`
 directamente, sin *outbox*: si RabbitMQ no está, el cambio se guarda y el
 evento se pierde. `Users` usa MongoDB sin réplicas, que no admite transacciones
 con varios documentos. Quedó así a propósito, para comparar; ver [Decisiones abiertas a
-discusión](ARCHITECTURE.md#decisiones-abiertas-a-discusión) en ARCHITECTURE.md.
+discusión](ARCHITECTURE.md#decisiones-abiertas-a-discusión) en `ARCHITECTURE.md`.
 
 **Cómo funciona:**
 
@@ -816,7 +818,7 @@ discusión](ARCHITECTURE.md#decisiones-abiertas-a-discusión) en ARCHITECTURE.md
 
 El *worker* guarda `order.confirmed`, `order.rejected` u `order.cancelled` en el
 *outbox* de la misma forma. El recorrido completo está en [Creación de una Order:
-asíncrona](ARCHITECTURE.md#creación-de-una-order-asíncrona), en ARCHITECTURE.md.
+asíncrona](ARCHITECTURE.md#creación-de-una-order-asíncrona), en `ARCHITECTURE.md`.
 
 **Código:**
 
@@ -941,7 +943,7 @@ una vez, así que cada paso tiene que poder repetirse:
   confirmación de [Competing Consumers para
   disponibilidad](#competing-consumers-para-disponibilidad).
 
-Ver [Idempotencia](ARCHITECTURE.md#idempotencia) en ARCHITECTURE.md.
+Ver [Idempotencia](ARCHITECTURE.md#idempotencia) en `ARCHITECTURE.md`.
 
 **Cómo funciona:**
 
@@ -1043,7 +1045,7 @@ los métodos `GetProduct` y `UpdateProduct` de la clase `ProductsController`, en
 Se borra la clave en lugar de escribir el valor nuevo: así la caché nunca guarda
 un valor que PostgreSQL no tiene. La caché está en Redis y no en la memoria de
 `Products`, así que la comparten todas las réplicas y una invalidación vale para
-todas ‑ver [Stateless y estado por réplica](ARCHITECTURE.md#stateless-y-estado-por-réplica) en ARCHITECTURE.md‑.
+todas ‑ver [Stateless y estado por réplica](ARCHITECTURE.md#stateless-y-estado-por-réplica) en `ARCHITECTURE.md`‑.
 El TTL acota cuánto puede durar un dato desactualizado si una invalidación
 falla.
 
@@ -1248,7 +1250,7 @@ Sourcing](#event-sourcing)‑. Sin el encabezado, todo sigue como antes, para qu
 los clientes y las demos existentes funcionen igual; cada reintento crea otra
 `Order`. Las claves no vencen en la demo. En producción se borran después de un
 plazo, por ejemplo 24 horas, para que la tabla no crezca sin límite, y un
-reintento posterior crea otra `Order`. Ver [Idempotencia](ARCHITECTURE.md#idempotencia) en ARCHITECTURE.md.
+reintento posterior crea otra `Order`. Ver [Idempotencia](ARCHITECTURE.md#idempotencia) en `ARCHITECTURE.md`.
 
 **Cómo funciona:**
 
@@ -1305,7 +1307,7 @@ La flecha de los eventos es la consistencia eventual: el modelo de lectura se
 actualiza un momento después. El recorrido completo de una consulta desde la
 vista está en [Consulta de detalle desde la vista:
 eventos](ARCHITECTURE.md#consulta-de-detalle-desde-la-vista-eventos), en
-ARCHITECTURE.md.
+`ARCHITECTURE.md`.
 
 **Código:**
 
@@ -1348,7 +1350,7 @@ suponer que los eventos de una `Order` llegan en orden, ni que una copia
 repetida de un mensaje llega después de la original. Los proyectores no guardan
 nada en memoria, y aun así, mientras su resultado dependía del orden de los
 mensajes, solo podía haber uno: ser *stateless* no alcanza para escalar ‑ver
-[Stateless y estado por réplica](ARCHITECTURE.md#stateless-y-estado-por-réplica) en ARCHITECTURE.md‑. Con varias
+[Stateless y estado por réplica](ARCHITECTURE.md#stateless-y-estado-por-réplica) en `ARCHITECTURE.md`‑. Con varias
 réplicas, sin las soluciones que siguen pasaría esto, sin errores visibles:
 
 * **Un estado perdido por desorden.** La réplica A recibe `order.created` de la
@@ -1374,7 +1376,7 @@ réplicas, sin las soluciones que siguen pasaría esto, sin errores visibles:
   UPDATE`](https://dev.mysql.com/doc/refman/8.4/en/insert-on-duplicate.html) de
   MySQL, que inserta la fila o la actualiza si ya existe. La factura se inserta
   directamente, y un índice único de `order_events` por `Order` y tipo de evento
-  hace fallar la segunda copia. Ver [Idempotencia](ARCHITECTURE.md#idempotencia) en ARCHITECTURE.md.
+  hace fallar la segunda copia. Ver [Idempotencia](ARCHITECTURE.md#idempotencia) en `ARCHITECTURE.md`.
 * **Una réplica trabada.** Una excepción no prevista, como una falla de la base,
   dejaría el mensaje sin confirmar ni devolver. Con `prefetch = 1`, RabbitMQ no
   le entregaría más mensajes a esa réplica hasta que se cerrara su canal.
@@ -2096,7 +2098,7 @@ réplica puede quedar con un valor distinto y nadie ve la configuración complet
 en un solo lugar. Con el almacén, cada réplica lee los mismos valores; durante
 los 2 segundos entre una lectura y la siguiente, dos réplicas todavía pueden
 tener valores distintos ‑ver [Stateless y estado por
-réplica](ARCHITECTURE.md#stateless-y-estado-por-réplica) en ARCHITECTURE.md‑.
+réplica](ARCHITECTURE.md#stateless-y-estado-por-réplica) en `ARCHITECTURE.md`‑.
 
 **Qué es Consul:** una herramienta de HashiCorp para coordinar servicios en
 sistemas distribuidos. Ofrece descubrimiento de servicios, chequeos de salud, un
@@ -2284,7 +2286,7 @@ Tres detalles del ciclo:
   proyectores insertan la factura sin preguntar antes si ya está, y un índice
   único de `order_events` por `Order` y tipo de evento rechaza la copia, aunque
   las dos lleguen a la vez a dos réplicas distintas. Ver
-  [Idempotencia](ARCHITECTURE.md#idempotencia) en ARCHITECTURE.md.
+  [Idempotencia](ARCHITECTURE.md#idempotencia) en `ARCHITECTURE.md`.
 
 `Orders` cambió en dos cosas, aunque el patrón busca no tocar los sistemas: el
 evento `OrderConfirmed` suma campos opcionales con los datos de la `Order`, y
@@ -3338,7 +3340,7 @@ de la [CNCF](https://www.cncf.io/).
   B, la mitad en cada una. Unleash calcula un *hash* del id del `User`: el reparto
   es aleatorio entre los `Users`, pero el mismo `User` cae siempre en la misma
   variante, y todas las réplicas eligen la misma, sin guardar nada en memoria
-  ‑ver [Stateless y estado por réplica](ARCHITECTURE.md#stateless-y-estado-por-réplica) en ARCHITECTURE.md‑.
+  ‑ver [Stateless y estado por réplica](ARCHITECTURE.md#stateless-y-estado-por-réplica) en `ARCHITECTURE.md`‑.
 * **El cambio del reparto:** se hace en Unleash, con la consola o con su API,
   sin desplegar. `Users` vuelve a leer el *flag* cada 2 segundos.
 * **Si Unleash no responde:** `Users` sigue con la última configuración que
@@ -3711,7 +3713,7 @@ el *worker* escala sin tocar `orders-service` ni los demás.
 Escalar a cero solo es posible porque el *worker* es *stateless*: las `Orders`
 están en MySQL y los mensajes en RabbitMQ, y apagar una réplica no pierde nada
 ‑ver [Stateless y estado por
-réplica](ARCHITECTURE.md#stateless-y-estado-por-réplica) en ARCHITECTURE.md‑.
+réplica](ARCHITECTURE.md#stateless-y-estado-por-réplica) en `ARCHITECTURE.md`‑.
 
 En Azure, [Azure Container
 Apps](https://learn.microsoft.com/en-us/azure/container-apps/scale-app) escala a
