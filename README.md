@@ -106,8 +106,8 @@ El comando [`docker compose
 up`](https://docs.docker.com/reference/cli/docker/compose/up/) con `--wait`
 espera a que todos los contenedores estén sanos según su
 [`healthcheck`](https://docs.docker.com/reference/compose-file/services/#healthcheck).
-Qué es cada concepto de Docker que usan las demos —imagen, contenedor,
-servicio, réplicas, red, volumen, perfil— está en [Contenedores y Docker
+Qué es cada concepto de Docker que usan las demos ‑imagen, contenedor,
+servicio, réplicas, red, volumen, perfil‑ está en [Contenedores y Docker
 Compose](PATTERNS.md#contenedores-y-docker-compose), en PATTERNS.md.
 
 Las bases de datos se crean con datos de ejemplo la primera vez que se levantan
@@ -131,7 +131,7 @@ Database Client o desde cualquier otro cliente, con estos datos:
 | Caché de `Products` | [Redis](https://redis.io/) | `localhost` | `6379` | — | — | — |
 
 En MongoDB el usuario `usersusr` se autentica contra la base `usersdb`, así
-que en el campo de base de autenticación —`authSource`— va `usersdb` y no
+que en el campo de base de autenticación ‑`authSource`‑ va `usersdb` y no
 `admin`. La cadena de conexión completa es
 `mongodb://usersusr:Pa55w0rd@localhost:27017/usersdb?authSource=usersdb`.
 Para ver todas las bases de MongoDB está el usuario `root`, con la misma
@@ -141,7 +141,7 @@ Redis no tiene usuario ni contraseña.
 
 La consola de administración de [Keycloak](https://www.keycloak.org/) está en <http://localhost:8080>, con
 el usuario `admin` y la contraseña `Pa55w0rd`. Los usuarios de la aplicación
-—alice, bob y carol, con la misma contraseña— están en el realm `andis`.
+‑alice, bob y carol, con la misma contraseña‑ están en el realm `andis`.
 
 ## Cómo probar los patrones
 

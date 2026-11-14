@@ -41,7 +41,7 @@ servicio usa la tecnología de base de datos que mejor le sirve.
 | `orders-worker` | Comparte la base de `orders-service` | MySQL | RabbitMQ le entrega mensajes | `users-service` |
 | `orders-projector` | Comparte la base de `orders-service`; es el único que escribe la vista del detalle | MySQL | RabbitMQ le entrega mensajes | `users-service`, `products-service` |
 | `api-gateway` | Nada: enruta y, en la entrada HTTPS, controla cada solicitud | — | clientes | los tres servicios, el *sidecar* de `Products` y [Keycloak](https://www.keycloak.org/) |
-| `products-sidecar` | Nada: autoriza las solicitudes a `products-service` | — | gateway —por HTTPS— y cualquier contenedor de la red | `products-service`; Keycloak, para obtener sus claves públicas |
+| `products-sidecar` | Nada: autoriza las solicitudes a `products-service` | — | gateway ‑por HTTPS‑ y cualquier contenedor de la red | `products-service`; Keycloak, para obtener sus claves públicas |
 | `keycloak` | Las identidades: usuarios, contraseñas y roles | Su propia base, en memoria en modo desarrollo | clientes, para iniciar sesión; gateway, para validar tokens | — |
 
 Los componentes que agregan las demos de facilidad de modificación y de
@@ -91,9 +91,9 @@ habilitados por configuración; y comparten la base de `Orders`.
 
 ## Comunicación entre servicios
 
-La aplicación usa los dos estilos de comunicación entre servicios: síncrono —con
-[HTTP](https://datatracker.ietf.org/doc/html/rfc9110)— y asíncrono —con eventos
-en [RabbitMQ](https://www.rabbitmq.com/)—. Los eventos se publican en el
+La aplicación usa los dos estilos de comunicación entre servicios: síncrono ‑con
+[HTTP](https://datatracker.ietf.org/doc/html/rfc9110)‑ y asíncrono ‑con eventos
+en [RabbitMQ](https://www.rabbitmq.com/)‑. Los eventos se publican en el
 [exchange](PATTERNS.md#publishersubscriber) `andis.events` y cada suscriptor
 recibe los que le interesan en su propia cola.
 
@@ -613,8 +613,8 @@ cuatro razones:
 
 Las dos últimas son el precio de tener réplicas *stateless* que se reparten el
 trabajo: cualquier réplica puede recibir cualquier mensaje, también la copia de
-uno que otra réplica está procesando —ver [Stateless y estado por
-réplica](#stateless-y-estado-por-réplica)—. Para que eso no rompa nada, cada
+uno que otra réplica está procesando ‑ver [Stateless y estado por
+réplica](#stateless-y-estado-por-réplica)‑. Para que eso no rompa nada, cada
 operación tiene que poder repetirse.
 
 **Depende de lo que hace la operación, no del verbo HTTP.** [RFC
@@ -726,8 +726,8 @@ con una solución más directa y más simple, y cómo se resolvió en la aplicac
 afuera, y su *relay* y su consumidor de la [Saga](PATTERNS.md#saga) ya admiten
 varias réplicas, como los de `Orders`. Lo que lo deja en una sola réplica es el
 [Sidecar](PATTERNS.md#sidecar): `products-sidecar` comparte el espacio de red
-de `products-service` —`network_mode` en
-[docker-compose.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/docker-compose.yaml)— y le habla en `127.0.0.1:8000`. Un
+de `products-service` ‑`network_mode` en
+[docker-compose.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/docker-compose.yaml)‑ y le habla en `127.0.0.1:8000`. Un
 *sidecar* acompaña a una sola réplica. Para tener varias, cada réplica
 necesitaría su propio [Envoy](https://www.envoyproxy.io/), y el gateway
 tendría que repartir las solicitudes entre los pares de servicio y *sidecar*.
@@ -738,7 +738,7 @@ contenedores: cada réplica del pod trae su *sidecar*.
 así no se podían escalar mientras su resultado dependía del orden de los
 mensajes. Ser *stateless* permite tener varias réplicas, pero además cada
 réplica tiene que tolerar mensajes que llegan en cualquier orden, repetidos y a
-la vez —ver [Idempotencia](#idempotencia)—.
+la vez ‑ver [Idempotencia](#idempotencia)‑.
 
 **Estado por réplica que queda a propósito.** Algunos componentes guardan estado
 en memoria porque compartirlo costaría una llamada remota en cada solicitud. Al
@@ -780,9 +780,9 @@ coordinar con los demás. Hay varios lugares donde esta aplicación se acopla:
 
 * **La biblioteca [Common](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/tree/main/src/Common).** La referencian `Users`, `Products`,
   `Orders` y el [Messaging Bridge](PATTERNS.md#messaging-bridge). Tiene código
-  transversal —inyección de fallas, métricas, la respuesta de salud, la lectura
+  transversal ‑inyección de fallas, métricas, la respuesta de salud, la lectura
   de la configuración de [Consul](https://developer.hashicorp.com/consul), el
-  *outbox* y su *relay*— y también los contratos que `Orders` usa para leer las respuestas de
+  *outbox* y su *relay*‑ y también los contratos que `Orders` usa para leer las respuestas de
   `Users` y `Products`: los registros `UserDto`, en
   [UserDto.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/Common/UserDto.cs), y `ProductDto`, en
   [ProductDto.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/Common/ProductDto.cs). `Products` no usa
@@ -817,9 +817,9 @@ coordinar con los demás. Hay varios lugares donde esta aplicación se acopla:
   [REST](https://roy.gbiv.com/pubs/dissertation/rest_arch_style.htm): expone
   SOAP y publica su contrato como [WSDL](https://www.w3.org/TR/wsdl/) en
   `/users/UserService.svc?wsdl`. `Orders` arma a mano el sobre de `GetUser` y
-  lee el [XML](https://www.w3.org/XML/) de la respuesta —ver el método
+  lee el [XML](https://www.w3.org/XML/) de la respuesta ‑ver el método
   `GetUserAsync` de la clase `Dependencies`, en
-  [Dependencies.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/OrdersService/Dependencies.cs)—, así que
+  [Dependencies.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/OrdersService/Dependencies.cs)‑, así que
   depende del namespace, del nombre de la operación y de los nombres de los
   elementos. El WSDL documenta el contrato, pero `Orders` no lo usa para generar
   el cliente: un cliente
@@ -827,7 +827,7 @@ coordinar con los demás. Hay varios lugares donde esta aplicación se acopla:
   propio canal HTTP y dejaría afuera el pipeline de resiliencia. Un detalle de
   SOAP 1.1 afecta a los patrones: todo SOAP Fault viaja como HTTP 500, que el
   Retry y el Circuit Breaker tratan como falla transitoria. Por eso `GetUser`
-  responde sin resultado —y no con un Fault— cuando el `User` no existe.
+  responde sin resultado ‑y no con un Fault‑ cuando el `User` no existe.
 * **El orden de arranque.** En [docker-compose.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/docker-compose.yaml),
   `orders-service` no arranca hasta que `users-service` y `products-service`
   están sanos, aunque puede funcionar sin ellos. `users-service` y
@@ -878,8 +878,8 @@ coordinar con los demás. Hay varios lugares donde esta aplicación se acopla:
 
 ## Seguridad
 
-La entrada HTTPS del gateway aplica los patrones de seguridad —ver [Demos de
-seguridad](PATTERNS.md#demos-de-seguridad)—: valida el token de cada solicitud,
+La entrada HTTPS del gateway aplica los patrones de seguridad ‑ver [Demos de
+seguridad](PATTERNS.md#demos-de-seguridad)‑: valida el token de cada solicitud,
 publica solo las rutas de la aplicación y le pasa a cada servicio la identidad
 del usuario en encabezados. Esos controles sirven solo si el tráfico no puede
 llegar a los servicios por otro camino. En producción eso se aseguraría en dos
@@ -889,11 +889,11 @@ anteriores.
 
 **La red: desde afuera solo se llega al gateway.**
 
-En un centro de datos propio —*on premises*— la red se separa en zonas, con
+En un centro de datos propio ‑*on premises*‑ la red se separa en zonas, con
 VLANs o subredes, y entre una zona y otra hay un *firewall* que decide quién se
 conecta con quién:
 
-* **Zona perimetral —DMZ—:** la única que se alcanza desde Internet. Ahí está el
+* **Zona perimetral ‑DMZ‑:** la única que se alcanza desde Internet. Ahí está el
   gateway: un *reverse proxy* o un *load balancer*, que termina
   [TLS](https://datatracker.ietf.org/doc/html/rfc8446) y puede filtrar
   solicitudes con un WAF.
@@ -904,8 +904,8 @@ conecta con quién:
   *firewall* de esta zona solo permite el tráfico que llega de la zona de
   aplicación.
 
-Dentro de cada zona, el *firewall* de cada servidor —`iptables` o `nftables` en
-Linux— o una herramienta de segmentación, limita además qué servidores se hablan
+Dentro de cada zona, el *firewall* de cada servidor ‑`iptables` o `nftables` en
+Linux‑ o una herramienta de segmentación, limita además qué servidores se hablan
 entre sí. El *firewall* entre zonas y el gateway se complementan: el *firewall*
 decide quién se puede conectar, mientras que el gateway decide qué hacer con
 cada solicitud que le llega.
@@ -1177,11 +1177,11 @@ hacer. Con réplicas fijas, la máquina queda encendida para la CPU que reservan
 Los tres patrones dependen de dos propiedades que el *worker* ya tenía:
 
 * **El trabajo llega por una cola.** `POST /orders/` responde sin esperar al
-  *worker* —ver [Creación de una Order: asíncrona](#creación-de-una-order-asíncrona)—,
+  *worker* ‑ver [Creación de una Order: asíncrona](#creación-de-una-order-asíncrona)‑,
   así que el *worker* puede estar apagado, o procesar más tarde, sin que el
   cliente espere.
-* **Es *stateless*.** Una réplica se apaga o se enciende sin perder nada —ver
-  [Stateless y estado por réplica](#stateless-y-estado-por-réplica)—.
+* **Es *stateless*.** Una réplica se apaga o se enciende sin perder nada ‑ver
+  [Stateless y estado por réplica](#stateless-y-estado-por-réplica)‑.
 
 En las demos, el *worker* corre en el clúster de [kind](https://kind.sigs.k8s.io/)
 de las demos 32 a 34, y usa el resto de la aplicación de [Docker
@@ -1207,9 +1207,9 @@ Mejorar la eficiencia energética cambia otros atributos de calidad:
 Y al revés: varios patrones de disponibilidad consumen más energía.
 [Retry](PATTERNS.md#retry) multiplica las llamadas, y las réplicas de [Competing
 Consumers](PATTERNS.md#competing-consumers-para-disponibilidad) reservan CPU
-aunque no tengan trabajo —ver [Patrones existentes y la eficiencia
+aunque no tengan trabajo ‑ver [Patrones existentes y la eficiencia
 energética](PATTERNS.md#patrones-existentes-y-la-eficiencia-energética), en
-PATTERNS.md—.
+PATTERNS.md‑.
 
 **Para analizar:**
 
@@ -1276,7 +1276,7 @@ producción.
 **Para analizar:**
 
 * Elijan una decisión de la tabla y escriban un registro de decisión de
-  arquitectura —ADR—: contexto, decisión, alternativas consideradas y
+  arquitectura ‑ADR‑: contexto, decisión, alternativas consideradas y
   consecuencias.
   <!-- → Por ejemplo, para "Users y Products publican sin outbox": contexto,
   eventos que se pierden si RabbitMQ no está y una vista que queda
