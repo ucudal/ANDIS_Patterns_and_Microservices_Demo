@@ -736,6 +736,7 @@ tendría que repartir las solicitudes entre los pares de servicio y *sidecar*.
 En Kubernetes es lo que hace un pod con dos
 contenedores: cada réplica del pod trae su *sidecar*.
 
+<!-- markdownlint-disable-next-line MD049 -->
 **_Stateless_ no alcanza.** Los proyectores no guardan nada en memoria, y aun
 así no se podían escalar mientras su resultado dependía del orden de los
 mensajes. Ser *stateless* permite tener varias réplicas, pero además cada

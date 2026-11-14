@@ -29,6 +29,11 @@
 # el workflow hyphens.yaml, pero en un commit propio, que no vuelve a publicar
 # el sitio. El filtro hace el mismo cambio, para que el sitio no dependa de ese
 # commit.
+#
+# Doxygen no reconoce una cursiva pegada a un guion de no separación, como
+# ‑*on premises*‑, y muestra los asteriscos; GitHub sí la reconoce. El filtro
+# cambia esa cursiva por <em>…</em>, también cuando todavía está pegada a una
+# raya.
 perl -0777 -pe '
   my @parts = split /(^```[^\n]*\n.*?^```[^\n]*$)/ms;
   for my $i (0 .. $#parts) {
@@ -42,6 +47,8 @@ perl -0777 -pe '
         $spans[$j] =~ s/\$([^\s\$](?:[^\$\n]*[^\s\$])?)\$/\\f\$$1\\f\$/g;
         $spans[$j] =~ s/(?<![\w\/%(.\[])((?:ARCHITECTURE|PATTERNS|README)\.md)(?![\w)#])/%$1/g;
         $spans[$j] =~ s{\[([^\[\]]*)\](?=\((?:#|[\w-]+\.md#))}{my $t = $1; $t =~ s/(?<!\*)\*([^*\s](?:[^*]*[^*\s])?)\*(?!\*)/<em>$1<\/em>/g; "[$t]"}ge;
+        $spans[$j] =~ s/(?<=‑|—)\*([^*\n]+?)\*/<em>$1<\/em>/g;
+        $spans[$j] =~ s/(?<!\*)\*([^*\s][^*\n]*?)\*(?=‑|—)/<em>$1<\/em>/g;
         $spans[$j] =~ s{\]\(README\.md(#[^)\s]+)?\)}{](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/README.md$1)}g;
       }
       $parts[$i] = join "", @spans;
