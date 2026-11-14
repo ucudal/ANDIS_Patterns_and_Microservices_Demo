@@ -1,0 +1,28 @@
+name: Replace dashes with non-breaking hyphens
+on:
+  push:
+    branches: [main]
+    paths: ['**/*.md']
+permissions:
+  contents: write
+jobs:
+  replace:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # En los .md, las aclaraciones van entre rayas, —así—, y acá se cambian por
+      # guiones de no separación, ‑así‑, para que el guion no quede solo al final
+      # o al principio de un renglón. Solo cambian las rayas pegadas a un texto:
+      # la raya sola de una celda vacía, | — |, queda como está.
+      - name: Replace dashes
+        run: |
+          git ls-files '*.md' ':!:doxygen-awesome-css' |
+            xargs perl -pi -e 's/(?<![ |])—|—(?![ |])/‑/g'
+      - name: Commit
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A '*.md'
+          git diff --cached --quiet || git commit -m "Replace dashes with non-breaking hyphens"
+          git pull --rebase
+          git push

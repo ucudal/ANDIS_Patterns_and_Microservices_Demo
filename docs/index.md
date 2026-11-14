@@ -60,7 +60,7 @@ Storage](https://azure.microsoft.com/products/storage/), con URL firmadas.
 
 Endpoints disponibles a través del gateway, en `http://localhost`. Por la
 entrada HTTPS, `https://localhost`, son los mismos, salvo los de administración
--`/chaos`, `/patterns`, `/cache` y `/orders/projections/rebuild`-, y necesitan
+—`/chaos`, `/patterns`, `/cache` y `/orders/projections/rebuild`—, y necesitan
 un token de Keycloak: ver [Demos de seguridad](../PATTERNS.md#demos-de-seguridad)
 en PATTERNS.md.
 

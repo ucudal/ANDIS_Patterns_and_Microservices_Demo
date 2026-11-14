@@ -41,7 +41,7 @@ servicio usa la tecnología de base de datos que mejor le sirve.
 | `orders-worker` | Comparte la base de `orders-service` | MySQL | RabbitMQ le entrega mensajes | `users-service` |
 | `orders-projector` | Comparte la base de `orders-service`; es el único que escribe la vista del detalle | MySQL | RabbitMQ le entrega mensajes | `users-service`, `products-service` |
 | `api-gateway` | Nada: enruta y, en la entrada HTTPS, controla cada solicitud | — | clientes | los tres servicios, el *sidecar* de `Products` y [Keycloak](https://www.keycloak.org/) |
-| `products-sidecar` | Nada: autoriza las solicitudes a `products-service` | — | gateway, por HTTPS, y cualquier contenedor de la red | `products-service`; Keycloak, para obtener sus claves públicas |
+| `products-sidecar` | Nada: autoriza las solicitudes a `products-service` | — | gateway —por HTTPS— y cualquier contenedor de la red | `products-service`; Keycloak, para obtener sus claves públicas |
 | `keycloak` | Las identidades: usuarios, contraseñas y roles | Su propia base, en memoria en modo desarrollo | clientes, para iniciar sesión; gateway, para validar tokens | — |
 
 Los componentes que agregan las demos de facilidad de modificación y de
@@ -91,10 +91,10 @@ habilitados por configuración; y comparten la base de `Orders`.
 
 ## Comunicación entre servicios
 
-La aplicación usa los dos estilos de comunicación entre servicios: síncrono, con
-[HTTP](https://datatracker.ietf.org/doc/html/rfc9110), y asíncrono, con eventos
-en [RabbitMQ](https://www.rabbitmq.com/). Los eventos se publican en el
-[exchange](PATTERNS.md#publishersubscriber) `andis.events`, y cada suscriptor
+La aplicación usa los dos estilos de comunicación entre servicios: síncrono —con
+[HTTP](https://datatracker.ietf.org/doc/html/rfc9110)— y asíncrono —con eventos
+en [RabbitMQ](https://www.rabbitmq.com/)—. Los eventos se publican en el
+[exchange](PATTERNS.md#publishersubscriber) `andis.events` y cada suscriptor
 recibe los que le interesan en su propia cola.
 
 ### Consulta de detalle: síncrona
@@ -166,13 +166,13 @@ Si `Users` o `Products` no responden, `Orders` devuelve igual las `Orders`, con
 ### Creación de una Order: asíncrona
 
 `POST /orders/` guarda la `Order` como `Pending` junto con el evento
-`order.created` en el [*outbox*](PATTERNS.md#transactional-outbox), y responde
+`order.created` en el [*outbox*](PATTERNS.md#transactional-outbox) y responde
 `202 Accepted` de inmediato, sin consultar a `Users` ni a `Products`. El *relay*
 del *outbox* publica el evento en [RabbitMQ](https://www.rabbitmq.com/) un
 momento después. `Products` lo recibe por la cola `products.stock`, reserva el
 stock y publica `stock.reserved`, o `stock.rejected` si falta stock o el
 `Product` no existe. Una de las réplicas de `orders-worker` recibe la respuesta
-por la cola `orders.process`, verifica que el `User` exista, y confirma o
+por la cola `orders.process`, verifica que el `User` exista y confirma o
 rechaza la `Order`. Si la rechaza después de la reserva, `Products` devuelve el
 stock: es una [Saga](PATTERNS.md#saga), con los pasos y las compensaciones en
 [Consistencia de los datos](#consistencia-de-los-datos).
@@ -389,7 +389,7 @@ Cada servicio que se agrega a una cadena síncrona baja la disponibilidad de la
 operación, aunque cada servicio por separado sea muy confiable. La entrada HTTPS
 agrega [Keycloak](https://www.keycloak.org/) a todas las operaciones, porque el
 gateway le pregunta si cada token es válido. Hay tres formas de romper la
-cadena, y la aplicación usa las tres:
+cadena y la aplicación usa las tres:
 
 * **Degradar la respuesta:** la consulta de detalle responde aunque falten
   `Users` o `Products`, con "no disponible" en lugar del nombre. La respuesta
@@ -438,8 +438,8 @@ cadena, y la aplicación usa las tres:
   sidecar, que comparte la red de su única réplica: cada réplica necesitaría el
   suyo. Los ajustes de chaos y de la caché sí quedan en cada réplica: un PUT
   cambiaría una sola. -->
-* El gateway le pregunta a Keycloak por cada solicitud HTTPS, y el *sidecar*
-  verifica la firma del token con las claves públicas de Keycloak, sin
+* El gateway le pregunta a Keycloak por cada solicitud HTTPS y el *sidecar*
+  verifica la firma del token con las claves públicas de Keycloak sin
   preguntarle. ¿Qué gana y qué pierde cada uno? ¿Cómo quedaría la tabla si el
   gateway hiciera como el *sidecar*?
   <!-- → Preguntándole a Keycloak, el gateway se entera enseguida si una sesión
@@ -455,7 +455,7 @@ cadena, y la aplicación usa las tres:
 ## Consistencia de los datos
 
 No hay transacciones que abarquen más de un servicio. Cada servicio confirma sus
-propios cambios, y la aplicación acepta, por un tiempo, que los datos de
+propios cambios y la aplicación acepta, por un tiempo, que los datos de
 distintos servicios no coincidan.
 
 * **Una `Order` puede existir con un `User` que no existe.** `POST /orders/` no
@@ -464,12 +464,12 @@ distintos servicios no coincidan.
   eventual: el sistema llega a un estado correcto, pero no de inmediato.
 * **Guardar y publicar es atómico en `Orders` y en la reserva de stock, pero no
   en `user.updated` ni en `product.updated`.** `Orders` y `Products` guardan el
-  evento en su *outbox* en la misma transacción que el cambio, y el *relay* lo
+  evento en su *outbox* en la misma transacción que el cambio y el *relay* lo
   publica después: ver [Transactional Outbox](PATTERNS.md#transactional-outbox)
   en PATTERNS.md. Para `user.updated` y `product.updated`, `Users` y `Products`
   guardan el cambio y después publican: si [RabbitMQ](https://www.rabbitmq.com/)
   no está, el evento se pierde.
-* **Crear una `Order` cambia tres sistemas, y no hay una transacción que los
+* **Crear una `Order` cambia tres sistemas y no hay una transacción que los
   abarque.** `Products` reserva el stock, `Orders` confirma la `Order` y el ERP
   la factura, cada uno con su base. Si un paso falla después de otro que ya
   guardó sus cambios, una compensación los deshace: es una
@@ -534,7 +534,7 @@ sequenceDiagram
     end
 ```
 
-Todos los mensajes pasan por RabbitMQ, y los del ERP, además, por el
+Todos los mensajes pasan por RabbitMQ; los del ERP pasan, además, por el
 [Messaging Bridge](PATTERNS.md#messaging-bridge); el diagrama no lo muestra.
 
 * **Cada evento llega al menos una vez.** El *relay* puede publicar dos veces el
@@ -545,18 +545,19 @@ Todos los mensajes pasan por RabbitMQ, y los del ERP, además, por el
 * **Los nombres se piden o se copian.** La consulta síncrona los pide cada vez:
   siempre están al día, pero dependen de que `Users` y `Products` respondan. La
   vista los copia una vez y los actualiza con los eventos: no depende de nadie,
-  pero puede estar desactualizada, y si se pierde un `product.updated`, queda
-  con el nombre anterior hasta que el `Product` vuelva a cambiar.
+  pero puede estar desactualizada; y si se pierde un `product.updated`, queda
+  con el nombre anterior hasta que el `Product` vuelva a cambiar. Ver
+  [Materialized View](PATTERNS.md#materialized-view) en PATTERNS.md.
 * **La caché de `Products` se invalida al escribir.** Un cambio borra la clave
   de [Redis](https://redis.io/); si Redis no está en ese momento, el dato viejo
-  puede volver a leerse hasta que venza, a los 60 segundos.
+  puede volver a leerse hasta que venza, a los 60 segundos. Ver
+  [Cache-Aside](PATTERNS.md#cache-aside) en PATTERNS.md.
 * **El precio no se guarda en la `Order`.** Si cambia el precio de un `Product`,
   no queda registro de cuánto valía cuando se creó la `Order`.
 * **Los eventos son la fuente de verdad de `Orders`.** Cada cambio de una `Order`
-  se guarda como un evento, y la tabla de `Orders` se puede reconstruir a partir
+  se guarda como un evento y la tabla de `Orders` se puede reconstruir a partir
   de ellos: ver [Event
-  Sourcing](PATTERNS.md#event-sourcing) en PATTERNS.md.<!--TODO: ¿porqué sólo este patrón
-  está mencionado?-->
+  Sourcing](PATTERNS.md#event-sourcing) en PATTERNS.md.
 
 **Para analizar:**
 
@@ -612,8 +613,8 @@ cuatro razones:
 
 Las dos últimas son el precio de tener réplicas *stateless* que se reparten el
 trabajo: cualquier réplica puede recibir cualquier mensaje, también la copia de
-uno que otra réplica está procesando -ver [Stateless y estado por
-réplica](#stateless-y-estado-por-réplica)-. Para que eso no rompa nada, cada
+uno que otra réplica está procesando —ver [Stateless y estado por
+réplica](#stateless-y-estado-por-réplica)—. Para que eso no rompa nada, cada
 operación tiene que poder repetirse.
 
 **Depende de lo que hace la operación, no del verbo HTTP.** [RFC
@@ -725,19 +726,19 @@ con una solución más directa y más simple, y cómo se resolvió en la aplicac
 afuera, y su *relay* y su consumidor de la [Saga](PATTERNS.md#saga) ya admiten
 varias réplicas, como los de `Orders`. Lo que lo deja en una sola réplica es el
 [Sidecar](PATTERNS.md#sidecar): `products-sidecar` comparte el espacio de red
-de `products-service` -`network_mode` en
-[docker-compose.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/docker-compose.yaml)- y le habla en `127.0.0.1:8000`. Un
+de `products-service` —`network_mode` en
+[docker-compose.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/docker-compose.yaml)— y le habla en `127.0.0.1:8000`. Un
 *sidecar* acompaña a una sola réplica. Para tener varias, cada réplica
 necesitaría su propio [Envoy](https://www.envoyproxy.io/), y el gateway
 tendría que repartir las solicitudes entre los pares de servicio y *sidecar*.
 En Kubernetes es lo que hace un pod con dos
 contenedores: cada réplica del pod trae su *sidecar*.
 
-***Stateless* no alcanza.** Los proyectores no guardan nada en memoria, y aun
+**_Stateless_ no alcanza.** Los proyectores no guardan nada en memoria, y aun
 así no se podían escalar mientras su resultado dependía del orden de los
 mensajes. Ser *stateless* permite tener varias réplicas, pero además cada
 réplica tiene que tolerar mensajes que llegan en cualquier orden, repetidos y a
-la vez -ver [Idempotencia](#idempotencia)-.
+la vez —ver [Idempotencia](#idempotencia)—.
 
 **Estado por réplica que queda a propósito.** Algunos componentes guardan estado
 en memoria porque compartirlo costaría una llamada remota en cada solicitud. Al
@@ -777,9 +778,11 @@ propósito evita esas llamadas, a cambio de límites aproximados.
 Los microservicios buscan que cada servicio se pueda cambiar y desplegar sin
 coordinar con los demás. Hay varios lugares donde esta aplicación se acopla:
 
-* **La biblioteca [Common](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/tree/main/src/Common).** Los tres servicios la referencian.
-  Tiene código transversal -inyección de fallas, métricas, la respuesta de
-  salud- y también los contratos que `Orders` usa para leer las respuestas de
+* **La biblioteca [Common](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/tree/main/src/Common).** La referencian `Users`, `Products`,
+  `Orders` y el [Messaging Bridge](PATTERNS.md#messaging-bridge). Tiene código
+  transversal —inyección de fallas, métricas, la respuesta de salud, la lectura
+  de la configuración de [Consul](https://developer.hashicorp.com/consul), el
+  *outbox* y su *relay*— y también los contratos que `Orders` usa para leer las respuestas de
   `Users` y `Products`: los registros `UserDto`, en
   [UserDto.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/Common/UserDto.cs), y `ProductDto`, en
   [ProductDto.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/Common/ProductDto.cs). `Products` no usa
@@ -787,24 +790,36 @@ coordinar con los demás. Hay varios lugares donde esta aplicación se acopla:
   [RabbitMQ](https://www.rabbitmq.com/), en la clase `RabbitMq`, y los contratos
   de los eventos, en la clase `Events` y sus registros, en
   [Events.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/Common/Events.cs). Un cambio en `Common` obliga a
-  recompilar y redesplegar los tres servicios.
+  recompilar y redesplegar los cuatro.
 * **Los contratos de los eventos.** Los proyectores esperan que
-  `product.updated` traiga el identificador y el nombre del `Product`.
+  `product.updated` traiga el identificador y el nombre del `Product`, y en la
+  [Saga](PATTERNS.md#saga), `Orders`, `Products` y el puente esperan cada uno
+  los eventos de los otros.
   Publisher/Subscriber desacopla en el tiempo y en el conocimiento: `Products`
   no sabe quién recibe sus eventos, ni necesita que esté funcionando. Pero no
   desacopla del contrato: si `Products` cambia la forma del evento, los
   proyectores dejan de entenderlo, y `Products` no se entera.
-* **Los contratos HTTP.**. `Orders` espera que `GET /products/{id}` devuelva un
+* **Los contratos HTTP.** `Orders` espera que `GET /products/{id}` devuelva un
   [JSON](https://www.json.org/) con el nombre. Si `Products` lo renombra,
   `Orders` deja de mostrar el nombre del producto, y nada lo detecta hasta que
-  se ejecuta. No hay versiones en las rutas.
+  se ejecuta. No hay versiones en las rutas. Los
+  [BFF](PATTERNS.md#backends-for-frontends) dependen de la misma forma de las
+  respuestas de `Orders` y de `Products`, y `Purchases`, de las de `Orders` y de
+  `Users`. En `Purchases`, esa dependencia está en un solo lugar, su [capa
+  anticorrupción](PATTERNS.md#anti-corruption-layer): si `Orders` o `Users`
+  cambian sus respuestas, solo cambian sus traductores.
+* **El formato del ERP.** El ERP espera registros de ancho fijo, y el puente
+  los traduce desde los eventos de la aplicación y hacia ellos, en
+  [ErpFormat.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/MessagingBridge/ErpFormat.cs).
+  Si el ERP cambia un campo, cambia solo el puente; `Orders` y `Products` no
+  conocen ese formato.
 * **El contrato [SOAP](https://www.w3.org/TR/soap/) de `Users`.** `Users` no es
   [REST](https://roy.gbiv.com/pubs/dissertation/rest_arch_style.htm): expone
   SOAP y publica su contrato como [WSDL](https://www.w3.org/TR/wsdl/) en
   `/users/UserService.svc?wsdl`. `Orders` arma a mano el sobre de `GetUser` y
-  lee el [XML](https://www.w3.org/XML/) de la respuesta -ver el método
+  lee el [XML](https://www.w3.org/XML/) de la respuesta —ver el método
   `GetUserAsync` de la clase `Dependencies`, en
-  [Dependencies.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/OrdersService/Dependencies.cs)-, así que
+  [Dependencies.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/OrdersService/Dependencies.cs)—, así que
   depende del namespace, del nombre de la operación y de los nombres de los
   elementos. El WSDL documenta el contrato, pero `Orders` no lo usa para generar
   el cliente: un cliente
@@ -812,12 +827,13 @@ coordinar con los demás. Hay varios lugares donde esta aplicación se acopla:
   propio canal HTTP y dejaría afuera el pipeline de resiliencia. Un detalle de
   SOAP 1.1 afecta a los patrones: todo SOAP Fault viaja como HTTP 500, que el
   Retry y el Circuit Breaker tratan como falla transitoria. Por eso `GetUser`
-  responde sin resultado -y no con un Fault- cuando el `User` no existe.
+  responde sin resultado —y no con un Fault— cuando el `User` no existe.
 * **El orden de arranque.** En [docker-compose.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/docker-compose.yaml),
   `orders-service` no arranca hasta que `users-service` y `products-service`
   están sanos, aunque puede funcionar sin ellos. `users-service` y
   `products-service` esperan a que arranque RabbitMQ, pero no a que esté sano:
-  pueden atender sin él.
+  pueden atender sin él. `purchases-service` y los BFF, a su vez, esperan a que
+  estén sanos los servicios que consultan.
 * **Los claims del token.** `Orders` espera que el gateway le pase el `User` en
   el encabezado `X-User-Id`, y el gateway lo saca del claim `user_id`, que
   [Keycloak](https://www.keycloak.org/) arma a partir de un atributo de cada
@@ -825,11 +841,15 @@ coordinar con los demás. Hay varios lugares donde esta aplicación se acopla:
   `Orders` deja de reconocer a los clientes. El *sidecar*, además, espera los
   roles en `realm_access.roles`, donde los pone Keycloak.
 * **La ubicación de cada servicio.** Las URL de `Users` y `Products` se pasan a
-  `Orders` por variables de entorno, y [nginx](https://nginx.org/) encuentra
-  cada servicio por su nombre en el [DNS de
+  `Orders`, y las de los servicios que consultan a `Purchases` y a los BFF, por
+  variables de entorno, y [nginx](https://nginx.org/) encuentra cada servicio
+  por su nombre en el [DNS de
   Docker](https://docs.docker.com/engine/network/#dns-services). No hay un
-  registro de servicios.
-  <!--TODO: analizar si en esta sección no hay cambios debido a los nuevos patrones y tecnologías utilizadas en las nuevas demos-->
+  registro de servicios: Consul podría serlo, pero acá solo guarda valores de
+  configuración, como límites y *feature flags*. El *worker* del clúster de
+  [Kubernetes](https://kubernetes.io/) usa los nombres de host de Docker
+  Compose, así que depende de que el clúster y Docker Compose estén en la misma
+  máquina.
 
 **Para analizar:**
 
@@ -858,8 +878,8 @@ coordinar con los demás. Hay varios lugares donde esta aplicación se acopla:
 
 ## Seguridad
 
-La entrada HTTPS del gateway aplica los patrones de seguridad -ver [Demos de
-seguridad](PATTERNS.md#demos-de-seguridad)-: valida el token de cada solicitud,
+La entrada HTTPS del gateway aplica los patrones de seguridad —ver [Demos de
+seguridad](PATTERNS.md#demos-de-seguridad)—: valida el token de cada solicitud,
 publica solo las rutas de la aplicación y le pasa a cada servicio la identidad
 del usuario en encabezados. Esos controles sirven solo si el tráfico no puede
 llegar a los servicios por otro camino. En producción eso se aseguraría en dos
@@ -869,11 +889,11 @@ anteriores.
 
 **La red: desde afuera solo se llega al gateway.**
 
-En un centro de datos propio -*on premises*- la red se separa en zonas, con
+En un centro de datos propio —*on premises*— la red se separa en zonas, con
 VLANs o subredes, y entre una zona y otra hay un *firewall* que decide quién se
 conecta con quién:
 
-* **Zona perimetral -DMZ-:** la única que se alcanza desde Internet. Ahí está el
+* **Zona perimetral —DMZ—:** la única que se alcanza desde Internet. Ahí está el
   gateway: un *reverse proxy* o un *load balancer*, que termina
   [TLS](https://datatracker.ietf.org/doc/html/rfc8446) y puede filtrar
   solicitudes con un WAF.
@@ -884,8 +904,8 @@ conecta con quién:
   *firewall* de esta zona solo permite el tráfico que llega de la zona de
   aplicación.
 
-Dentro de cada zona, el *firewall* de cada servidor -`iptables` o `nftables` en
-Linux- o una herramienta de segmentación, limita además qué servidores se hablan
+Dentro de cada zona, el *firewall* de cada servidor —`iptables` o `nftables` en
+Linux— o una herramienta de segmentación, limita además qué servidores se hablan
 entre sí. El *firewall* entre zonas y el gateway se complementan: el *firewall*
 decide quién se puede conectar, mientras que el gateway decide qué hacer con
 cada solicitud que le llega.
@@ -1157,11 +1177,11 @@ hacer. Con réplicas fijas, la máquina queda encendida para la CPU que reservan
 Los tres patrones dependen de dos propiedades que el *worker* ya tenía:
 
 * **El trabajo llega por una cola.** `POST /orders/` responde sin esperar al
-  *worker* -ver [Creación de una Order: asíncrona](#creación-de-una-order-asíncrona)-,
+  *worker* —ver [Creación de una Order: asíncrona](#creación-de-una-order-asíncrona)—,
   así que el *worker* puede estar apagado, o procesar más tarde, sin que el
   cliente espere.
-* **Es *stateless*.** Una réplica se apaga o se enciende sin perder nada -ver
-  [Stateless y estado por réplica](#stateless-y-estado-por-réplica)-.
+* **Es *stateless*.** Una réplica se apaga o se enciende sin perder nada —ver
+  [Stateless y estado por réplica](#stateless-y-estado-por-réplica)—.
 
 En las demos, el *worker* corre en el clúster de [kind](https://kind.sigs.k8s.io/)
 de las demos 32 a 34, y usa el resto de la aplicación de [Docker
@@ -1187,9 +1207,9 @@ Mejorar la eficiencia energética cambia otros atributos de calidad:
 Y al revés: varios patrones de disponibilidad consumen más energía.
 [Retry](PATTERNS.md#retry) multiplica las llamadas, y las réplicas de [Competing
 Consumers](PATTERNS.md#competing-consumers-para-disponibilidad) reservan CPU
-aunque no tengan trabajo -ver [Patrones existentes y la eficiencia
+aunque no tengan trabajo —ver [Patrones existentes y la eficiencia
 energética](PATTERNS.md#patrones-existentes-y-la-eficiencia-energética), en
-PATTERNS.md-.
+PATTERNS.md—.
 
 **Para analizar:**
 
@@ -1256,7 +1276,7 @@ producción.
 **Para analizar:**
 
 * Elijan una decisión de la tabla y escriban un registro de decisión de
-  arquitectura -ADR-: contexto, decisión, alternativas consideradas y
+  arquitectura —ADR—: contexto, decisión, alternativas consideradas y
   consecuencias.
   <!-- → Por ejemplo, para "Users y Products publican sin outbox": contexto,
   eventos que se pierden si RabbitMQ no está y una vista que queda

@@ -24,6 +24,11 @@
 # En los enlaces a secciones, como [*worker*](PATTERNS.md#…) o [*sidecar*](#…),
 # Doxygen muestra el texto sin procesar, con los asteriscos. El filtro cambia la
 # cursiva de ese texto por <em>…</em>, que Doxygen sí respeta.
+#
+# Las rayas de las aclaraciones, —así—, las cambia por guiones de no separación
+# el workflow hyphens.yaml, pero en un commit propio, que no vuelve a publicar
+# el sitio. El filtro hace el mismo cambio, para que el sitio no dependa de ese
+# commit.
 perl -0777 -pe '
   my @parts = split /(^```[^\n]*\n.*?^```[^\n]*$)/ms;
   for my $i (0 .. $#parts) {
@@ -43,4 +48,5 @@ perl -0777 -pe '
     }
   }
   $_ = join "", @parts;
+  s/(?<![ |])—|—(?![ |])/‑/g;
 ' "$1"
