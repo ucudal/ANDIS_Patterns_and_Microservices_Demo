@@ -830,19 +830,20 @@ asíncrona](ARCHITECTURE.md#creación-de-una-order-asíncrona), en `ARCHITECTURE
 
 **Cómo verlo:** la demo [09 de Transactional
 Outbox](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/09-transactional-outbox.sh) detiene RabbitMQ y crea 5 `Orders`.
-Todas responden `202`; antes del *outbox*, `Orders` respondía `503` y la `Order`
-quedaba `Pending` para siempre. `/health/orders` responde `Degraded`, y los 5
-mensajes esperan en `outbox_messages`. Al levantar RabbitMQ, el *relay* los
-publica, los *workers* confirman las `Orders` y el *outbox* queda vacío.
-Después pone `products-service` en pausa, crea otra `Order` y publica dos veces
-su `stock.reserved`, como si el *relay* de `Products` lo hubiera publicado dos
+Todas responden `202 Accepted`; antes del *outbox*, `Orders` respondía
+`503 Service Unavailable` y la `Order` quedaba `Pending` para siempre.
+`/health/orders` responde `Degraded`, y los 5 mensajes esperan en
+`outbox_messages`. Al levantar RabbitMQ, el *relay* los publica, los *workers*
+confirman las `Orders` y el *outbox* queda vacío. Después pone
+`products-service` en pausa, crea otra `Order` y publica dos veces su
+`stock.reserved`, como si el *relay* de `Products` lo hubiera publicado dos
 veces. Las dos copias llegan a la vez a dos *workers*: los *logs* muestran que
 uno confirma la `Order` y el otro la descarta, y la `Order` tiene un solo
 `OrderConfirmed` en su historial y un solo `order.confirmed` en el *outbox*. Al
 salir de la pausa, `Products` reserva el stock y publica su `stock.reserved`, y
-el *worker* lo ignora porque la `Order` ya no está `Pending`. En Grafana, el panel
-`Outbox de Orders y Products` muestra los pendientes de `orders-service` subir
-y volver a cero.
+el *worker* lo ignora porque la `Order` ya no está `Pending`. En Grafana, el
+panel `Outbox de Orders y Products` muestra los pendientes de `orders-service`
+subir y volver a cero.
 
 > [!TIP]
 >
@@ -1105,11 +1106,12 @@ Consumers](#competing-consumers-para-disponibilidad).
 **Cómo verlo:** la demo [12 de Queue-Based Load
 Leveling](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/12-queue-based-load-leveling.sh) crea 30 `Orders` a la vez,
 directamente en `orders-service`: el Throttling por cliente del *gateway*
-rechazaría el pico antes de que llegara a la cola. Todas responden `202` en
-pocos milisegundos; la cola baja de a 3 mensajes cada 2 segundos hasta vaciarse.
-[load-leveling.js](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/k6/load-leveling.js) envía 10 `POST` por segundo durante
-10 segundos: la latencia de `create order` se mantiene baja y la cola crece
-durante el pico y se vacía después.
+rechazaría el pico antes de que llegara a la cola. Todas responden
+`202 Accepted` en pocos milisegundos; la cola baja de a 3 mensajes cada 2
+segundos hasta vaciarse.
+[load-leveling.js](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/k6/load-leveling.js)
+envía 10 `POST` por segundo durante 10 segundos: la latencia de `create order`
+se mantiene baja y la cola crece durante el pico y se vacía después.
 
 La misma cola sirve para elegir cuándo procesar, no solo a qué ritmo: en la demo
 [37 de procesamiento diferido](#queue-non-urgent-processing-requests), el
@@ -1208,7 +1210,7 @@ nada.
 
 **Implementación:** `POST /orders/` responde `202 Accepted` enseguida, con
 `Location: /orders/{id}/status` y `Retry-After: 2`. `GET /orders/{id}/status`
-responde `200` con el estado mientras la `Order` está `Pending`, también con
+responde `200 OK` con el estado mientras la `Order` está `Pending`, también con
 `Retry-After`; cuando un *worker* la confirma o la rechaza, responde `303 See
 Other` a `/orders/{id}`, y el cliente sigue la redirección para obtener el
 resultado. Está en los métodos `CreateOrder` y `GetOrderStatus` de la clase
@@ -1216,11 +1218,11 @@ resultado. Está en los métodos `CreateOrder` y `GetOrderStatus` de la clase
 [OrdersController.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/OrdersService/Controllers/OrdersController.cs).
 
 `POST /orders/` crea una `Order` en cada llamada. Si el cliente no recibe el
-`202`, por un *timeout* o un corte de red, no sabe si la `Order` se creó, y si
-reintenta se crea una segunda. Esa `Order` tiene su propio `order.created`, su
-confirmación y su pedido al ERP, con otro número, así que ni el ERP puede darse
-cuenta de que es la misma. Para evitarlo, `POST /orders/` acepta el encabezado
-opcional `Idempotency-Key`, del [borrador de la
+`202 Accepted`, por un *timeout* o un corte de red, no sabe si la `Order` se
+creó, y si reintenta se crea una segunda. Esa `Order` tiene su propio
+`order.created`, su confirmación y su pedido al ERP, con otro número, así que ni
+el ERP puede darse cuenta de que es la misma. Para evitarlo, `POST /orders/`
+acepta el encabezado opcional `Idempotency-Key`, del [borrador de la
 IETF](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/):
 el cliente elige una clave por `Order`, por ejemplo un
 [UUID](https://datatracker.ietf.org/doc/html/rfc9562), y la repite en cada
@@ -1230,10 +1232,10 @@ reintento.
   `idempotency_keys`, en la misma transacción que la `Order`, su evento y el
   mensaje del *outbox*.
 * **Clave conocida, con los mismos datos:** no se crea nada. Se responde lo
-  mismo que la primera vez: `202` con el mismo `id`, la misma `Location` y
-  `Retry-After`, más `Idempotent-Replayed: true`. Ese encabezado no está en el
-  borrador; es una convención para avisar al cliente que la respuesta es una
-  repetición.
+  mismo que la primera vez: `202 Accepted` con el mismo `id`, la misma
+  `Location` y `Retry-After`, más `Idempotent-Replayed: true`. Ese encabezado no
+  está en el borrador; es una convención para avisar al cliente que la respuesta
+  es una repetición.
 * **Clave conocida, con otros datos:** `422 Unprocessable Content`, como indica
   el borrador: el cliente usó la clave para otra `Order`. Los datos se comparan
   con un *hash* SHA-256 de `userId`, `productId` y `quantity`, y no del texto
@@ -1262,11 +1264,12 @@ Request-Reply](assets/15-asynchronous-request-reply.svg)
 
 **Cómo verlo:** la demo [15 de Asynchronous
 Request-Reply](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/15-asynchronous-request-reply.sh) crea una `Order`, muestra
-el `202` con sus encabezados y consulta el estado respetando `Retry-After` hasta
-el `303`. Sigue la redirección y muestra la `Order` confirmada. Al final crea
-otra `Order` con `Idempotency-Key` y repite el `POST` con la misma clave, como
-un cliente que no recibió la respuesta: la respuesta trae el mismo `id` e
-`Idempotent-Replayed: true`. Con la misma clave y otra cantidad, responde `422`.
+el `202 Accepted` con sus encabezados y consulta el estado respetando
+`Retry-After` hasta el `303 See Other`. Sigue la redirección y muestra la
+`Order` confirmada. Al final crea otra `Order` con `Idempotency-Key` y repite el
+`POST` con la misma clave, como un cliente que no recibió la respuesta: la
+respuesta trae el mismo `id` e `Idempotent-Replayed: true`. Con la misma clave y
+otra cantidad, responde `422 Unprocessable Content`.
 
 > [!TIP]
 >
@@ -1889,7 +1892,8 @@ también permite una operación sobre un objeto durante un tiempo acotado:
 * `POST /products/{id}/image/upload-url` entrega una URL para crear o reemplazar
   la imagen. No sirve para leerla, ni para la imagen de otro `Product`, ni
   después de vencer. El cliente puede pedir que venza antes, con `?seconds=N`.
-* `GET /products/{id}/image` redirige, con 302, a una URL para leer la imagen.
+* `GET /products/{id}/image` redirige, con `302 Found`, a una URL para leer la
+  imagen.
 * `PUT /products/{id}/image` es la forma sin Valet Key, para comparar:
   `Products` recibe la imagen y la sube él mismo, con su clave. Por la entrada
   HTTP, el *gateway* acepta hasta 20 MB en esa ruta; por la HTTPS, el
@@ -3520,14 +3524,14 @@ Rollouts](https://argoproj.github.io/rollouts/), con una línea roja en el 5%.
 | ---------- | ----------- | --------- | --------- |
 | Blue/Green, demo 32 | La versión `v2` en *preview*, `promote` y, 20 segundos después, `undo` | `Solicitudes por versión` y `Respuestas con error, por versión` | El tráfico pasa de una versión a la otra de una vez. Las 1201 solicitudes respondieron `200 OK` |
 | Rolling Upgrade, demo 33 | Con el [Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/): la versión `v2`, después la `v3-bad` y `undo` a mano | Lo mismo | Cada reemplazo tarda unos 7 segundos. La versión `v3` respondió `503 Service Unavailable` 195 veces, hasta el `undo` |
-| Canary Testing, demo 34 | La versión `v2` hasta el 100% y después la `v3-bad` | Lo mismo y `Errores de cada versión, según Users` | La versión `v2` sigue a los pesos del 10% y el 50%, sin errores. La `v3` supera la línea del 5%, y Argo vuelve atrás: 17 respuestas `503` de 3999, todas de la `v3` |
+| Canary Testing, demo 34 | La versión `v2` hasta el 100% y después la `v3-bad` | Lo mismo y `Errores de cada versión, según Users` | La versión `v2` sigue a los pesos del 10% y el 50%, sin errores. La `v3` supera la línea del 5%, y Argo vuelve atrás: 17 respuestas `503 Service Unavailable` de 3999, todas de la `v3` |
 
-Además de los `503` de la versión `v3`, hubo unas pocas solicitudes sin
-respuesta: 6 de 2400 en Rolling Upgrade y 1 de 3999 en Canary. Coinciden con los
-cambios de pods: NGINX Gateway Fabric recarga nginx cada vez que cambian los
-pods detrás de un Service, y una recarga puede cortar alguna conexión que k6
-tenía abierta para reutilizar. En la demo 29, el *gateway* de Docker Compose no se
-recarga: encuentra las instancias nuevas por DNS.
+Además de los `503 Service Unavailable` de la versión `v3`, hubo unas pocas
+solicitudes sin respuesta: 6 de 2400 en Rolling Upgrade y 1 de 3999 en Canary.
+Coinciden con los cambios de pods: NGINX Gateway Fabric recarga nginx cada vez
+que cambian los pods detrás de un Service, y una recarga puede cortar alguna
+conexión que k6 tenía abierta para reutilizar. En la demo 29, el *gateway* de
+Docker Compose no se recarga: encuentra las instancias nuevas por DNS.
 
 ## Demos de eficiencia energética
 

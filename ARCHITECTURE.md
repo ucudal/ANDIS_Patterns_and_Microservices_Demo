@@ -247,9 +247,9 @@ sequenceDiagram
 El cliente sabe que la `Order` fue aceptada, pero no si fue confirmada: para eso
 consulta `GET /orders/{id}/status` cada tanto, como indica `Retry-After`, hasta
 que la respuesta lo redirige a la `Order` con su resultado. Si no recibe el
-`202` y reintenta, puede mandar el encabezado `Idempotency-Key` con la misma
-clave en cada intento: `Orders` guarda la clave junto con la `Order` y, si la
-vuelve a recibir, responde con la `Order` que ya creó en lugar de crear otra.
+`202 Accepted` y reintenta, puede mandar el encabezado `Idempotency-Key` con la
+misma clave en cada intento: `Orders` guarda la clave junto con la `Order` y, si
+la vuelve a recibir, responde con la `Order` que ya creó en lugar de crear otra.
 Ver [Asynchronous Request-Reply](PATTERNS.md#asynchronous-request-reply) en
 `PATTERNS.md`.
 

@@ -79,7 +79,7 @@ en `PATTERNS.md`.
 | `GET` | `/orders/` | Lista las `Orders` con su estado |
 | `GET` | `/orders/{id}` | Obtiene una `Order` |
 | `POST` | `/orders/` | Crea una `Order` en estado `Pending` y la encola para procesarla; responde `202 Accepted` con `Location` |
-| `GET` | `/orders/{id}/status` | Estado de una `Order`: `200` mientras está `Pending`, `303` a la `Order` cuando se procesó |
+| `GET` | `/orders/{id}/status` | Estado de una `Order`: `200 OK` mientras está `Pending`, `303 See Other` a la `Order` cuando se procesó |
 | `GET` | `/orders/user/{userId}/details` | `Orders` de un `User` con el nombre del `User` y de cada `Product`, pidiéndolos a `Users` y a `Products` |
 | `GET` | `/orders/user/{userId}/details/view` | Lo mismo, leído de la vista materializada |
 | `GET` | `/orders/{id}/events` | Eventos de una `Order` y el estado que resulta de reproducirlos |
