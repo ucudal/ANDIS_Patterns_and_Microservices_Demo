@@ -5,8 +5,8 @@ analizarla: qué datos tiene cada servicio, cómo se comunican, qué tan disponi
 es cada operación, cómo se mantienen consistentes los datos y qué decisiones
 tienen costos. Cada sección termina con preguntas para el análisis.
 
-Cómo ejecutar la aplicación está en el [README.md](README.md) y los patrones
-que implementa están en [PATTERNS.md](PATTERNS.md).
+Cómo ejecutar la aplicación está en el [README.md](README.md) y los patrones que
+implementa están en [PATTERNS.md](PATTERNS.md).
 
 * [Servicios y datos](#servicios-y-datos)
 * [Comunicación entre servicios](#comunicación-entre-servicios)
@@ -50,10 +50,10 @@ despliegue están en [Facilidad de modificación](#facilidad-de-modificación) y
 
 Una `Order` guarda el identificador del `User` y el del `Product`, pero no hay
 clave foránea que los relacione, porque están en bases distintas. El
-identificador del `User` es un `ObjectId` de MongoDB, que `Orders` guarda
-como texto; el del `Product`, un entero de PostgreSQL. Nada impide crear una
-`Order` con un identificador que no existe; eso se detecta más tarde, como se
-ve en [Consistencia de los datos](#consistencia-de-los-datos).
+identificador del `User` es un `ObjectId` de MongoDB, que `Orders` guarda como
+texto; el del `Product`, un entero de PostgreSQL. Nada impide crear una `Order`
+con un identificador que no existe; eso se detecta más tarde, como se ve en
+[Consistencia de los datos](#consistencia-de-los-datos).
 
 `orders-service`, `orders-worker` y `orders-projector` son la misma imagen de
 [Docker](https://www.docker.com/), con el [*relay* del
@@ -172,9 +172,9 @@ del *outbox* publica el evento en [RabbitMQ](https://www.rabbitmq.com/) un
 momento después. `Products` lo recibe por la cola `products.stock`, reserva el
 stock y publica `stock.reserved`, o `stock.rejected` si falta stock o el
 `Product` no existe. Una de las réplicas de `orders-worker` recibe la respuesta
-por la cola `orders.process`, verifica que el `User` exista y confirma o
-rechaza la `Order`. Si la rechaza después de la reserva, `Products` devuelve el
-stock: es una [Saga](PATTERNS.md#saga), con los pasos y las compensaciones en
+por la cola `orders.process`, verifica que el `User` exista y confirma o rechaza
+la `Order`. Si la rechaza después de la reserva, `Products` devuelve el stock:
+es una [Saga](PATTERNS.md#saga), con los pasos y las compensaciones en
 [Consistencia de los datos](#consistencia-de-los-datos).
 
 ```mermaid
@@ -250,8 +250,8 @@ que la respuesta lo redirige a la `Order` con su resultado. Si no recibe el
 `202` y reintenta, puede mandar el encabezado `Idempotency-Key` con la misma
 clave en cada intento: `Orders` guarda la clave junto con la `Order` y, si la
 vuelve a recibir, responde con la `Order` que ya creó en lugar de crear otra.
-Ver [Asynchronous
-Request-Reply](PATTERNS.md#asynchronous-request-reply) en PATTERNS.md.
+Ver [Asynchronous Request-Reply](PATTERNS.md#asynchronous-request-reply) en
+PATTERNS.md.
 
 ### Consulta de detalle desde la vista: eventos
 
@@ -353,8 +353,8 @@ recién cambiado tarda en actualizarse.
   el stock, al menos una réplica de orders-worker, y users-service con
   users-db. -->
 * La consulta de detalle hace una llamada a `Products` por cada `Order`. ¿Qué
-  pasa con un `User` que tiene 100 `Orders`? La vista lo resuelve: ¿qué se
-  paga a cambio?
+  pasa con un `User` que tiene 100 `Orders`? La vista lo resuelve: ¿qué se paga
+  a cambio?
   <!-- → Con 100 Orders hace 100 llamadas a Products, una después de otra: la
   latencia se suma, las llamadas llenan el compartimento del Bulkhead y es más
   probable que alguna falle. Se podría pedir cada Product distinto una sola vez,
@@ -388,8 +388,8 @@ disponible el 99.9% del tiempo, unos 43 minutos sin servicio por mes:
 Cada servicio que se agrega a una cadena síncrona baja la disponibilidad de la
 operación, aunque cada servicio por separado sea muy confiable. La entrada HTTPS
 agrega [Keycloak](https://www.keycloak.org/) a todas las operaciones, porque el
-gateway le pregunta si cada token es válido. Hay tres formas de romper la
-cadena y la aplicación usa las tres:
+gateway le pregunta si cada token es válido. Hay tres formas de romper la cadena
+y la aplicación usa las tres:
 
 * **Degradar la respuesta:** la consulta de detalle responde aunque falten
   `Users` o `Products`, con "no disponible" en lugar del nombre. La respuesta
@@ -554,10 +554,10 @@ Todos los mensajes pasan por RabbitMQ; los del ERP pasan, además, por el
   [Cache-Aside](PATTERNS.md#cache-aside) en PATTERNS.md.
 * **El precio no se guarda en la `Order`.** Si cambia el precio de un `Product`,
   no queda registro de cuánto valía cuando se creó la `Order`.
-* **Los eventos son la fuente de verdad de `Orders`.** Cada cambio de una `Order`
-  se guarda como un evento y la tabla de `Orders` se puede reconstruir a partir
-  de ellos: ver [Event
-  Sourcing](PATTERNS.md#event-sourcing) en PATTERNS.md.
+* **Los eventos son la fuente de verdad de `Orders`.** Cada cambio de una
+  `Order` se guarda como un evento y la tabla de `Orders` se puede reconstruir a
+  partir de ellos: ver [Event Sourcing](PATTERNS.md#event-sourcing) en
+  PATTERNS.md.
 
 **Para analizar:**
 
@@ -592,8 +592,9 @@ Todos los mensajes pasan por RabbitMQ; los del ERP pasan, además, por el
 
 Una operación es **idempotente** si ejecutarla varias veces tiene el mismo
 efecto que ejecutarla una vez. El [Retry](PATTERNS.md#retry) solo es seguro si
-lo que reintenta es idempotente: una llamada que falla por *timeout* pudo haberse ejecutado igual, y
-el reintento la ejecuta otra vez. El catálogo de Azure lo advierte en el [patrón
+lo que reintenta es idempotente: una llamada que falla por *timeout* pudo
+haberse ejecutado igual, y el reintento la ejecuta otra vez. El catálogo de
+Azure lo advierte en el [patrón
 Retry](https://learn.microsoft.com/azure/architecture/patterns/retry).
 
 En esta aplicación, una misma operación puede ejecutarse más de una vez por
@@ -621,8 +622,8 @@ operación tiene que poder repetirse.
 9110](https://datatracker.ietf.org/doc/html/rfc9110#name-idempotent-methods)
 define `GET`, `PUT` y `DELETE` como idempotentes, pero `POST` no. Pero el Retry
 reintenta `GetUser`, que viaja como `POST` porque `Users` usa
-[SOAP](https://www.w3.org/TR/soap/), y es seguro
-porque solo lee. Reintentar `CreateUser`, que también es un `POST`, no lo sería.
+[SOAP](https://www.w3.org/TR/soap/), y es seguro porque solo lee. Reintentar
+`CreateUser`, que también es un `POST`, no lo sería.
 
 **Cómo lo resuelve la aplicación.** Cada operación que se puede repetir usa una
 técnica distinta. Sin ella pasaría lo que dice la tabla:
@@ -631,15 +632,15 @@ técnica distinta. Sin ella pasaría lo que dice la tabla:
 | --------- | ---------------- | ------- | ----- |
 | Factura del ERP | Un pedido repetido generaría otra factura, con otro número | Identificador determinístico: el número de factura sale del número de pedido | [Messaging Bridge](PATTERNS.md#messaging-bridge) |
 | Confirmación de una `Order` | Dos *workers* confirmarían la misma `Order`, con dos `OrderConfirmed` y dos `order.confirmed` | Transición de estado condicional: un `UPDATE` que solo cambia una `Order` `Pending` | [Competing Consumers para disponibilidad](PATTERNS.md#competing-consumers-para-disponibilidad) |
-| Reserva de stock | Un `order.created` repetido descontaría el stock dos veces | Inserción que falla por una restricción única: la reserva tiene como clave la `Order`, y se inserta en la misma transacción que descuenta el stock | [Saga](PATTERNS.md#saga) |
-| Liberación de stock | Una compensación repetida devolvería el stock dos veces | Transición de estado condicional: un `UPDATE` que solo libera una reserva `Reserved`, y suma el stock solo si cambió una fila | [Saga](PATTERNS.md#saga) |
+| Reserva de stock | Un `order.created` repetido descontaría el stock dos veces | Inserción que falla por una restricción única: la reserva tiene como clave la `Order` y se inserta en la misma transacción que descuenta el stock | [Saga](PATTERNS.md#saga) |
+| Liberación de stock | Una compensación repetida devolvería el stock dos veces | Transición de estado condicional: un `UPDATE` que solo libera una reserva `Reserved` y suma el stock solo si cambió una fila | [Saga](PATTERNS.md#saga) |
 | Fila de la vista materializada | Una copia de `order.created` fallaría por la clave primaria, y un estado que llega antes que la fila se perdería | *Upsert*: insertar o actualizar en una sola sentencia | [Materialized View](PATTERNS.md#materialized-view) |
 | Historial de eventos | La misma factura quedaría dos veces | Índice único por `Order` y tipo de evento | [Materialized View](PATTERNS.md#materialized-view) |
 | `POST /orders/` | Un reintento del cliente crearía otra `Order` | Clave de idempotencia, en el encabezado `Idempotency-Key` | [Asynchronous Request-Reply](PATTERNS.md#asynchronous-request-reply) |
 
 **La trampa del *check-then-act*.** Preguntar si algo ya se hizo y, si no,
 hacerlo, son dos pasos. Con un solo consumidor alcanza; con dos a la vez, los
-dos preguntan antes de que ninguno escriba, y los dos escriben. La verificación
+dos preguntan antes de que ninguno escriba y los dos escriben. La verificación
 y la escritura tienen que ser una sola operación atómica: un `UPDATE` con
 condición, un *upsert* o una inserción que falla por una restricción única. Es
 lo que el catálogo de Azure describe como [Idempotent
@@ -657,7 +658,7 @@ Dos matices:
   fecha de cada nombre.
 
 **Costos.** Recordar qué ya se hizo es estado adicional: claves, índices y filas
-que viven en la base, no en la réplica. Ese estado crece, y en producción se
+que viven en la base, no en la réplica. Ese estado crece y en producción se
 borra después de un plazo; un reintento que llega después se trata como una
 operación nueva.
 
@@ -686,7 +687,7 @@ vive en la instancia.
   lo que aprovechan [Competing
   Consumers](PATTERNS.md#competing-consumers-para-disponibilidad) y estrategias
   de despliegue como [Rolling Upgrade](PATTERNS.md#rolling-upgrade).
-* Una réplica se puede apagar cuando no tiene trabajo, y encender otra cuando
+* Una réplica se puede apagar cuando no tiene trabajo y encender otra cuando
   llega. Es lo que aprovecha el escalado a cero de [Use Serverless Cloud
   Services](PATTERNS.md#use-serverless-cloud-services): con estado en memoria,
   apagar el *worker* perdería lo que estaba procesando.
@@ -699,23 +700,24 @@ se describe más abajo:
 | ---------- | -------- | -------------------- |
 | `orders-service` | 1 | [MySQL](https://www.mysql.com/): `orders`, `order_events`, `outbox_messages` e `idempotency_keys` |
 | `orders-worker` | 3; en el clúster de [Kubernetes](https://kubernetes.io/), de 0 a 6 en las demos 36 y 37 | MySQL y la cola `orders.process` |
-| `orders-projector` | 3 | MySQL, `order_details`, y la cola `orders.details-view` |
+| `orders-projector` | 3 | MySQL, `order_details` y la cola `orders.details-view` |
 | `users-service` y `users-service-v2` | 1 de cada versión | [MongoDB](https://www.mongodb.com/); la variante de cada `User`, en [Unleash](https://www.getunleash.io/) |
 | `products-service` | 1, por el *sidecar* | [PostgreSQL](https://www.postgresql.org/): `products`, `stock_reservations` y `outbox_messages`; la cola `products.stock`; la caché en [Redis](https://redis.io/) y las imágenes en [Azurite](https://github.com/Azure/Azurite) |
 | `bff-web` y `bff-mobile` | 1 | No tienen: llaman a los servicios en cada solicitud |
 | `api-gateway` | 1 | Las sesiones, en [Keycloak](https://www.keycloak.org/); el límite de `POST /orders/` por cliente, en su memoria |
 | `messaging-bridge` | 1 | RabbitMQ y [ActiveMQ](https://activemq.apache.org/); tiene una sola instancia para conservar el orden de los pedidos |
 
-**Qué hace falta para que sean *stateless*.** El código de la aplicación ya tiene
-resuelto cada caso. Esta tabla a continuación muestra lo que podría haber habido
-con una solución más directa y más simple, y cómo se resolvió en la aplicación:
+**Qué hace falta para que sean *stateless*.** El código de la aplicación ya
+tiene resuelto cada caso. Esta tabla a continuación muestra lo que podría haber
+habido con una solución más directa y más simple, y cómo se resolvió en la
+aplicación:
 
 | Caso | Solución *stateful* | Solución *stateless* | Dónde |
 | ---- | ------------------- | -------------------- | ----- |
-| Caché de `Products` | Con una caché en la memoria de cada réplica, al cambiar un `Product` la invalidación borraría la copia de una sola, y las demás seguirían respondiendo el dato viejo hasta que venciera | La caché está en Redis, compartida: una invalidación vale para todas las réplicas | [Cache-Aside](PATTERNS.md#cache-aside) |
-| Variante del A/B Testing | Si cada réplica eligiera la variante al azar, o la recordara en memoria, un mismo `User` vería una variante distinta según la réplica que lo atendiera, y el experimento no se podría medir | Unleash la elige con un *hash* del id del `User`: todas las réplicas eligen la misma | [A/B Testing](PATTERNS.md#ab-testing) |
-| Configuración | Con los valores en las variables de entorno, o leídos una sola vez al arrancar, cambiarlos obligaría a redesplegar cada réplica, y las réplicas quedarían con valores distintos mientras tanto | Los valores están en [Consul](https://developer.hashicorp.com/consul); cada proceso los vuelve a leer cada 2 segundos, y el código los lee en cada uso | [External Configuration Store](PATTERNS.md#external-configuration-store) |
-| Identidad | Una sesión guardada en la memoria de una instancia obligaría a mandar todas las solicitudes de un usuario a esa instancia | El token de Keycloak viaja en cada solicitud, y ninguna instancia guarda la sesión | [Federated Identity](PATTERNS.md#federated-identity) |
+| Caché de `Products` | Con una caché en la memoria de cada réplica, al cambiar un `Product` la invalidación borraría la copia de una sola de ellas y las demás seguirían respondiendo el dato viejo hasta que venciera | La caché está en Redis, compartida: una invalidación vale para todas las réplicas | [Cache-Aside](PATTERNS.md#cache-aside) |
+| Variante del A/B Testing | Si cada réplica eligiera la variante al azar, o la recordara en memoria, un mismo `User` vería una variante distinta según la réplica que lo atendiera y el experimento no se podría medir | Unleash la elige con un *hash* del id del `User`: todas las réplicas eligen la misma | [A/B Testing](PATTERNS.md#ab-testing) |
+| Configuración | Con los valores en las variables de entorno, o leídos una sola vez al arrancar, cambiarlos obligaría a redesplegar cada réplica, que quedarían con valores distintos mientras tanto | Los valores están en [Consul](https://developer.hashicorp.com/consul); cada proceso los vuelve a leer cada 2 segundos y el código los lee en cada uso | [External Configuration Store](PATTERNS.md#external-configuration-store) |
+| Identidad | Una sesión guardada en la memoria de una instancia obligaría a mandar todas las solicitudes de un usuario a esa instancia | El token de Keycloak viaja en cada solicitud y ninguna instancia guarda la sesión | [Federated Identity](PATTERNS.md#federated-identity) |
 | *Relay* del *outbox* | Con dos instancias que leyeran los mensajes pendientes, las dos publicarían los mismos | `SELECT ... FOR UPDATE SKIP LOCKED`: cada mensaje lo toma una sola instancia | [Transactional Outbox](PATTERNS.md#transactional-outbox) |
 | *Worker* | Preguntaba si la `Order` seguía `Pending` y después la cambiaba: dos copias del mismo mensaje en dos réplicas a la vez la confirmaban dos veces | Un `UPDATE` condicional cambia el estado solo si la `Order` sigue `Pending` | [Competing Consumers para disponibilidad](PATTERNS.md#competing-consumers-para-disponibilidad) |
 | Reserva de stock | Con el stock reservado en la memoria de cada réplica, o preguntando primero si la `Order` ya tenía reserva, dos copias de `order.created` en dos réplicas descontarían el stock dos veces | El stock está en PostgreSQL; la reserva tiene como clave la `Order` y se inserta en la misma transacción que el descuento | [Saga](PATTERNS.md#saga) |
@@ -745,25 +747,25 @@ en memoria porque compartirlo costaría una llamada remota en cada solicitud. Al
 escalar, cada réplica decide por su cuenta:
 
 * **Circuit Breaker y Bulkhead**, en
-  [Resilience.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/OrdersService/Resilience.cs): cada réplica
-  cuenta sus propias fallas, abre su propio circuito y tiene sus propios lugares
-  en cada compartimento. Con tres *workers*, el circuito hacia `Users` de uno
-  puede estar abierto y el de otro, todavía cerrado.
+  [Resilience.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/OrdersService/Resilience.cs):
+  cada réplica cuenta sus propias fallas, abre su propio circuito y tiene sus
+  propios lugares en cada compartimento. Con tres *workers*, el circuito hacia
+  `Users` de uno puede estar abierto y el de otro, todavía cerrado.
 * **Throttling de `Orders`**, en
-  [Program.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/OrdersService/Program.cs): 20 consultas de
-  detalle a la vez **por réplica**. Con N réplicas de `orders-service`, el
-  límite efectivo es 20 × N.
+  [Program.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/OrdersService/Program.cs):
+  20 consultas de detalle a la vez **por réplica**. Con N réplicas de
+  `orders-service`, el límite efectivo es 20 × N.
 * **Throttling del gateway**, con
   [`limit_req_zone`](https://nginx.org/en/docs/http/ngx_http_limit_req_module.html#limit_req_zone):
   el límite de `POST /orders/` por cliente está en la memoria de **una**
-  instancia de [nginx](https://nginx.org/). Con dos
-  gateways, un cliente podría crear el doble de `Orders`.
+  instancia de [nginx](https://nginx.org/). Con dos gateways, un cliente podría
+  crear el doble de `Orders`.
 * **Ajustes de las demos**, `PatternSettings`, `ChaosSettings` y
   `CacheSettings`: un `PUT` llega a **una** réplica. `PUT /orders/patterns`
   cambia `orders-service`, pero no los *workers* ni los proyectores, que siguen
   con todos los patrones prendidos.
 * **La última configuración leída** de Consul y de Unleash: cada réplica tiene
-  su copia, y durante unos segundos dos réplicas pueden tener valores distintos.
+  su copia y durante unos segundos dos réplicas pueden tener valores distintos.
 
 Para un límite global, el contador tiene que salir del proceso, por ejemplo a
 Redis, a cambio de una llamada remota en cada solicitud.
@@ -794,22 +796,21 @@ coordinar con los demás. Hay varios lugares donde esta aplicación se acopla:
 * **Los contratos de los eventos.** Los proyectores esperan que
   `product.updated` traiga el identificador y el nombre del `Product`, y en la
   [Saga](PATTERNS.md#saga), `Orders`, `Products` y el puente esperan cada uno
-  los eventos de los otros.
-  Publisher/Subscriber desacopla en el tiempo y en el conocimiento: `Products`
-  no sabe quién recibe sus eventos, ni necesita que esté funcionando. Pero no
-  desacopla del contrato: si `Products` cambia la forma del evento, los
-  proyectores dejan de entenderlo, y `Products` no se entera.
+  los eventos de los otros. Publisher/Subscriber desacopla en el tiempo y en el
+  conocimiento: `Products` no sabe quién recibe sus eventos, ni necesita que
+  esté funcionando. Pero no desacopla del contrato: si `Products` cambia la
+  forma del evento, los proyectores dejan de entenderlo, y `Products` no se
+  entera.
 * **Los contratos HTTP.** `Orders` espera que `GET /products/{id}` devuelva un
   [JSON](https://www.json.org/) con el nombre. Si `Products` lo renombra,
   `Orders` deja de mostrar el nombre del producto, y nada lo detecta hasta que
-  se ejecuta. No hay versiones en las rutas. Los
-  [BFF](PATTERNS.md#backends-for-frontends) dependen de la misma forma de las
-  respuestas de `Orders` y de `Products`, y `Purchases`, de las de `Orders` y de
-  `Users`. En `Purchases`, esa dependencia está en un solo lugar, su [capa
-  anticorrupción](PATTERNS.md#anti-corruption-layer): si `Orders` o `Users`
-  cambian sus respuestas, solo cambian sus traductores.
-* **El formato del ERP.** El ERP espera registros de ancho fijo, y el puente
-  los traduce desde los eventos de la aplicación y hacia ellos, en
+  se ejecuta. No hay versiones en las rutas. Los [BFF](PATTERNS.md#backends-for-frontends)
+  dependen de la misma forma de las respuestas de `Orders` y de `Products`, y
+  `Purchases` depende de las de `Orders` y de `Users`. En `Purchases`, esa
+  dependencia está en un solo lugar, su [capa anticorrupción](PATTERNS.md#anti-corruption-layer):
+  si `Orders` o `Users` cambian sus respuestas, solo cambian sus traductores.
+* **El formato del ERP.** El ERP espera registros de ancho fijo, y el puente los
+  traduce desde los eventos de la aplicación y hacia ellos, en
   [ErpFormat.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/MessagingBridge/ErpFormat.cs).
   Si el ERP cambia un campo, cambia solo el puente; `Orders` y `Products` no
   conocen ese formato.
@@ -840,11 +841,10 @@ coordinar con los demás. Hay varios lugares donde esta aplicación se acopla:
   usuario. Si cambia el nombre del claim, del encabezado o del atributo,
   `Orders` deja de reconocer a los clientes. El *sidecar*, además, espera los
   roles en `realm_access.roles`, donde los pone Keycloak.
-* **La ubicación de cada servicio.** Las URL de `Users` y `Products` se pasan a
-  `Orders`, y las de los servicios que consultan a `Purchases` y a los BFF, por
-  variables de entorno, y [nginx](https://nginx.org/) encuentra cada servicio
-  por su nombre en el [DNS de
-  Docker](https://docs.docker.com/engine/network/#dns-services). No hay un
+* **La ubicación de cada servicio.** `Orders`, `Purchases` y los BFF reciben por
+  variables de entorno las URL de los servicios que consultan, y
+  [nginx](https://nginx.org/) encuentra cada servicio por su nombre en el [DNS
+  de Docker](https://docs.docker.com/engine/network/#dns-services). No hay un
   registro de servicios: Consul podría serlo, pero acá solo guarda valores de
   configuración, como límites y *feature flags*. El *worker* del clúster de
   [Kubernetes](https://kubernetes.io/) usa los nombres de host de Docker
@@ -910,17 +910,16 @@ entre sí. El *firewall* entre zonas y el gateway se complementan: el *firewall*
 decide quién se puede conectar, mientras que el gateway decide qué hacer con
 cada solicitud que le llega.
 
-En la nube, las mismas ideas se implementan con los servicios de cada
-proveedor:
+En la nube, las mismas ideas se implementan con los servicios de cada proveedor:
 
 * **Solo el gateway tiene dirección pública.** Los servicios, las bases, la
   caché y el broker de mensajes están en redes privadas; el único con dirección
   pública es el gateway.
 * **Reglas de quién se conecta con quién.** Las reglas de la red dejan entrar a
   un servicio solo el tráfico que viene del gateway o de los servicios que lo
-  llaman, y a cada base, solo el de su servicio. En Azure son los *Network
-  Security Groups*; en AWS, los *security groups*; en
-  [Kubernetes](https://kubernetes.io/), las `NetworkPolicies`.
+  llaman; y dejan entrar a cada base de datos solo el tráfico que viene de su
+  servicio. En Azure son los *Network Security Groups*; en AWS, los *security
+  groups*; en [Kubernetes](https://kubernetes.io/), las `NetworkPolicies`.
 * **Servicios administrados con entrada interna.** En Azure, [Container
   Apps](https://azure.microsoft.com/products/container-apps/) admite una entrada
   interna, que solo se alcanza desde la red virtual, y [App
@@ -941,14 +940,16 @@ proveedor:
   fuera del clúster. Solo se expone el *Gateway* de [Gateway
   API](https://gateway-api.sigs.k8s.io/), que reemplaza al antiguo *ingress
   controller* y cumple el papel del gateway. Las demos de despliegue con
-  Kubernetes lo hacen así: [gateway.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/k8s/base/gateway.yaml) es el
-  único punto de entrada al clúster, y `Users` y su base son `ClusterIP`.
+  Kubernetes lo hacen así:
+  [gateway.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/k8s/base/gateway.yaml)
+  es el único punto de entrada al clúster, y `Users` y su base son `ClusterIP`.
 
-En la demo, [docker-compose.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/docker-compose.yaml) publica en el host los
-puertos de los servicios y de las bases, para probarlos directamente y para las
-demos que los usan.
-[docker-compose.gatekeeper.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/docker-compose.gatekeeper.yaml) muestra el
-efecto de dejar de publicarlos. Dentro de la red de
+En la demo,
+[docker-compose.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/docker-compose.yaml)
+publica en el host los puertos de los servicios y de las bases, para probarlos
+directamente y para las demos que los usan.
+[docker-compose.gatekeeper.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/docker-compose.gatekeeper.yaml)
+muestra el efecto de dejar de publicarlos. Dentro de la red de
 [Docker](https://www.docker.com/) no hay reglas: cualquier contenedor llega a
 cualquier otro.
 
@@ -965,9 +966,8 @@ estar adentro de la red no prueba nada:
   [Linkerd](https://linkerd.io/), lo hace sin cambiar el código, con un
   *sidecar* en cada servicio.
 * **Cada servicio verifica el token, él o su *sidecar*.** El gateway le pasa el
-  token al servicio, que verifica la firma con las claves públicas del
-  proveedor de identidad, en lugar de confiar en encabezados que cualquiera
-  podría mandar.
+  token al servicio, que verifica la firma con las claves públicas del proveedor
+  de identidad, en lugar de confiar en encabezados que cualquiera podría mandar.
 * **Identidades administradas y un almacén de secretos.** Cada servicio tiene
   una identidad que le da la plataforma, como *Managed Identity* en Azure o un
   rol de [IAM](https://aws.amazon.com/iam/) en AWS, y las contraseñas que
@@ -976,9 +976,9 @@ estar adentro de la red no prueba nada:
   Manager](https://aws.amazon.com/secrets-manager/), y no en la configuración.
 
 En la demo, solo `Products` tiene *sidecar*, que verifica la firma del token.
-`Orders` confía en los encabezados `X-User-Id`, `X-User-Name` y
-`X-User-Roles` que arma el gateway: es el punto débil del diseño, y es seguro
-solo si nadie más puede llegar a `Orders`. No hay TLS entre los servicios.
+`Orders` confía en los encabezados `X-User-Id`, `X-User-Name` y `X-User-Roles`
+que arma el gateway: es el punto débil del diseño, y es seguro solo si nadie más
+puede llegar a `Orders`. No hay TLS entre los servicios.
 
 | Control | En la demo | En producción |
 | ------- | ---------- | ------------- |
@@ -1013,7 +1013,7 @@ solo si nadie más puede llegar a `Orders`. No hay TLS entre los servicios.
   que lo saturen. Cada capa cubre lo que la otra no: es defensa en profundidad.
   -->
 * `Orders` confía en los encabezados del gateway. ¿Qué cambiaría si verificara
-  el token? ¿Qué cuesta, y quién debería hacerlo: `Orders` o un *sidecar*?
+  el token? ¿Qué cuesta y quién debería hacerlo: `Orders` o un *sidecar*?
   <!-- → Los encabezados falsos dejarían de servir, y Orders ya no dependería de
   que nadie más pueda llegar a él. Cuesta configurar la validación de JWT,
   obtener y renovar las claves públicas de Keycloak, que el gateway reenvíe el
@@ -1029,18 +1029,18 @@ Hay cinco cambios que la aplicación absorbe sin tocar su lógica de dominio; c�
 se implementó cada uno está en [Demos de facilidad de
 modificación](PATTERNS.md#demos-de-facilidad-de-modificación), en PATTERNS.md.
 
-Cuánto cuesta cada uno y cómo se midió, está en
-[Tamaño del cambio](PATTERNS.md#tamaño-del-cambio).
+Cuánto cuesta cada uno y cómo se midió, está en [Tamaño del
+cambio](PATTERNS.md#tamaño-del-cambio).
 
 Estos son los cambios que los patrones anticipan, no cualquier cambio: qué queda
-afuera de cada uno está en
-[Patrones de facilidad de modificación](PATTERNS.md#patrones-de-facilidad-de-modificación).
+afuera de cada uno está en [Patrones de facilidad de
+modificación](PATTERNS.md#patrones-de-facilidad-de-modificación).
 
 | Cambio | Qué se toca | Qué no se toca |
 | ------ | ----------- | -------------- |
 | `Orders` o `Users` cambian su modelo | El traductor de la capa anticorrupción de `Purchases` | El modelo de `Purchases` |
 | Cambiar un límite o un flag | Un valor en [Consul](https://developer.hashicorp.com/consul) | Las imágenes y los contenedores |
-| Integrar un ERP con otro broker | Un puente nuevo, y un suscriptor de la factura | El ERP y el flujo de creación de `Orders` |
+| Integrar un ERP con otro broker | Un puente nuevo y un suscriptor de la factura | El ERP y el flujo de creación de `Orders` |
 | Migrar una ruta del monolito | Una línea en la tabla de la fachada | Los clientes |
 | Cambiar lo que muestra la app móvil | `bff-mobile` | `bff-web` y los servicios |
 
@@ -1127,14 +1127,14 @@ componentes:
 
 | Componente | Es dueño de | Lo llaman | Llama a |
 | ---------- | ----------- | --------- | ------- |
-| `users-service-v2` | Nada propio: comparte la base de `users-service` | gateway, por la entrada de despliegue | [RabbitMQ](https://www.rabbitmq.com/), para publicar `user.updated`, y Unleash, para leer el *flag* del experimento |
+| `users-service-v2` | Nada propio: comparte la base de `users-service` | gateway, por la entrada de despliegue | [RabbitMQ](https://www.rabbitmq.com/) para publicar `user.updated` y Unleash para leer el *flag* del experimento |
 | `unleash` | El *flag* `users-display-name` y sus estrategias, en `unleash-db` | `users-service-v2` cada 2 segundos, con [OpenFeature](https://openfeature.dev/); las demos, con su API de administración | Nada |
 | El clúster de kind | Otra copia de `Users` y de su base, con una imagen por versión, y su propio Prometheus | k6 y las demos 32 a 34, por el Gateway en el puerto 8092 | Nada fuera del clúster |
 
 **Para analizar:**
 
-* Si la versión `v2` de `Users` necesitara una columna nueva en `users`, ¿cómo se
-  haría Blue/Green sin perder la vuelta atrás?
+* Si la versión `v2` de `Users` necesitara una columna nueva en `users`, ¿cómo
+  se haría Blue/Green sin perder la vuelta atrás?
   <!-- → En pasos compatibles con las dos versiones: primero se agrega la columna
   sin que la versión `v1` la necesite, después se conmuta, y recién cuando no hay
   vuelta atrás se quita lo que solo usaba la `v1`. Es el patrón expand and contract:
@@ -1166,9 +1166,8 @@ componentes:
 
 ## Eficiencia energética
 
-Las demos 35 a 37 miden la energía que consume el *worker* de `Orders`, y la
-reducen. Cómo
-se implementó cada patrón está en [Demos de eficiencia
+Las demos 35 a 37 miden la energía que consume el *worker* de `Orders` y la
+reducen. Cómo se implementó cada patrón está en [Demos de eficiencia
 energética](PATTERNS.md#demos-de-eficiencia-energética), en PATTERNS.md.
 
 El *worker* es el componente donde más se nota: recibe el trabajo en picos, a
@@ -1183,15 +1182,15 @@ Los tres patrones dependen de dos propiedades que el *worker* ya tenía:
 * **Es *stateless*.** Una réplica se apaga o se enciende sin perder nada ‑ver
   [Stateless y estado por réplica](#stateless-y-estado-por-réplica)‑.
 
-En las demos, el *worker* corre en el clúster de [kind](https://kind.sigs.k8s.io/)
-de las demos 32 a 34, y usa el resto de la aplicación de [Docker
-Compose](https://docs.docker.com/compose/):
+En las demos, el *worker* corre en el clúster de
+[kind](https://kind.sigs.k8s.io/) de las demos 32 a 34 y usa el resto de la
+aplicación de [Docker Compose](https://docs.docker.com/compose/):
 
 | Componente | Es dueño de | Lo llaman | Llama a |
 | ---------- | ----------- | --------- | ------- |
 | `orders-worker` del clúster | Nada propio: el estado está en MySQL y en la cola | Nadie: consume `orders.process` | MySQL, `Users`, `Products` y RabbitMQ de Docker Compose, por la red de Docker |
 | [KEDA](https://keda.sh/) | Las réplicas del *worker*, en las demos 36 y 37 | Nadie | La API de administración de RabbitMQ, para saber el largo de la cola, en la 36; `GET /energy/window` de `orders-service`, para saber si la ventana está abierta, en la 37; y la API de [Kubernetes](https://kubernetes.io/) |
-| Prometheus del clúster | La potencia estimada de cada pod | Grafana | El [kubelet](https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet/), por la CPU usada, y [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics), por la reservada |
+| Prometheus del clúster | La potencia estimada de cada pod | Grafana | El [kubelet](https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet/) por la CPU usada y [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics) por la CPU reservada |
 
 Los tres patrones agregan componentes que también consumen, encendidos todo el
 tiempo: Prometheus y kube-state-metrics para medir, y KEDA para escalar. El
@@ -1202,7 +1201,7 @@ Mejorar la eficiencia energética cambia otros atributos de calidad:
 | Patrón | Qué empeora | Por qué |
 | ------ | ----------- | ------- |
 | [Use Serverless Cloud Services](PATTERNS.md#use-serverless-cloud-services) | El rendimiento del primer mensaje después de un período ocioso | Espera a que arranque un pod: unos 10 segundos |
-| [Queue Non-Urgent Processing Requests](PATTERNS.md#queue-non-urgent-processing-requests) | El tiempo hasta que la `Order` se confirma, y la consistencia | La `Order` queda `Pending` hasta la ventana, y su stock reservado mientras tanto |
+| [Queue Non-Urgent Processing Requests](PATTERNS.md#queue-non-urgent-processing-requests) | El tiempo hasta que la `Order` se confirma, y la consistencia | La `Order` queda `Pending` hasta la ventana y su stock queda reservado mientras tanto |
 
 Y al revés: varios patrones de disponibilidad consumen más energía.
 [Retry](PATTERNS.md#retry) multiplica las llamadas, y las réplicas de [Competing
@@ -1214,7 +1213,8 @@ PATTERNS.md‑.
 **Para analizar:**
 
 * El escalado a cero de la demo 36 consumió más que las réplicas fijas cuando
-  los picos llegaban cada 90 segundos, y menos cuando llegaban cada 4 minutos.
+  los picos llegaban cada 90 segundos y menos que ellas cuando llegaban cada 4
+  minutos.
   ¿De qué depende el punto de equilibrio?
   <!-- → De cuánto consume una réplica ociosa, que es lo que se ahorra entre
   picos, y de cuánto consume encender las réplicas para cada pico: el arranque
@@ -1248,7 +1248,7 @@ producción.
 | -------- | ----------- | ---------- | --------------- |
 | La entrada [HTTP](https://datatracker.ietf.org/doc/html/rfc9110) del gateway sigue abierta, sin autenticación ni [TLS](https://datatracker.ietf.org/doc/html/rfc8446), junto a la HTTPS | Las demos con HTTP funcionan igual, y se compara cada solicitud con y sin los patrones de seguridad | Por HTTP, cualquiera puede crear `Orders` o `Users` sin identificarse | [Demos de seguridad](PATTERNS.md#demos-de-seguridad): [Federated Identity](PATTERNS.md#federated-identity), [Gateway Offloading](PATTERNS.md#gateway-offloading); en producción quedaría solo la HTTPS |
 | Los endpoints de inyección de fallas son accesibles a través de la entrada HTTP del gateway | Las demos se controlan desde afuera | Cualquiera puede hacer fallar un servicio | [Demos de seguridad](PATTERNS.md#demos-de-seguridad): [Gatekeeper](PATTERNS.md#gatekeeper), que no los publica por HTTPS |
-| Los puertos de los servicios y de las bases se publican en el host | Se pueden probar sin pasar por el gateway | Cualquiera se saltea los controles del gateway, y puede hacerse pasar por otro usuario mandando los encabezados de identidad | [Demos de seguridad](PATTERNS.md#demos-de-seguridad): [Gatekeeper](PATTERNS.md#gatekeeper), con `docker-compose.gatekeeper.yaml` |
+| Los puertos de los servicios y de las bases se publican en el host | Se pueden probar sin pasar por el gateway | Cualquiera se saltea los controles del gateway y puede hacerse pasar por otro usuario mandando los encabezados de identidad | [Demos de seguridad](PATTERNS.md#demos-de-seguridad): [Gatekeeper](PATTERNS.md#gatekeeper), con `docker-compose.gatekeeper.yaml` |
 | El gateway valida cada token preguntándole a [Keycloak](https://www.keycloak.org/) | Se entera enseguida si una sesión se cerró | Una llamada a Keycloak por solicitud; si Keycloak no responde, nadie entra | — |
 | Un solo *sidecar*, sin TLS entre los servicios | Menos infraestructura | El tráfico dentro de la red viaja sin cifrar, y `Orders` y `Users` no tienen *sidecar* | — |
 | Keycloak en modo desarrollo | Arranca con un comando y sin base propia | Si se vuelve a crear el contenedor, se pierden las sesiones y los cambios hechos en la consola | — |
@@ -1285,9 +1285,9 @@ producción.
   réplicas para tener transacciones, o captura de cambios de la base con
   Debezium; consecuencias, simplicidad a cambio de eventos perdidos y una vista
   que hay que reparar a mano. -->
-* `Users` guarda los `Users` en MongoDB sin réplicas, que no tiene
-  transacciones con varios documentos. ¿Cómo podría publicar `user.updated` con
-  un *outbox* igual? ¿Y para tener varias réplicas de `products-service`?
+* `Users` guarda los `Users` en MongoDB sin réplicas, que no tiene transacciones
+  con varios documentos. ¿Cómo podría publicar `user.updated` con un *outbox*
+  igual? ¿Y para tener varias réplicas de `products-service`?
   <!-- → Para Users hay dos caminos. Uno es un replica set de MongoDB, aunque
   sea de un solo nodo: admite transacciones con varios documentos, y el cambio
   y el mensaje se guardan juntos en dos colecciones, como en Orders y Products;

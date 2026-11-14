@@ -11,16 +11,14 @@ Rollouts](https://argoproj.github.io/rollouts/) o Kubernetes, y en la 33 y la 34
 avanzar o volver atrás lo decide un análisis de las métricas de la versión
 nueva. Qué muestra cada demo está en [Patrones de facilidad de
 despliegue](../PATTERNS.md#patrones-de-facilidad-de-despliegue), en PATTERNS.md,
-y el paso a paso, en
-[06-deployability.azcli](../commands/06-deployability.azcli).
+mientras que el paso a paso está en [06-deployability.azcli](../commands/06-deployability.azcli).
 
 Las demos 35 a 37 son las de eficiencia energética: el *worker* de `Orders`
 corre en el clúster, [Prometheus](https://prometheus.io/) estima la energía de
-cada pod, y [KEDA](https://keda.sh/) cambia sus réplicas según la cola o según
+cada pod y [KEDA](https://keda.sh/) cambia sus réplicas según la cola o según
 una ventana. Qué muestra cada demo está en [Patrones de eficiencia
-energética](../PATTERNS.md#patrones-de-eficiencia-energética), en PATTERNS.md, y
-el paso a paso, en
-[07-energy-efficiency.azcli](../commands/07-energy-efficiency.azcli).
+energética](../PATTERNS.md#patrones-de-eficiencia-energética), en PATTERNS.md,
+mientras que el paso a paso está en [07-energy-efficiency.azcli](../commands/07-energy-efficiency.azcli).
 
 ## Cómo se usa
 
@@ -60,7 +58,7 @@ al terminar.
 | [users-db.yaml](base/users-db.yaml) | La base de `Users`, con los mismos datos iniciales que en Docker Compose |
 | [users-config.yaml](base/users-config.yaml) | La configuración de `Users`. No lleva la versión: cada versión es una imagen |
 | [gateway.yaml](base/gateway.yaml) | La entrada de los clientes: un *Gateway* de [Gateway API](https://gateway-api.sigs.k8s.io/), implementado con [NGINX Gateway Fabric](https://docs.nginx.com/nginx-gateway-fabric/) |
-| [prometheus.yaml](base/prometheus.yaml) | Prometheus, que encuentra los pods de `Users` preguntándole a [Kubernetes](https://kubernetes.io/). También lee la CPU que usa cada contenedor, del [cAdvisor](https://github.com/google/cadvisor) del kubelet, y la que reserva, de [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics), y estima la potencia de cada pod con las reglas de `energy.rules.yml` |
+| [prometheus.yaml](base/prometheus.yaml) | Prometheus, que encuentra los pods de `Users` preguntándole a [Kubernetes](https://kubernetes.io/). También lee del [cAdvisor](https://github.com/google/cadvisor) del kubelet la CPU que usa cada contenedor y de [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics) la CPU que reserva, y estima la potencia de cada pod con las reglas de `energy.rules.yml` |
 | [analysis-error-rate.yaml](base/analysis-error-rate.yaml) | El análisis de las demos 33 y 34: la fracción de errores de los pods de la versión nueva |
 | [argo-rollouts-gateway-api.yaml](base/argo-rollouts-gateway-api.yaml) | El permiso del plugin de Gateway API de [Argo Rollouts](https://argoproj.github.io/rollouts/) para cambiar los pesos de las rutas |
 | [blue-green](blue-green/) | La demo 32: el `Rollout` con la estrategia `blueGreen`, los Service `users-active` y `users-preview`, y sus rutas |

@@ -252,10 +252,9 @@ muestran cada `[RETRY]` con su demora y su causa; el comando para verlos está e
 
 > [!TIP]
 >
-> Consulta [Build resilient HTTP apps: Key development
-> patterns](https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience)
-> para tener más información sobre cómo `AddResilienceHandler` arma el
-> *pipeline* de cada `HttpClient`, y [HTTP requests with
+> Consulta [Build resilient HTTP apps: Key development patterns](https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience)
+> para tener más información sobre cómo `AddResilienceHandler` arma
+> el *pipeline* de cada `HttpClient`. Consulta [HTTP requests with
 > IHttpClientFactory](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/http-requests?view=aspnetcore-10.0)
 > sobre los `HttpClient` con nombre, uno por dependencia.
 
@@ -312,12 +311,13 @@ que `Products` falle en el 100% de las solicitudes y consulta el detalle 6 veces
 con todos los patrones apagados y 6 con solo el Circuit Breaker prendido. Sin el
 circuito, `Products` recibe 12 llamadas, aunque falle siempre; con el circuito,
 5. Sin reintentos, cada falla cuenta una vez: las dos primeras consultas dicen
-`"no disponible [error HTTP 503]"`, en la tercera el circuito se abre, y desde
-ahí responden con `"no disponible [circuito abierto]"` sin llamar a `Products`.
-Cuando `Products` se recupera, el circuito sigue abierto hasta que pasan los 15
-segundos. Los *logs* de Docker muestran las transiciones ABIERTO → SEMIABIERTO →
-CERRADO. Con el Retry prendido, la primera consulta tardaría unos 3 segundos,
-porque reintentaría cada llamada antes de que se abriera el circuito.
+`"no disponible [error HTTP 503]"`, en la tercera el circuito se abre y de ahí
+en adelante responden con `"no disponible [circuito abierto]"` sin llamar a
+`Products`. Cuando `Products` se recupera, el circuito sigue abierto hasta que
+pasan los 15 segundos. Los *logs* de Docker muestran las transiciones ABIERTO →
+SEMIABIERTO → CERRADO. Con el Retry prendido, la primera consulta tardaría unos
+3 segundos, porque reintentaría cada llamada antes de que se abriera el
+circuito.
 
 > [!TIP]
 >
@@ -404,7 +404,7 @@ sus clientes.
 **Implementación:** `Orders` atiende como máximo 20 consultas de detalle a la
 vez. Las que exceden el límite reciben `503 Service Unavailable` con
 `Retry-After: 2`, en lugar de encolarse. La política `throttling` se define con
-`AddRateLimiter` en [Program.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/OrdersService/Program.cs), y
+`AddRateLimiter` en [Program.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/OrdersService/Program.cs) y
 se aplica con el atributo `[EnableRateLimiting("throttling")]` en el método
 `GetOrdersForUser` de la clase `OrdersController`, en
 [OrdersController.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/OrdersService/Controllers/OrdersController.cs).
@@ -702,7 +702,7 @@ copias a la vez:
 3. La segunda deshace su transacción, registra `[COMPETING CONSUMERS] …
    descarta la orden` y no agrega ni el evento ni el mensaje.
 
-`from` es el estado de origen: `Pending` para confirmar o rechazar, y
+`from` es el estado de origen: es `Pending` para confirmar o rechazar y
 `Confirmed` para cancelar. La lectura del principio de `ConfirmAsync` sigue
 estando, sin seguimiento de cambios ‑`AsNoTracking`‑. No decide nada: solo evita
 llamar a `Users` cuando una copia llega después de que la `Order` ya se procesó. El
@@ -840,12 +840,10 @@ y volver a cero.
 
 > [!TIP]
 >
-> Consulta [Transactions - EF
-> Core](https://learn.microsoft.com/en-us/ef/core/saving/transactions) para
-> tener más información sobre la transacción que guarda la `Order`, su evento y
-> el mensaje, y [SQL Queries - EF
-> Core](https://learn.microsoft.com/en-us/ef/core/querying/sql-queries) sobre
-> `FromSqlRaw`, con el que el *relay* lee los mensajes pendientes.
+> Consulta [Transactions - EF Core](https://learn.microsoft.com/en-us/ef/core/saving/transactions)
+> para tener más información sobre la transacción que guarda la `Order`, su
+> evento y el mensaje. Consulta [SQL Queries - EF Core](https://learn.microsoft.com/en-us/ef/core/querying/sql-queries)
+> sobre `FromSqlRaw`, con el que el *relay* lee los mensajes pendientes.
 
 #### Saga
 
@@ -902,10 +900,8 @@ quedaría `Pending` para siempre, con el stock descontado.
 **Coreografía u orquestación.** La alternativa es un orquestador: un componente
 que le dice a cada participante qué hacer, sabe en qué paso está cada `Order` y
 decide las compensaciones. En [Azure](https://azure.microsoft.com/) puede ser
-[Durable
-Functions](https://learn.microsoft.com/azure/azure-functions/durable/durable-functions-overview),
-y en [AWS](https://aws.amazon.com/), [Step
-Functions](https://aws.amazon.com/step-functions/).
+[Durable Functions](https://learn.microsoft.com/azure/azure-functions/durable/durable-functions-overview)
+y en [AWS](https://aws.amazon.com/) puede ser [Step Functions](https://aws.amazon.com/step-functions/).
 
 | | Coreografía | Orquestación |
 | - | ----------- | ------------ |
@@ -972,12 +968,11 @@ compensaciones `Released`.
 
 > [!TIP]
 >
-> Consulta [Saga distributed transactions
-> pattern](https://learn.microsoft.com/azure/architecture/patterns/saga) en el
-> catálogo de Azure, y [Saga
-> patterns](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/saga.html)
-> en el de AWS, para tener más información sobre la coreografía, la orquestación
-> y las contramedidas para la falta de aislamiento.
+> Para tener más información sobre la coreografía, la orquestación y las
+> contramedidas para la falta de aislamiento, consulta [Saga distributed
+> transactions pattern](https://learn.microsoft.com/azure/architecture/patterns/saga)
+> en el catálogo de Azure y [Saga patterns](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/saga.html)
+> en el catálogo de AWS.
 
 ## Demos de rendimiento y procesamiento asíncrono
 
@@ -1082,7 +1077,7 @@ apagada y después prendida: la p95 baja de unos 100 ms a unos 3 ms.
 #### Queue-Based Load Leveling
 
 **Problema:** un pico de solicitudes que un servicio procesa en el momento lo
-satura, y satura también a los servicios que llama.
+satura y satura también a los servicios que llama.
 
 **Implementación:** `POST /orders/` solo guarda la `Order` y responde.
 `Products` reserva el stock, y el trabajo pesado ‑verificar el `User` con
@@ -1128,11 +1123,12 @@ disponibilidad](#competing-consumers-para-disponibilidad), con 6 réplicas en
 lugar de 3.
 
 **Cómo verlo:** la demo [13 de Competing Consumers para
-rendimiento](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/13-competing-consumers-scaling.sh) procesa 30 `Orders` con 3
-réplicas, unos 21 segundos, y otras 30 con 6 réplicas, unos 12 segundos. Al
-final vuelve a 3 réplicas. Las réplicas se cambian a mano; en la demo [36 de
-escalado a cero](#use-serverless-cloud-services) las decide [KEDA](https://keda.sh/) según el largo
-de la cola, y bajan a 0 cuando está vacía.
+rendimiento](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/13-competing-consumers-scaling.sh)
+procesa 30 `Orders` con 3 réplicas en unos 21 segundos y otras 30 con 6 réplicas
+en unos 12 segundos. Al final vuelve a 3 réplicas. Las réplicas se cambian a
+mano; en la demo [36 de escalado a cero](#use-serverless-cloud-services) las
+decide [KEDA](https://keda.sh/) según el largo de la cola, y bajan a 0 cuando
+está vacía.
 
 #### Publisher/Subscriber
 
@@ -1420,7 +1416,7 @@ pero no rendimiento.
 
 ![Clases de los proyectores de la vista](assets/17-materialized-view-clases.svg)
 
-Los proyectores son los únicos que escriben la vista, y los únicos que llaman a
+Los proyectores son los únicos que escriben la vista y los únicos que llaman a
 `Users` y a `Products`.
 
 **Cómo verlo:** la demo [17 de Materialized View](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/17-materialized-view.sh)
@@ -1451,7 +1447,7 @@ nada tiene que llegar a los servicios sin control.
 
 Qué se muestra:
 
-* Inicio de sesión en un proveedor de identidad externo, y decisiones tomadas
+* Inicio de sesión en un proveedor de identidad externo y decisiones tomadas
   con los claims del *token*.
 * [TLS](https://datatracker.ietf.org/doc/html/rfc8446), validación de *tokens* y
   compresión en el *gateway*, sin código en los servicios.
@@ -1539,7 +1535,7 @@ inicia sesión en Keycloak, que emite un *token* firmado ‑un JWT‑ con sus cl
 
 * `preferred_username`: el nombre de usuario, por ejemplo `alice`.
 * `user_id`: el `User` de la aplicación. Keycloak lo agrega a partir de un
-  atributo del usuario, y así vincula la identidad externa con los datos de la
+  atributo del usuario y así vincula la identidad externa con los datos de la
   aplicación.
 * `realm_access.roles`: los roles, `customer` o `admin`.
 
@@ -1588,20 +1584,20 @@ valor.
 crea una `Order` para el `User` 2 por la entrada HTTP, sin identificarse.
 Después bob inicia sesión y, por la entrada HTTPS, crea una `Order` sin indicar
 el `User`: es de bob; si indica el `User` 1, `Orders` responde 403. bob consulta
-sus `Orders` y no las de alice, y alice, al revés; carol consulta las de los
-dos, pero no puede crear. Sin *token*, o con el `user_id` del *token* cambiado por
-el de alice, el *gateway* responde 401, porque la firma ya no corresponde a los
-claims. Como en las demás demos, las `Orders` se crean solo para el `User` 2:
-las del `User` 1 son la base de las demos de disponibilidad. En
-[Grafana](https://grafana.com/oss/grafana/), el panel "Eventos de Keycloak por
+sus `Orders` y no las de alice, y alice consulta las suyas y no las de bob;
+carol consulta las de los dos, pero no puede crear. Sin *token*, o con el
+`user_id` del *token* cambiado por el de alice, el *gateway* responde 401,
+porque la firma ya no corresponde a los claims. Como en las demás demos, las
+`Orders` se crean solo para el `User` 2: las del `User` 1 son la base de las
+demos de disponibilidad. En [Grafana](https://grafana.com/oss/grafana/), el
+panel "Eventos de Keycloak por
 segundo" muestra los inicios de sesión.
 
 > [!TIP]
 >
-> Consulta [Securing applications with OpenID
-> Connect](https://www.keycloak.org/securing-apps/oidc-layers) para tener más
-> información sobre los flujos que ofrece Keycloak, y [RFC 8628, OAuth 2.0
-> Device Authorization Grant](https://datatracker.ietf.org/doc/html/rfc8628)
+> Consulta [Securing applications with OpenID Connect](https://www.keycloak.org/securing-apps/oidc-layers)
+> para tener más información sobre los flujos que ofrece Keycloak. Consulta [RFC
+> 8628, OAuth 2.0 Device Authorization Grant](https://datatracker.ietf.org/doc/html/rfc8628)
 > sobre el flujo de dispositivo.
 
 #### Gateway Offloading
@@ -1674,9 +1670,8 @@ panel "Eventos de Keycloak por segundo" muestra una validación de *token*,
 
 > [!TIP]
 >
-> Consulta [Authentication Based on Subrequest
-> Result](https://docs.nginx.com/nginx/admin-guide/security-controls/configuring-subrequest-authentication/)
-> para tener más información sobre `auth_request`, y la [documentación de
+> Consulta [Authentication Based on Subrequest Result](https://docs.nginx.com/nginx/admin-guide/security-controls/configuring-subrequest-authentication/)
+> para tener más información sobre `auth_request`. Consulta la [documentación de
 > njs](https://nginx.org/en/docs/njs/) sobre el JavaScript de
 > [nginx](https://nginx.org/) que usa `identity.js`.
 
@@ -1764,12 +1759,10 @@ los de HTTPS no aparecen, porque no llegaron a `Orders`.
 
 > [!TIP]
 >
-> Consulta [Module
-> ngx_http_core_module](https://nginx.org/en/docs/http/ngx_http_core_module.html)
+> Consulta [Module ngx_http_core_module](https://nginx.org/en/docs/http/ngx_http_core_module.html)
 > para tener más información sobre `location`, `limit_except` y
-> `client_max_body_size`, y [Merge Compose
-> files](https://docs.docker.com/reference/compose-file/merge/) sobre cómo
-> `docker-compose.gatekeeper.yaml` quita los puertos con `!reset`.
+> `client_max_body_size`. Consulta [Merge Compose files](https://docs.docker.com/reference/compose-file/merge/)
+> sobre cómo `docker-compose.gatekeeper.yaml` quita los puertos con `!reset`.
 
 #### Sidecar
 
@@ -1801,10 +1794,10 @@ configura con [envoy.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microser
   el usuario del *token* y el motivo del rechazo.
 
 `Products` no cambió: `ProductsController` no verifica roles. La entrada HTTPS
-del *gateway* le envía `/products/` al *sidecar*, y la HTTP, directamente a
-`Products`, para comparar. En producción, `Products` escucharía solo en
-`127.0.0.1` y el *sidecar* sería su única entrada; acá sigue escuchando en el
-puerto 8000 para las demos anteriores.
+del *gateway* le envía `/products/` al *sidecar* y la entrada HTTP se lo envía
+directamente a `Products`, para comparar. En producción, `Products` escucharía
+solo en `127.0.0.1` y el *sidecar* sería su única entrada; acá sigue escuchando
+en el puerto 8000 para las demos anteriores.
 
 Una *service mesh*, como [Istio](https://istio.io/) o
 [Linkerd](https://linkerd.io/), pone un *sidecar* como este junto a cada servicio,
@@ -1849,10 +1842,11 @@ policies:
 
 **Cómo verlo:** la demo [21 de Sidecar](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/21-sidecar.sh) cambia el nombre de
 un `Product` por HTTP, sin identificarse. Por HTTPS, alice lo lee pero no lo
-puede cambiar, y carol sí. Desde adentro de la red, `products-service:8000`
-acepta cualquier cambio, y el *sidecar*, `products-service:9000`, lo rechaza: 403
-sin *token*, y 401 con un *token* al que alice se agregó el rol `admin` sin poder
-volver a firmarlo. El registro del *sidecar* muestra cada decisión. En Grafana, el
+puede cambiar; carol lo lee y lo cambia. Desde adentro de la red,
+`products-service:8000` acepta cualquier cambio, y el *sidecar*,
+`products-service:9000`, lo rechaza: responde 403 sin *token* y 401 con
+un *token* al que alice le agregó el rol `admin` sin poder volver a firmarlo. El
+registro del *sidecar* muestra cada decisión. En Grafana, el
 panel "Solicitudes en el sidecar de Products, por resultado" muestra las
 permitidas y las rechazadas.
 
@@ -1920,16 +1914,15 @@ Con esa URL no se puede leer la imagen, ni escribir la de otro `Product`, y sin
 la firma no se puede nada. Una URL que vence a los 5 segundos funciona enseguida
 y no después. Para bajar la imagen, `Products` redirige a una URL de lectura. En
 Grafana, el panel "Bytes de imágenes que recibe Products" muestra los 5 MB de la
-subida sin Valet Key, y el panel "Claves de imágenes que entrega Products", las
-URL firmadas.
+subida sin Valet Key y el panel "Claves de imágenes que entrega Products"
+muestra las URL firmadas.
 
 > [!TIP]
 >
 > Consulta [Grant limited access to Azure Storage resources using shared access
 > signatures](https://learn.microsoft.com/en-us/azure/storage/common/storage-sas-overview)
-> para tener más información sobre las SAS, y [Create a service SAS for a blob
-> with
-> .NET](https://learn.microsoft.com/en-us/azure/storage/blobs/sas-service-create-dotnet)
+> para tener más información sobre las SAS. Consulta [Create a service SAS for a
+> blob with .NET](https://learn.microsoft.com/en-us/azure/storage/blobs/sas-service-create-dotnet)
 > sobre `GenerateSasUri`, con el que `ProductImages` firma las URL.
 
 ## Demos de facilidad de modificación
@@ -1978,8 +1971,8 @@ etiqueta: `[EXTERNAL CONFIG]` en los servicios, `[MESSAGING BRIDGE]` en
 
 Estas demos no se conectan a ninguna nube: corren con Docker. Cada patrón nombra
 los servicios equivalentes de Azure y de AWS. Cómo verlos bajo carga está en
-[Antes y después en Grafana](#antes-y-después-en-grafana), y cuánto cuesta cada
-cambio, en [Tamaño del cambio](#tamaño-del-cambio).
+[Antes y después en Grafana](#antes-y-después-en-grafana) y cuánto cuesta cada
+cambio está en [Tamaño del cambio](#tamaño-del-cambio).
 
 Ningún patrón hace que una aplicación sea fácil de cambiar en general. Cada uno
 apuesta a un tipo de cambio: reduce algunos costos, deja igual a otros y hasta
@@ -2013,7 +2006,7 @@ de `Purchases` de la capa que traduce.
   * La clase `OrdersTranslator` lee `GET /orders/`, filtra por `Product`, deja
     afuera las `Orders` rechazadas y traduce el estado.
   * La clase `UsersTranslator` arma el sobre SOAP y lee solo el nombre.
-  * La clase `OrdersPurchaseSource` las combina, y le pregunta a `Users` una
+  * La clase `OrdersPurchaseSource` las combina y le pregunta a `Users` una
     sola vez por comprador.
 * **Lo que se descarta:** la capa lee solo los campos que usa. Si `Orders`
   agrega campos, como la fecha de creación que la demo le agrega con un *flag*, la
@@ -2024,10 +2017,9 @@ de `Purchases` de la capa que traduce.
 La capa puede ser parte del servicio, como acá, o un servicio aparte que
 comparten varios clientes. En Azure, una capa compartida podría ser una
 aplicación de [Azure Functions](https://azure.microsoft.com/products/functions/)
-o una política de [Azure API
-Management](https://azure.microsoft.com/products/api-management/), y en AWS, una
-función de [AWS Lambda](https://aws.amazon.com/lambda/) o [Amazon API
-Gateway](https://aws.amazon.com/api-gateway/).
+o una política de [Azure API Management](https://azure.microsoft.com/products/api-management/),
+mientras que en AWS podría ser una función de [AWS
+Lambda](https://aws.amazon.com/lambda/) o [Amazon API Gateway](https://aws.amazon.com/api-gateway/).
 
 La clase `ErpFormat` de [Messaging Bridge](#messaging-bridge) también traduce,
 pero formatos de mensajes entre dos *brokers*. Esta capa protege el modelo de un
@@ -2089,9 +2081,8 @@ ofrece.
 
 > [!TIP]
 >
-> Consulta [Anti-corruption Layer
-> pattern](https://learn.microsoft.com/en-us/azure/architecture/patterns/anti-corruption-layer)
-> para tener más información sobre el patrón, y [Anti-corruption layer
+> Consulta [Anti-corruption Layer pattern](https://learn.microsoft.com/en-us/azure/architecture/patterns/anti-corruption-layer)
+> para tener más información sobre el patrón. Consulta [Anti-corruption layer
 > pattern](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/acl.html),
 > de AWS Prescriptive Guidance, sobre cómo aplicarlo en AWS.
 
@@ -2186,9 +2177,8 @@ auditoría.
 
 > [!TIP]
 >
-> Consulta [External Configuration Store
-> pattern](https://learn.microsoft.com/en-us/azure/architecture/patterns/external-configuration-store)
-> para tener más información sobre el patrón, y la [documentación de
+> Consulta [External Configuration Store pattern](https://learn.microsoft.com/en-us/azure/architecture/patterns/external-configuration-store)
+> para tener más información sobre el patrón. Consulta la [documentación de
 > Consul](https://developer.hashicorp.com/consul/docs) sobre el almacén
 > clave-valor.
 
@@ -2204,10 +2194,11 @@ recibe mensajes, los guarda y los entrega, para que quien envía y quien recibe
 no tengan que estar disponibles al mismo tiempo. Implementa
 [JMS](https://jakarta.ee/specifications/messaging/), la API estándar de
 mensajería de Java, y por eso es común en sistemas corporativos antiguos. Tiene
-dos variantes: Classic, la que usa la demo, y Artemis, la de nueva generación.
+dos variantes: Classic, que es la que usa la demo, y Artemis, que es la de nueva
+generación.
 
-* **Colas y tópicos:** el mensaje de una cola lo recibe un solo consumidor, y el
-  de un tópico todos los suscriptores. La demo usa colas.
+* **Colas y tópicos:** el mensaje de una cola lo recibe un solo consumidor y el
+  de un tópico lo reciben todos los suscriptores. La demo usa colas.
 * **Confirmaciones:** si el consumidor no confirma un mensaje, el *broker* lo
   vuelve a entregar.
 * **Persistencia:** los mensajes persistentes se guardan en disco y sobreviven a
@@ -2243,7 +2234,7 @@ muestra las colas y sus mensajes.
 Ninguno es mejor por sí mismo. La demo necesita dos *brokers* porque el patrón
 existe para conectar infraestructuras incompatibles: con uno solo no habría nada
 que puentear. En Azure, el lado moderno sería [Azure Service
-Bus](https://azure.microsoft.com/products/service-bus/), y en AWS, [Amazon
+Bus](https://azure.microsoft.com/products/service-bus/) y en AWS sería [Amazon
 SQS](https://aws.amazon.com/sqs/); [Amazon
 MQ](https://aws.amazon.com/amazon-mq/) ofrece ActiveMQ administrado.
 
@@ -2344,16 +2335,14 @@ factura.
 | ----------- | ------- | ---------- |
 | Puente | No cambia a los sistemas, tolera caídas y permite migrar de a poco | Un componente más, sin *features* que no existan en los dos *brokers*, y duplicados que hay que tolerar. El de la demo es una sola instancia |
 | Integración directa por HTTP | Sin componentes nuevos, respuesta inmediata | Hay que modificar los dos sistemas, los acopla en el tiempo y los reintentos son a mano |
-| Cambiar el ERP para que use RabbitMQ | Una sola infraestructura | Muchas veces es imposible, y siempre es lo más caro y riesgoso |
+| Cambiar el ERP para que use RabbitMQ | Una sola infraestructura | Muchas veces es imposible y siempre es lo más caro y riesgoso |
 
 > [!TIP]
 >
-> Consulta [Messaging Bridge
-> pattern](https://learn.microsoft.com/en-us/azure/architecture/patterns/messaging-bridge)
-> para tener más información sobre el patrón, la [documentación de ActiveMQ
-> Classic](https://activemq.apache.org/components/classic/documentation) sobre
-> el *broker*, y [Message
-> Translator](https://www.enterpriseintegrationpatterns.com/patterns/messaging/MessageTranslator.html)
+> Consulta [Messaging Bridge pattern](https://learn.microsoft.com/en-us/azure/architecture/patterns/messaging-bridge)
+> para tener más información sobre el patrón. Consulta la [documentación de
+> ActiveMQ Classic](https://activemq.apache.org/components/classic/documentation)
+> sobre el *broker* y [Message Translator](https://www.enterpriseintegrationpatterns.com/patterns/messaging/MessageTranslator.html)
 > sobre la traducción.
 
 #### Strangler Fig
@@ -2399,8 +2388,8 @@ higuera estranguladora, que crece alrededor de un árbol hasta reemplazarlo.
   sin cortar el servicio. Volver atrás es lo mismo.
 
 En Azure, la fachada podría ser Azure API Management o [Azure Front
-Door](https://azure.microsoft.com/products/frontdoor/), y en AWS, Amazon API
-Gateway.
+Door](https://azure.microsoft.com/products/frontdoor/) y en AWS podría ser
+Amazon API Gateway.
 
 **Cómo funciona:**
 
@@ -2457,8 +2446,8 @@ para el monolito:
 
 | Solución | Cómo funciona | A favor | En contra |
 | -------- | ------------- | ------- | ---------- |
-| El monolito le pregunta al servicio | Al migrar `Products`, el monolito deja de leer su tabla y llama a `Products` por HTTP | No hay copia, así que no hay divergencia | Hay que cambiar el monolito, se pierde el JOIN, y depende de que `Products` responda |
-| Base compartida durante la transición | El servicio nuevo usa la base del monolito, y se separa después | No hay divergencia y se migra primero el código | Acopla el servicio al esquema del monolito, y la separación queda pendiente |
+| El monolito le pregunta al servicio | Al migrar `Products`, el monolito deja de leer su tabla y llama a `Products` por HTTP | No hay copia, así que no hay divergencia | Hay que cambiar el monolito, se pierde el JOIN y depende de que `Products` responda |
+| Base compartida durante la transición | El servicio nuevo usa la base del monolito y se separa después | No hay divergencia y se migra primero el código | Acopla el servicio al esquema del monolito, y la separación queda pendiente |
 | Sincronización con eventos | El monolito se suscribe a `product.updated` y actualiza su copia | Reutiliza la mensajería, y `Products` no conoce al monolito | Hay que cambiar el monolito, y la consistencia es eventual |
 | Captura de cambios | Una herramienta como [Debezium](https://debezium.io/) lee el *log* de la base del dueño y aplica los cambios en la otra | No cambia el código del sistema de origen | Otra infraestructura que operar, y hay que traducir entre esquemas |
 | Escritura doble | Cada escritura va a las dos bases | Parece lo más simple | Si falla la segunda escritura, las bases divergen sin aviso; no se recomienda sin un [Transactional Outbox](#transactional-outbox) |
@@ -2491,18 +2480,17 @@ y la replicación continua de los cambios.
 
 > [!TIP]
 >
-> Consulta [Strangler Fig
-> pattern](https://learn.microsoft.com/en-us/azure/architecture/patterns/strangler-fig)
-> para tener más información sobre el patrón, y [Strangler Fig
+> Consulta [Strangler Fig pattern](https://learn.microsoft.com/en-us/azure/architecture/patterns/strangler-fig)
+> para tener más información sobre el patrón. Consulta [Strangler Fig
 > Application](https://martinfowler.com/bliki/StranglerFigApplication.html), de
-> Martin Fowler, sobre el origen del nombre, y la [documentación de
+> Martin Fowler, sobre el origen del nombre. Consulta la [documentación de
 > Debezium](https://debezium.io/documentation/) sobre la captura de cambios.
 
 #### Backends for Frontends
 
 **Problema:** una sola API para clientes distintos termina siendo un compromiso.
 La app móvil recibe más de lo que muestra, la web arma sus pantallas con varias
-llamadas, y cada cambio que pide un cliente obliga a coordinar con los demás,
+llamadas y cada cambio que pide un cliente obliga a coordinar con los demás,
 porque la API es de todos.
 
 **Escenario:** la web y la app móvil muestran las `Orders` de un `User`. La web
@@ -2526,10 +2514,9 @@ cliente.
 No es lo mismo que el *gateway*: el *gateway* es uno solo para todos los clientes, y
 acá hay un *backend* por cliente. El *gateway* solo enruta a cada uno.
 
-En Azure, cada BFF podría correr en [Azure Container
-Apps](https://azure.microsoft.com/products/container-apps/) y publicarse con
-Azure API Management, y en AWS, correr en AWS Lambda y publicarse con Amazon API
-Gateway.
+En Azure, cada BFF podría correr en [Azure Container Apps](https://azure.microsoft.com/products/container-apps/)
+y publicarse con Azure API Management; mientras que en AWS, podría correr en AWS
+Lambda y publicarse con Amazon API Gateway.
 
 **Cómo funciona:**
 
@@ -2561,7 +2548,7 @@ app puede recibir algún `502 Bad Gateway`; la web sigue respondiendo `200 OK`, 
 | Cambiar lo que muestra un cliente | Sí | Solo su BFF, que se despliega sin coordinar con el otro |
 | Agregar un cliente nuevo, como un reloj | Sí | Un BFF nuevo y una ruta en el *gateway*; los demás no cambian |
 | Que un cliente use otra fuente de datos | Sí | Solo su BFF |
-| Cambiar una regla de negocio de `Orders` | No | Hay que cambiar `Orders`, y cada BFF que la haya repetido |
+| Cambiar una regla de negocio de `Orders` | No | Hay que cambiar `Orders` y cada BFF que la haya repetido |
 | Cambiar el contrato de `Orders` o de `Products` | No | El patrón lo encarece: cada BFF que lo usa tiene que adaptarse |
 | Algo que necesitan todos los clientes, como la autenticación | No | Se repite en cada BFF, o va al *gateway* |
 
@@ -2569,7 +2556,7 @@ app puede recibir algún `502 Bad Gateway`; la web sigue respondiendo `200 OK`, 
 
 | Alternativa | A favor | En contra |
 | ----------- | ------- | ---------- |
-| Un BFF por cliente | Cada cliente recibe lo que muestra, y su equipo cambia y despliega a su ritmo | Más servicios que operar, código parecido repetido, y la tentación de poner lógica de negocio en el BFF |
+| Un BFF por cliente | Cada cliente recibe lo que muestra, y su equipo cambia y despliega a su ritmo | Más servicios que operar, código parecido repetido y la tentación de poner lógica de negocio en el BFF |
 | Una API para todos | Un solo servicio, sin repetir código | Respuestas que no le sirven bien a ninguno, y cada cambio se coordina con todos los clientes |
 | Que cada cliente llame a los servicios | Sin componentes nuevos | Más llamadas desde la red del cliente, y el cliente queda atado a los contratos internos |
 
@@ -2578,9 +2565,8 @@ producción irían detrás de la entrada HTTPS, con los patrones de seguridad.
 
 > [!TIP]
 >
-> Consulta [Backends for Frontends
-> pattern](https://learn.microsoft.com/en-us/azure/architecture/patterns/backends-for-frontends)
-> para tener más información sobre el patrón, y [Backends For
+> Consulta [Backends for Frontends pattern](https://learn.microsoft.com/en-us/azure/architecture/patterns/backends-for-frontends)
+> para tener más información sobre el patrón. Consulta [Backends For
 > Frontends](https://samnewman.io/patterns/architectural/bff/), de Sam Newman,
 > sobre su origen.
 
@@ -2608,7 +2594,7 @@ segundo: ilustran el efecto y no son una prueba de rendimiento.
 | ------ | ----------- | --------- | --------- |
 | Strangler Fig | Se migran las tres rutas y se apaga el monolito, con 15 solicitudes por segundo | "Solicitudes de la fachada, por destino" y "Respuestas de la fachada con error" | 1051 solicitudes, sin errores. El tráfico del monolito llega a cero |
 | Strangler Fig | Lo mismo | "Latencia p95 del detalle, por destino" | Sube de unos 8 ms a unos 18 ms: el costo de reemplazar el JOIN por llamadas [HTTP](https://datatracker.ietf.org/doc/html/rfc9110) |
-| Messaging Bridge | Se detiene [ActiveMQ](https://activemq.apache.org/) durante unos 30 segundos, con 2 `Orders` por segundo | "Cola bridge.erp" y "Orders confirmadas por segundo" | La cola llega a 89 mensajes y vuelve a cero. Las 161 `Orders` se aceptaron, y se siguieron confirmando durante la caída |
+| Messaging Bridge | Se detiene [ActiveMQ](https://activemq.apache.org/) durante unos 30 segundos, con 2 `Orders` por segundo | "Cola bridge.erp" y "Orders confirmadas por segundo" | La cola llega a 89 mensajes y vuelve a cero. Las 161 `Orders` se aceptaron y se siguieron confirmando durante la caída |
 | Anti-corruption Layer | 10 solicitudes por segundo, mitad a `Orders` y mitad a `Purchases`, y 25 segundos con `Users` demorado 200 ms | "Latencia p95: Orders y `Purchases`" | Sin demora, `Purchases` tarda unos 18 a 33 ms y `Orders`, unos 11 ms: el costo de la capa. Con la demora, `Purchases` sube a unos 420 ms y `Orders` no cambia. Las 700 solicitudes respondieron `200 OK` |
 | External Configuration Store | El mismo límite, por variable de entorno y en el almacén, con 22 solicitudes por segundo | "Solicitudes a Orders por resultado" | Las dos formas pasan de `202 Accepted` a `400 Bad Request`. Con la variable de entorno se perdieron 24 solicitudes de 2531, en los dos momentos en que se recreó el contenedor; con el almacén, ninguna |
 | Backends for Frontends | 20 solicitudes por segundo, mitad de cada cliente, y se redespliega `bff-mobile` | "Respuestas por cliente" | La web respondió `200 OK` las 600 veces. La app recibió 11 `502 Bad Gateway` de 600, mientras se reemplazaba su contenedor |
@@ -2662,7 +2648,7 @@ Cómo se calcula:
   entorno a mayúsculas.
 * **Archivos compartidos:** `docker-compose.yaml` y `nginx.conf` los tocan
   varios patrones, y cada línea se le asigna al patrón al que pertenece: por el
-  servicio en `docker-compose.yaml`, y por el bloque en `nginx.conf`. El *script*
+  servicio en `docker-compose.yaml` y por el bloque en `nginx.conf`. El *script*
   verifica que lo repartido, más las 51 líneas que quedan fuera de los patrones,
   sume lo que dice `git`: 145 líneas en ambos casos. Lo que agregan las [demos
   de facilidad de despliegue](#demos-de-facilidad-de-despliegue) no se cuenta:
@@ -2757,10 +2743,10 @@ Qué se muestra:
 levantados y sanos, aunque solo una reciba tráfico. Pasar de una a otra
 ‑conmutarlas‑ y volver atrás es inmediato: no hay que levantar nada.
 * Reemplazo de instancias por pasos, verificando su salud.
-* Una fracción del tráfico derivada a la versión nueva, y la vuelta atrás cuando
+* Una fracción del tráfico derivada a la versión nueva y la vuelta atrás cuando
   falla.
 * Un experimento con dos variantes, elegidas por segmento o al azar.
-* Con Kubernetes, las mismas estrategias sin pasos a mano, y la vuelta atrás
+* Con Kubernetes, las mismas estrategias sin pasos a mano y la vuelta atrás
   automática cuando las métricas de la versión nueva muestran errores.
 
 Resultado observable: la versión nueva entra y sale de producción sin errores, o
@@ -2792,12 +2778,12 @@ Compose](#contenedores-y-docker-compose)‑:
 
 | Componente | Para qué |
 | ---------- | -------- |
-| `users-service-v2` | La versión `v2` de `Users`: la misma imagen que `users-service`, con `RELEASE__VERSION: "2"`, y la misma base. No publica puertos, y tiene el [alias de red](https://docs.docker.com/reference/compose-file/services/#aliases) `users-pool`. Solo lo usan estas demos; `Orders`, `Purchases` y la fachada siguen llamando a `users-service`. |
+| `users-service-v2` | La versión `v2` de `Users`: la misma imagen que `users-service`, con `RELEASE__VERSION: "2"`, y la misma base. No publica puertos y tiene el [alias de red](https://docs.docker.com/reference/compose-file/services/#aliases) `users-pool`. Solo lo usan estas demos; `Orders`, `Purchases` y la fachada siguen llamando a `users-service`. |
 | Entrada de despliegue del *gateway* | `http://localhost:8091`, solo para `/users/`. A qué versión va cada solicitud lo define [deployment-routes.conf](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/ApiGateway/nginxconf/deployment-routes.conf). |
 | Encabezado `X-Version` | Cada respuesta de `Users` dice qué versión la atendió. Lo agrega el método `UseReleaseHeader` de la clase `ReleaseExtensions`, en [Release.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/UsersService/Release.cs). |
 | El experimento | La clase `Experiment`, en [Experiment.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/UsersService/Experiment.cs). Solo lo usa la versión `v2` de `Users`. |
 | `unleash` y `unleash-db` | [Unleash](https://www.getunleash.io/) decide qué variante del experimento ve cada `User`. Están en el perfil `feature-flags` de [docker-compose.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/docker-compose.yaml), con la consola en `http://localhost:4242`; la demo 31 los levanta sola. |
-| El clúster de [Kubernetes](https://kubernetes.io/) | Un clúster de [kind](https://kind.sigs.k8s.io/), de un nodo, para las demos 32 a 34. Lo crea [k8s-up.sh](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/k8s-up.sh) y lo borra [k8s-down.sh](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/k8s-down.sh); los manifiestos están en [k8s](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/tree/main/k8s). Tiene su propia base de `Users`, y no usa nada de Docker Compose. |
+| El clúster de [Kubernetes](https://kubernetes.io/) | Un clúster de [kind](https://kind.sigs.k8s.io/), de un nodo, para las demos 32 a 34. Lo crea [k8s-up.sh](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/k8s-up.sh) y lo borra [k8s-down.sh](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/k8s-down.sh); los manifiestos están en [k8s](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/tree/main/k8s). Tiene su propia base de `Users` y no usa nada de Docker Compose. |
 | Una imagen por versión de `Users` | `users-service:v1`, `users-service:v2` y `users-service:v3-bad`, construidas con los argumentos `RELEASE_VERSION` y `CHAOS_FAILURE_RATE` de [Dockerfile](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/UsersService/Dockerfile). La `v3-bad` falla en el 30% de las solicitudes desde que arranca, porque el método `UseChaos` de la clase `ChaosExtensions`, en [Chaos.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/Common/Chaos.cs), toma de la configuración las fallas iniciales. |
 | El Gateway del clúster | La entrada de los clientes en el puerto 8092: un Gateway de [Gateway API](https://gateway-api.sigs.k8s.io/), implementado con [NGINX Gateway Fabric](https://docs.nginx.com/nginx-gateway-fabric/), en [*gateway*.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/k8s/base/gateway.yaml). Cumple el papel de la entrada de despliegue del puerto 8091. |
 | [Argo Rollouts](https://argoproj.github.io/rollouts/) | Despliega cada versión con una estrategia, y en las demos 33 y 34 decide si sigue o vuelve atrás con el análisis de [analysis-error-rate.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/k8s/base/analysis-error-rate.yaml), que consulta al [Prometheus](https://prometheus.io/) del clúster. Se maneja con el *plugin* `kubectl argo rollouts`. |
@@ -2877,11 +2863,9 @@ son ‑resumidas‑:
   4. Separar el cambio de esquema del cambio de código, en despliegues
      distintos, a veces con un *feature flag* que activa el uso de lo nuevo.
 
-En Azure, [Azure Container
-Apps](https://learn.microsoft.com/en-us/azure/container-apps/blue-green-deployment)
-lo hace con revisiones y etiquetas, y [App
-Service](https://azure.microsoft.com/products/app-service/), con [*deployment
-slots*](https://learn.microsoft.com/en-us/azure/app-service/deploy-staging-slots)
+En Azure, [Azure Container Apps](https://learn.microsoft.com/en-us/azure/container-apps/blue-green-deployment)
+lo hace con revisiones y etiquetas, y [App Service](https://azure.microsoft.com/products/app-service/)
+lo hace con [*deployment slots*](https://learn.microsoft.com/en-us/azure/app-service/deploy-staging-slots)
 que se intercambian. En AWS, [CodeDeploy](https://aws.amazon.com/codedeploy/) lo
 hace con [ECS](https://aws.amazon.com/ecs/), cambiando el [grupo de
 destino](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html)
@@ -2903,8 +2887,8 @@ map $host $users_target {
 }
 ```
 
-* **Los dos entornos:** `users-service`, la versión `v1`, y `users-service-v2`,
-  la versión `v2`. Están siempre levantados y activos los dos.
+* **Los dos entornos:** `users-service` es la versión `v1` y `users-service-v2`
+  es la versión `v2`. Están siempre levantados y activos los dos.
 * **El conmutador:** la dirección de los clientes es la entrada de despliegue,
   publicada en el puerto 8091. El componente que elige el entorno es el nginx de
   `api-gateway`, con un
@@ -2928,8 +2912,8 @@ Lo que la demo 28 hace a mano, con Kubernetes lo hace
 En Kubernetes, un `Rollout` es como un [Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/), pero con una estrategia de
 despliegue.
 
-* **Los dos entornos:** al cambiar la imagen, Argo levanta los pods de la
-  versión `v2` al lado de los de la `v1`, y se detiene a esperar, por
+* **Los dos entornos:** al cambiar la imagen Argo levanta los pods de la
+  versión `v2` al lado de los de la `v1` y se detiene a esperar, por
   `autoPromotionEnabled: false`.
 * **El conmutador:** la dirección de los clientes es el Gateway, publicado en
   el puerto 8092, y su ruta, en [Gateway API](https://gateway-api.sigs.k8s.io/),
@@ -2989,10 +2973,9 @@ Rollouts; en AWS, en [Amazon EKS](https://aws.amazon.com/eks/).
 
 > [!TIP]
 >
-> Consulta [Blue/Green
-> Deployment](https://martinfowler.com/bliki/BlueGreenDeployment.html), de
-> Martin Fowler, sobre el origen de la técnica, y [Blue/Green Deployments on
-> AWS](https://docs.aws.amazon.com/whitepapers/latest/blue-green-deployments/welcome.html)
+> Consulta [Blue/Green Deployment](https://martinfowler.com/bliki/BlueGreenDeployment.html),
+> de Martin Fowler, sobre el origen de la técnica. Consulta [Blue/Green
+> Deployments on AWS](https://docs.aws.amazon.com/whitepapers/latest/blue-green-deployments/welcome.html)
 > sobre cómo aplicarla en AWS.
 
 #### Rolling Upgrade
@@ -3139,8 +3122,8 @@ La demo [33 de Rolling Upgrade con Kubernetes](https://github.com/ucudal/ANDIS_P
 muestra primero el Deployment: la versión `v2` reemplaza a la `v1` sin errores,
 y la `v3-bad` llega a los tres pods y falla hasta el `undo`. Después cambia el
 Deployment por el `Rollout` y despliega la `v3-bad`: llega a un solo pod, el
-análisis mide alrededor del 30% de errores, y Argo vuelve a la `v2` en menos de
-un minuto, sin que nadie intervenga.
+análisis mide alrededor del 30% de errores y Argo vuelve a la `v2` en menos de
+un minuto sin que nadie intervenga.
 
 En Azure, Argo Rollouts funciona igual en [Azure Kubernetes
 Service](https://azure.microsoft.com/products/kubernetes-service/); en AWS, en
@@ -3166,16 +3149,15 @@ despliegue.
 
 | Alternativa | A favor | En contra |
 | ----------- | ------- | ---------- |
-| Rolling Upgrade | Sin un segundo entorno, y sin corte | Las dos versiones conviven durante el reemplazo, y volver atrás lleva tanto como desplegar |
+| Rolling Upgrade | Sin un segundo entorno y sin corte | Las dos versiones conviven durante el reemplazo, y volver atrás lleva tanto como desplegar |
 | Blue/Green | Conmutación y vuelta atrás inmediatas | Dos entornos completos |
 
 > [!TIP]
 >
-> Consulta [Performing a Rolling
-> Update](https://kubernetes.io/docs/tutorials/kubernetes-basics/update/update-intro/),
-> de la documentación de Kubernetes, y [Safe deployment
-> practices](https://learn.microsoft.com/en-us/azure/well-architected/operational-excellence/safe-deployments),
-> de Azure Well-Architected Framework, sobre cómo desplegar por etapas.
+> Para tener más información sobre cómo desplegar por etapas, consulta
+> [Performing a Rolling Update](https://kubernetes.io/docs/tutorials/kubernetes-basics/update/update-intro/),
+> de la documentación de Kubernetes, y [Safe deployment practices](https://learn.microsoft.com/en-us/azure/well-architected/operational-excellence/safe-deployments),
+> de Azure Well-Architected Framework.
 
 #### Canary Testing
 
@@ -3260,7 +3242,7 @@ análisis después de cada paso.
   en Gateway API. Argo cambia los pesos con
   su [*plugin* de Gateway
   API](https://rollouts-plugin-trafficrouter-gatewayapi.readthedocs.io/en/latest/).
-* **Los pasos:** 10% a la versión nueva, análisis, 50%, análisis, y 100%. Cada
+* **Los pasos:** 10% a la versión nueva, análisis, 50%, análisis y 100%. Cada
   análisis es el mismo de la demo 33: los errores de los pods nuevos en
   [Prometheus](https://prometheus.io/).
 * **La falla:** la versión `v3-bad`, que falla desde que arranca. A diferencia
@@ -3297,7 +3279,7 @@ La demo [34 de Canary Testing con Kubernetes](https://github.com/ucudal/ANDIS_Pa
 `v2`, que avanza sola del 10% al 100% en un minuto y medio, sin errores. Después
 despliega la `v3-bad`: con el 10%, el análisis mide alrededor del 30% de
 errores, y Argo vuelve todo a la `v2` en medio minuto. En cada cambio muestra
-los pesos de la ruta, y al final, lo que midió el análisis.
+los pesos de la ruta y al final muestra lo que midió el análisis.
 
 En Azure, Argo Rollouts funciona igual en [Azure Kubernetes
 Service](https://azure.microsoft.com/products/kubernetes-service/); en AWS, en
@@ -3326,8 +3308,8 @@ Service](https://azure.microsoft.com/products/kubernetes-service/); en AWS, en
 > [!TIP]
 >
 > Consulta [Canary Release](https://martinfowler.com/bliki/CanaryRelease.html),
-> de Martin Fowler, y [Traffic splitting in Azure Container
-> Apps](https://learn.microsoft.com/en-us/azure/container-apps/traffic-splitting)
+> de Martin Fowler, sobre la técnica. Consulta [Traffic splitting in Azure
+> Container Apps](https://learn.microsoft.com/en-us/azure/container-apps/traffic-splitting)
 > sobre cómo repartir el tráfico en Azure.
 
 #### A/B Testing
@@ -3337,8 +3319,8 @@ cuál funciona mejor con clientes reales. Si cada cliente ve una variante
 distinta en cada consulta, no se puede atribuir el efecto a ninguna.
 
 **Escenario:** la versión `v2` de `Users` muestra el nombre de cada `User` en
-una de dos variantes: la A, solo el nombre, y la B, el nombre y el email.
-Algunos `Users` se anotaron para probar lo nuevo y ven siempre la B.
+una de dos variantes: la A muestra solo el nombre y la B muestra el nombre y el
+email. Algunos `Users` se anotaron para probar lo nuevo y ven siempre la B.
 
 **Implementación:** el experimento está en la versión `v2`, en la clase
 `Experiment`, que usa el método `GetUser` de la clase `UserService`. Qué
@@ -3361,7 +3343,7 @@ de la [CNCF](https://www.cncf.io/).
   leyó. Si nunca la leyó, OpenFeature devuelve la variante A, el valor por
   omisión. Unleash no está en el camino de cada solicitud: la variante se
   calcula en `Users`.
-* **La respuesta:** el campo `DisplayName` con la variante, y el encabezado
+* **La respuesta:** el campo `DisplayName` con la variante y el encabezado
   `X-Variant`.
 * **La medida:** la métrica `users_experiment_total`, por variante y por
   segmento.
@@ -3406,10 +3388,9 @@ la última configuración que leyeron. La diferencia está en qué guarda cada u
 Consul responde "¿cuál es el valor?", lo mismo para todos; Unleash responde
 "¿qué le toca a este `User`?". Los *flags* de External Configuration Store para
 los que usamos Consul no son lo mismo que los *feature flags* configurados en
-Unleash. La misma distinción existe en Azure, entre la configuración y los
-*feature flags* de Azure App Configuration, y en AWS, entre [AWS Systems Manager
-Parameter
-Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html)
+Unleash. En Azure existe la misma distinción entre la configuración y
+los *feature flags* de Azure App Configuration, mientras que en AWS existe entre
+[AWS Systems Manager Parameter Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html)
 y los *feature flags* de AWS AppConfig.
 
 **Cómo funciona:**
@@ -3451,7 +3432,7 @@ administración de Unleash.
 **Cómo verlo:** la demo [31 de A/B Testing](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/31-ab-testing.sh) levanta
 Unleash, muestra que la versión `v1` no tiene experimento y despliega la `v2`
 con Blue/Green. Pide los dos `Users`: 'alice' cae en la B y 'bob' en la A. Pide
-a 'bob' tres veces, y siempre recibe la A; con `X-Segment: beta`, recibe la B.
+a 'bob' tres veces y siempre recibe la A; con `X-Segment: beta`, recibe la B.
 Después cambia el reparto en Unleash para que todos vean la B, y los dos `Users`
 la reciben sin desplegar nada. Detiene Unleash, y `Users` sigue respondiendo con
 la B. Al final vuelve el reparto a la mitad y muestra cuántas veces se mostró
@@ -3477,10 +3458,9 @@ cada variante, según las métricas de `Users`.
 
 > [!TIP]
 >
-> Consulta [Feature
-> Toggles](https://martinfowler.com/articles/feature-toggles.html), de Martin
-> Fowler, sobre los *flags* de experimentos, y [Experimentation in Azure App
-> Configuration](https://learn.microsoft.com/en-us/azure/azure-app-configuration/concept-experimentation)
+> Consulta [Feature Toggles](https://martinfowler.com/articles/feature-toggles.html),
+> de Martin Fowler, sobre los *flags* de experimentos. Consulta [Experimentation
+> in Azure App Configuration](https://learn.microsoft.com/en-us/azure/azure-app-configuration/concept-experimentation)
 > sobre cómo hacerlos en Azure.
 
 ### Las estrategias en Grafana
@@ -3529,8 +3509,8 @@ Rollouts](https://argoproj.github.io/rollouts/), con una línea roja en el 5%.
 | Estrategia | Qué se hace | Qué mirar | Resultado |
 | ---------- | ----------- | --------- | --------- |
 | Blue/Green, demo 32 | La versión `v2` en *preview*, `promote` y, 20 segundos después, `undo` | "Solicitudes por versión" y "Respuestas con error, por versión" | El tráfico pasa de una versión a la otra de una vez. Las 1201 solicitudes respondieron `200 OK` |
-| Rolling Upgrade, demo 33 | Con el [Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/): la versión `v2`, después la `v3-bad`, y `undo` a mano | Lo mismo | Cada reemplazo tarda unos 7 segundos. La versión `v3` respondió `503 Service Unavailable` 195 veces, hasta el `undo` |
-| Canary Testing, demo 34 | La versión `v2` hasta el 100%, y después la `v3-bad` | Lo mismo, y "Errores de cada versión, según Users" | La versión `v2` sigue a los pesos del 10% y el 50%, sin errores. La `v3` supera la línea del 5%, y Argo vuelve atrás: 17 respuestas `503` de 3999, todas de la `v3` |
+| Rolling Upgrade, demo 33 | Con el [Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/): la versión `v2`, después la `v3-bad` y `undo` a mano | Lo mismo | Cada reemplazo tarda unos 7 segundos. La versión `v3` respondió `503 Service Unavailable` 195 veces, hasta el `undo` |
+| Canary Testing, demo 34 | La versión `v2` hasta el 100% y después la `v3-bad` | Lo mismo y "Errores de cada versión, según Users" | La versión `v2` sigue a los pesos del 10% y el 50%, sin errores. La `v3` supera la línea del 5%, y Argo vuelve atrás: 17 respuestas `503` de 3999, todas de la `v3` |
 
 Además de los `503` de la versión `v3`, hubo unas pocas solicitudes sin
 respuesta: 6 de 2400 en Rolling Upgrade y 1 de 3999 en Canary. Coinciden con los
@@ -3619,13 +3599,14 @@ pico se confunde con el de lo que estaba encendido antes.
 **Implementación:** un monitor de energía estima, en forma continua, la potencia
 de cada componente, para decidir con esos datos qué apagar o qué reducir.
 
-* **Qué se mide:** la CPU que usa cada pod, con `rate()` sobre los segundos de
-  CPU que informa [cAdvisor](https://github.com/google/cadvisor), y la que reserva, de los `requests` de su [Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/),
+* **Qué se mide:** la CPU que usa cada pod, que se calcula con `rate()` sobre
+  los segundos de CPU que informa [cAdvisor](https://github.com/google/cadvisor);
+  y la CPU que reserva, que se lee de los `requests` de su [Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
   con [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics).
 * **Cómo se convierte en energía:** con el modelo de Cloud Carbon Footprint, en
   tres reglas de Prometheus. Una réplica ociosa consume la parte reservada.
 * **Dónde se ve:** en el panel "Potencia estimada del worker, por pod" de
-  Grafana, y en Prometheus del clúster, en <http://localhost:30090>.
+  Grafana y en Prometheus del clúster, en <http://localhost:30090>.
 
 En Azure, la [Emissions Impact
 Dashboard](https://learn.microsoft.com/en-us/power-bi/connect-data/service-connect-to-emissions-impact-dashboard)
@@ -3698,9 +3679,8 @@ el tiempo, haya o no `Orders`. Esa es la oportunidad que aprovecha la demo 36.
 >
 > Consulta la sección 6.4 de Bass, Clements y Kazman, *Software Architecture in
 > Practice*, 4.ª edición, sobre las tácticas y los patrones de eficiencia
-> energética, y la [metodología de Cloud Carbon
-> Footprint](https://www.cloudcarbonfootprint.org/docs/methodology/) sobre el
-> modelo que usan las demos.
+> energética. Consulta la [metodología de Cloud Carbon Footprint](https://www.cloudcarbonfootprint.org/docs/methodology/)
+> sobre el modelo que usan las demos.
 
 #### Use Serverless Cloud Services
 
@@ -3722,7 +3702,7 @@ el *worker* escala sin tocar `orders-service` ni los demás.
 * **Qué decide las réplicas:** el largo de la cola `orders.process`, que
   incluye los mensajes que un *worker* está procesando sin confirmar. Así no se
   apaga un *worker* que está trabajando.
-* **Cuántas:** 0 con la cola vacía, y una cada 5 mensajes, hasta 6.
+* **Cuántas:** 0 con la cola vacía y una cada 5 mensajes, hasta 6.
 * **Cuándo se apagan:** 30 segundos después de que la cola se vacía, para no
   apagar y encender entre dos mensajes seguidos.
 
@@ -3803,15 +3783,14 @@ más seguidos, conviene dejar réplicas encendidas.
 
 | Alternativa | A favor | En contra |
 | ----------- | ------- | ---------- |
-| Escalado a cero | No consume entre picos, y se adapta solo a cada pico | El primer mensaje espera a que arranque un pod, y cada arranque consume |
+| Escalado a cero | No consume entre picos y se adapta solo a cada pico | El primer mensaje espera a que arranque un pod, y cada arranque consume |
 | Réplicas fijas | El primer mensaje se procesa enseguida | Consume lo mismo con trabajo que sin él |
 | Escalar según la cola, con un mínimo de 1 | Sin demora en el primer mensaje | Una réplica siempre encendida |
 
 > [!TIP]
 >
-> Consulta [Use serverless cloud
-> services](https://patterns.greensoftware.foundation/architecture/technology-selection/use-serverless)
-> en el catálogo de la Green Software Foundation, y [Scaling with
+> Consulta [Use serverless cloud services](https://patterns.greensoftware.foundation/architecture/technology-selection/use-serverless)
+> en el catálogo de la Green Software Foundation. Consulta [Scaling with
 > KEDA](https://keda.sh/docs/latest/concepts/scaling-deployments/) en la
 > documentación de KEDA.
 
@@ -3823,7 +3802,7 @@ servicio que procesa todo apenas llega, usa la energía que haya en ese momento;
 si una parte del trabajo no es urgente, procesarlo en otro momento consume lo
 mismo, pero con menos emisiones.
 
-**Implementación:** el trabajo que no es urgente se encola, y se procesa solo
+**Implementación:** el trabajo que no es urgente se encola y se procesa solo
 dentro de una ventana de tiempo: las horas en que la energía es más limpia, o
 más barata. Es un patrón del catálogo de la [Green Software
 Foundation](https://patterns.greensoftware.foundation/architecture/system-topology/queue-non-urgent-requests).
@@ -3913,9 +3892,8 @@ vuelve a apagar el *worker*. La demo tarda un minuto y medio.
 
 > [!TIP]
 >
-> Consulta [Queue non-urgent processing
-> requests](https://patterns.greensoftware.foundation/architecture/system-topology/queue-non-urgent-requests)
-> en el catálogo de la Green Software Foundation, y [Carbon aware
+> Consulta [Queue non-urgent processing requests](https://patterns.greensoftware.foundation/architecture/system-topology/queue-non-urgent-requests)
+> en el catálogo de la Green Software Foundation. Consulta [Carbon aware
 > scaling](https://github.com/Azure/carbon-aware-keda-operator) sobre cómo
 > obtener la ventana de un pronóstico de intensidad de carbono.
 
@@ -3953,9 +3931,8 @@ falla; [Bulkhead](#bulkhead) y las réplicas de [Competing
 Consumers](#competing-consumers-para-disponibilidad) reservan capacidad que
 puede quedar ociosa; y [Blue/Green](#bluegreen-deployment) mantiene encendidas
 dos versiones a la vez. El catálogo de Azure lo trata en [Sustainable
-workloads](https://learn.microsoft.com/en-us/azure/well-architected/sustainability/overview),
-y el de AWS, en el [pilar de
-sostenibilidad](https://docs.aws.amazon.com/wellarchitected/latest/sustainability-pillar/sustainability-pillar.html)
+workloads](https://learn.microsoft.com/en-us/azure/well-architected/sustainability/overview)
+y el de AWS lo trata en el [pilar de sostenibilidad](https://docs.aws.amazon.com/wellarchitected/latest/sustainability-pillar/sustainability-pillar.html)
 de Well-Architected.
 
 ### La eficiencia energética en Grafana
@@ -3984,7 +3961,7 @@ rendimiento.
 | Configuración | Qué se hace | Qué mirar | Energía en 10 minutos |
 | ------------- | ----------- | --------- | --------------------- |
 | `fixed`, como la demo 35 | 3 réplicas fijas | "Potencia estimada del worker, por pod": un piso de unos 0.22 W por pod que no baja nunca | 460 J |
-| `queue`, como la demo 36 | [KEDA](https://keda.sh/) según la cola | "Réplicas del worker en el clúster": 0 entre picos, y hasta 6 en cada uno; en la potencia, un salto al arrancar cada pod | 316 J, un 31% menos que `fixed` |
+| `queue`, como la demo 36 | [KEDA](https://keda.sh/) según la cola | "Réplicas del worker en el clúster": 0 entre picos y hasta 6 en cada uno; en la potencia, un salto al arrancar cada pod | 316 J, un 31% menos que `fixed` |
 | `window`, como la demo 37 | KEDA según la ventana | Las réplicas: 3 mientras la ventana está abierta, un minuto de cada dos; la cola crece fuera de la ventana y se vacía dentro | 332 J, un 28% menos que `fixed`, casi lo mismo que `queue` |
 
 `window` consume casi lo mismo que `queue` por caminos distintos: tiene 3

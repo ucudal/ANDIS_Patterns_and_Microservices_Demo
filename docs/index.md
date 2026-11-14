@@ -20,10 +20,10 @@ varias réplicas de un *worker* que consumen una cola de
 RabbitMQ, y los proyectores los usan para mantener una vista materializada del
 detalle de las `Orders`. `Products` usa [Redis](https://redis.io/) como caché.
 
-El gateway tiene dos entradas:
-[HTTP](https://datatracker.ietf.org/doc/html/rfc9110), sin los patrones de
-seguridad, y HTTPS, con ellos. Por la entrada HTTPS, los usuarios se identifican
-con un token de [Keycloak](https://www.keycloak.org/), el proveedor de
+El gateway tiene dos entradas: la [HTTP](https://datatracker.ietf.org/doc/html/rfc9110)
+no aplica los patrones de seguridad y la HTTPS sí los aplica. Por la entrada
+HTTPS, los usuarios se identifican con un token de
+[Keycloak](https://www.keycloak.org/), el proveedor de
 identidad; el gateway valida cada solicitud antes de reenviarla; `Products`
 tiene un *sidecar* que exige el rol `admin` para cambiar el catálogo; y las
 imágenes de los `Products` se suben y se bajan directamente de

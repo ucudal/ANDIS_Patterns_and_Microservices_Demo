@@ -38,7 +38,7 @@ El panorama de la demo y la explicación de cada patrón está en
 | [`column`](https://man7.org/linux/man-pages/man1/column.1.html) | Alinear las columnas de esas tablas | Incluido | En WSL, incluido en la mayoría de las distribuciones; si falta, `sudo apt install bsdextrautils`; ver la nota sobre Git Bash |
 | [`xmllint`](https://gnome.pages.gitlab.gnome.org/libxml2/xmllint.html) | Indentar las respuestas [SOAP](https://www.w3.org/TR/soap/) de `Users` en `commands/01-api-gateway.azcli` y los errores de [Azurite](https://github.com/Azure/Azurite) en `commands/04-security.azcli` | Incluido | En WSL, `sudo apt install libxml2-utils`; en Git Bash no viene incluido: usar WSL o ver el [XML](https://www.w3.org/XML/) sin indentar |
 | Visual Studio Code[^vscode] con la extensión Azure CLI Tools[^azcli] | Opcional: abrir los archivos de [commands](commands/) con resaltado de sintaxis y ejecutar cada comando en la terminal | Instalar Visual Studio Code y, dentro de él, la extensión | Igual que en macOS |
-| kind[^kind], kubectl[^kubectl] y el plugin de Argo Rollouts para kubectl[^argorollouts] | Solo para las demos con [Kubernetes](https://kubernetes.io/): las de despliegue, de la 32 a la 34, y las de eficiencia energética, de la 35 a la 37. Crear el clúster y manejar los despliegues | `brew install kind kubectl argoproj/tap/kubectl-argo-rollouts` | En WSL, con los binarios para Linux de cada sitio |
+| kind[^kind], kubectl[^kubectl] y el plugin de Argo Rollouts para kubectl[^argorollouts] | Solo para las demos con [Kubernetes](https://kubernetes.io/): las de despliegue —que van de la 32 a la 34— y las de eficiencia energética —que van de la 35 a la 37—. Crear el clúster y manejar los despliegues | `brew install kind kubectl argoproj/tap/kubectl-argo-rollouts` | En WSL, con los binarios para Linux de cada sitio |
 | Extensión Database Client[^dbclient] de Visual Studio Code | Opcional: ver las tablas, colecciones y claves de [MySQL](https://www.mysql.com/), [PostgreSQL](https://www.postgresql.org/), [MongoDB](https://www.mongodb.com/) y [Redis](https://redis.io/); los datos para conectarse están en [Conectarse a las bases de datos](#conectarse-a-las-bases-de-datos) | Instalar la extensión dentro de Visual Studio Code | Igual que en macOS |
 
 [^docker]: Docker Desktop: <https://www.docker.com/products/docker-desktop/>
@@ -87,12 +87,13 @@ Los comandos están en la carpeta [commands](commands/), en siete archivos:
   estrategias de despliegue, de la 28 a la 34. Las demos 32 a 34 corren en un
   clúster de [Kubernetes](https://kubernetes.io/), que se crea con
   `./demos/k8s-up.sh`, y no usan Docker Compose: la entrada de los clientes al
-  clúster está en el puerto 8092, y su Prometheus, en el 30090. Qué es cada
-  concepto de Kubernetes, y su análogo en Docker Compose, está en [Conceptos de
-  Kubernetes](PATTERNS.md#conceptos-de-kubernetes), en PATTERNS.md.
+  clúster está en el puerto 8092 y el Prometheus de ese clúster en el
+  puerto 30090. Qué es cada concepto de Kubernetes, y su análogo en Docker
+  Compose, está en [Conceptos de Kubernetes](PATTERNS.md#conceptos-de-kubernetes),
+  en PATTERNS.md.
 * [07-energy-efficiency.azcli](commands/07-energy-efficiency.azcli): demos de
   los patrones de eficiencia energética, de la 35 a la 37. El *worker* de
-  `Orders` corre en el mismo clúster, y usa los servicios de Docker Compose.
+  `Orders` corre en el mismo clúster y usa los servicios de Docker Compose.
 
 Cada archivo empieza levantando todos los servicios y termina con el *tear
 down*, así que se puede usar por separado. En resumen:
@@ -259,7 +260,7 @@ código a mano:
 | `orders_processed_total` | La clase `OrderProcessingWorker`, en [OrderProcessingWorker.cs](src/OrdersService/Messaging/OrderProcessingWorker.cs) | `Orders` procesadas por cada réplica, con su resultado |
 | `outbox_pending`, `outbox_published_total` | La clase `OutboxRelay`, en [OutboxRelay.cs](src/Common/OutboxRelay.cs) | Mensajes del *outbox* que esperan ser publicados, y los publicados, en `orders-service` y en `products-service` |
 | `products_cache_total` | La clase `ProductCache`, en [ProductCache.cs](src/ProductsService/ProductCache.cs) | Lecturas de la caché de `Products`: `hit`, `miss`, `error` o `disabled` |
-| `products_stock`, `products_stock_reservations_total` | La clase `StockMetrics`, en [StockMetrics.cs](src/ProductsService/StockMetrics.cs) | Unidades disponibles de cada `Product`, y las reservas de la Saga por resultado: `Reserved`, `Rejected` o `Released` |
+| `products_stock`, `products_stock_reservations_total` | La clase `StockMetrics`, en [StockMetrics.cs](src/ProductsService/StockMetrics.cs) | Unidades disponibles de cada `Product` y las reservas de la Saga por resultado: `Reserved`, `Rejected` o `Released` |
 | `chaos_failure_rate`, `chaos_delay_seconds` | El método `UseChaos` de la clase `ChaosExtensions`, en [Chaos.cs](src/Common/Chaos.cs) | Las fallas inyectadas, para ver en qué momento empezaron y terminaron |
 | `orders_patterns_enabled` | El método `MapPatterns` de la clase `PatternExtensions`, en [Patterns.cs](src/OrdersService/Patterns.cs) | Qué patrones de resiliencia están prendidos en `Orders`: 1 prendido, 0 apagado |
 | `service_health` | La clase `HealthMetricsPublisher`, en [HealthMetrics.cs](src/Common/HealthMetrics.cs) | Salud de cada servicio y de cada uno de sus chequeos, la misma que responde `/health`: 0 Unhealthy, 1 Degraded, 2 Healthy |
@@ -288,7 +289,7 @@ además las métricas de las demos de eficiencia energética:
 >
 > Consulta [.NET Observability with OpenTelemetry](https://learn.microsoft.com/en-us/dotnet/core/diagnostics/observability-with-otel)
 > para tener más información sobre cómo `AddObservability` configura las
-> métricas, y [Creating Metrics](https://learn.microsoft.com/en-us/dotnet/core/diagnostics/metrics-instrumentation)
+> métricas. Consulta [Creating Metrics](https://learn.microsoft.com/en-us/dotnet/core/diagnostics/metrics-instrumentation)
 > sobre los contadores y los *gauges* propios de la aplicación, como
 > `service_health` y `orders_patterns_enabled`.
 
@@ -326,13 +327,12 @@ el análisis de [Argo Rollouts](https://argoproj.github.io/rollouts/).
 
 Los nueve de facilidad de modificación y de despliegue, de `strangler-fig.js`
 a `ab-testing.js`, necesitan que alguien haga el cambio mientras corren. Los de
-facilidad de modificación se lanzan con
-[load-modifiability.sh](demos/load-modifiability.sh), y los de facilidad de
-despliegue, con [load-deployment.sh](demos/load-deployment.sh). `energy.js`
-necesita el *worker* del clúster en una de tres configuraciones, y se lanza con
-[load-energy.sh](demos/load-energy.sh); hay que esperar los 10 minutos de la
-corrida para comparar la energía. Los tres scripts marcan cada cambio en el
-dashboard:
+facilidad de modificación se lanzan con [load-modifiability.sh](demos/load-modifiability.sh)
+y los de facilidad de despliegue se lanzan con [load-deployment.sh](demos/load-deployment.sh).
+`energy.js` necesita el *worker* del clúster en una de tres configuraciones y se
+lanza con [load-energy.sh](demos/load-energy.sh); hay que esperar los 10 minutos
+de la corrida para comparar la energía. Los tres scripts marcan cada cambio en
+el dashboard:
 
 ```bash
 ./demos/load-modifiability.sh strangler   # también: acl, config, bridge, bff
