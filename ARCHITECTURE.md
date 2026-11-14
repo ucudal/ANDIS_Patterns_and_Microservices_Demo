@@ -827,9 +827,10 @@ coordinar con los demás. Hay varios lugares donde esta aplicación se acopla:
   el cliente: un cliente
   [WCF](https://learn.microsoft.com/dotnet/framework/wcf/) generado tendría su
   propio canal HTTP y dejaría afuera el pipeline de resiliencia. Un detalle de
-  SOAP 1.1 afecta a los patrones: todo SOAP Fault viaja como HTTP 500, que el
-  Retry y el Circuit Breaker tratan como falla transitoria. Por eso `GetUser`
-  responde sin resultado ‑y no con un Fault‑ cuando el `User` no existe.
+  SOAP 1.1 afecta a los patrones: todo SOAP Fault viaja como
+  `500 Internal Server Error`, que el Retry y el Circuit Breaker tratan como
+  falla transitoria. Por eso `GetUser` responde sin resultado ‑y no con un
+  Fault‑ cuando el `User` no existe.
 * **El orden de arranque.** En [docker-compose.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/docker-compose.yaml),
   `orders-service` no arranca hasta que `users-service` y `products-service`
   están sanos, aunque puede funcionar sin ellos. `users-service` y

@@ -206,11 +206,11 @@ reinicia‑ hace fallar una operación que habría funcionado un momento despué
 
 **Implementación:** los `HttpClient` de `Orders` hacia `Users` y `Products`
 reintentan hasta 3 veces con retroceso exponencial ‑0.5 segundos, 1 segundo, 2
-segundos, con *jitter*‑. Solo se reintentan los errores transitorios: 5xx, 408,
-429, errores de red y *timeouts*; un 404 no se reintenta. Está en el método
-`AddResilience` de la clase `Resilience`, en
-[Resilience.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/OrdersService/Resilience.cs), con
-`Microsoft.Extensions.Http.Resilience`.
+segundos, con *jitter*‑. Solo se reintentan los errores transitorios: 5xx,
+`408 Request Timeout`, `429 Too Many Requests`, errores de red y *timeouts*; un
+`404 Not Found` no se reintenta. Está en el método `AddResilience` de la clase
+`Resilience`, en
+[Resilience.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/OrdersService/Resilience.cs), con `Microsoft.Extensions.Http.Resilience`.
 
 Reintentar solo es seguro si la operación es idempotente: una llamada que falla
 por *timeout* pudo haberse ejecutado igual. La forma como lo resuelve la
@@ -471,13 +471,13 @@ public async Task<ActionResult<List<object>>> GetOrdersForUser(int userId)
 **Cómo verlo:** la demo [04 de Throttling](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/04-throttling.sh) hace que
 `Orders` demore 5 segundos en cada consulta y lanza 40 simultáneas, primero con
 el Throttling apagado y después prendido. Sin el Throttling, las 40 responden
-200 y `Orders` llega a atender 40 a la vez. Con el Throttling, 20 responden 200
-con todos los nombres y 20 se rechazan al instante con 503. La demo apaga el
-Bulkhead; con el Bulkhead prendido, algunas respuestas 200 traerían un producto
-"no disponible", porque las 20 consultas atendidas llaman a `Products` a la vez
-y llenan su compartimento: en un sistema real, el Throttling y el Bulkhead
-actúan juntos. El Throttling por cliente del *gateway* se ve en la demo de Rate
-Limiting.
+`200 OK` y `Orders` llega a atender 40 a la vez. Con el Throttling, 20 responden
+`200 OK` con todos los nombres y 20 se rechazan al instante con
+`503 Service Unavailable`. La demo apaga el Bulkhead; con el Bulkhead prendido,
+algunas respuestas `200 OK` traerían un producto "no disponible", porque las 20
+consultas atendidas llaman a `Products` a la vez y llenan su compartimento: en
+un sistema real, el Throttling y el Bulkhead actúan juntos. El Throttling por
+cliente del *gateway* se ve en la demo de Rate Limiting.
 
 > [!TIP]
 >
@@ -535,9 +535,9 @@ segundo por IP, con una ráfaga de 5. Lo que cambia es cómo envía el cliente.
 **Cómo verlo:** la demo [05 de Rate Limiting](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/05-rate-limiting.sh) crea 15
 `Orders` de dos formas. Sin Rate Limiting, las envía todas de golpe y reintenta
 las rechazadas cada segundo: hacen falta unas 55 solicitudes y unas 40
-reciben 429. Con Rate Limiting, respeta el límite del *gateway*: 15 solicitudes
-y ningún 429. Las dos formas demoran unos 10 segundos, porque el límite del
-*gateway* fija el ritmo máximo.
+reciben `429 Too Many Requests`. Con Rate Limiting, respeta el límite del
+*gateway*: 15 solicitudes y ningún `429 Too Many Requests`. Las dos formas
+demoran unos 10 segundos, porque el límite del *gateway* fija el ritmo máximo.
 
 #### Health Endpoint Monitoring
 
@@ -546,17 +546,18 @@ detecta cuando un usuario se queja.
 
 **Implementación:** cada servicio expone `/health`, que verifica sus propias
 dependencias y devuelve un [JSON](https://www.json.org/) con el resultado de
-cada chequeo ‑200 si está sano, 503 en caso contrario‑:
+cada chequeo ‑`200 OK` si está sano, `503 Service Unavailable` en caso
+contrario‑:
 
 * `users-service`: *ping* a [MongoDB](https://www.mongodb.com/).
 * `products-service`: conexión a [PostgreSQL](https://www.postgresql.org/).
 * `orders-service`: conexión a [MySQL](https://www.mysql.com/) y a
   [RabbitMQ](https://www.rabbitmq.com/). Si RabbitMQ no está, queda `Degraded` y
-  responde 200, porque gracias al [Transactional Outbox](#transactional-outbox)
-  sigue aceptando `Orders`. `orders-worker` y `orders-projector` quedan
-  `Unhealthy`, porque sin RabbitMQ no reciben nada.
+  responde `200 OK`, porque gracias al [Transactional
+  Outbox](#transactional-outbox) sigue aceptando `Orders`. `orders-worker` y
+  `orders-projector` quedan `Unhealthy`, porque sin RabbitMQ no reciben nada.
 
-`Orders` **no** chequea a `Users` ni a `Products`: si se cae una dependency,
+`Orders` **no** chequea a `Users` ni a `Products`: si se cae una dependencia,
 `Orders` sigue funcionando degradado y no debe figurar como caído. El *gateway*
 publica los tres en `/health/users`, `/health/products` y `/health/orders`.
 Docker los consulta cada 5 segundos
@@ -594,12 +595,12 @@ Cada chequeo es una implementación de `IHealthCheck`, registrada con
   [HealthMetrics.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/Common/HealthMetrics.cs), publica la métrica.
 
 **Cómo verlo:** la demo [06 de Health Endpoint Monitoring](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/06-health.sh)
-detiene la base de datos de `Products`. `/health/products` pasa a 503, con el
-chequeo `products-db` en `Unhealthy`; `Orders` sigue sano, y a los pocos segundos Docker
-marca `products-service` como `unhealthy`. Al levantar la base, todo vuelve a la
-normalidad. Para verlo en vivo, corre [el monitor de
-estado](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/monitor-health.sh)
-en otra terminal. En Grafana, el panel `Salud de los servicios` muestra
+detiene la base de datos de `Products`. `/health/products` pasa a
+`503 Service Unavailable`, con el chequeo `products-db` en `Unhealthy`; `Orders`
+sigue sano, y a los pocos segundos Docker marca `products-service` como
+`unhealthy`. Al levantar la base, todo vuelve a la normalidad. Para verlo en
+vivo, corre [el monitor de
+estado](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/monitor-health.sh) en otra terminal. En Grafana, el panel `Salud de los servicios` muestra
 `products-service` en rojo mientras la base está
 detenida.
 
@@ -1589,14 +1590,15 @@ valor.
 **Cómo verlo:** la demo [18 de Federated Identity](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/18-federated-identity.sh)
 crea una `Order` para el `User` 2 por la entrada HTTP, sin identificarse.
 Después bob inicia sesión y, por la entrada HTTPS, crea una `Order` sin indicar
-el `User`: es de bob; si indica el `User` 1, `Orders` responde 403. bob consulta
-sus `Orders` y no las de alice, y alice consulta las suyas y no las de bob;
-carol consulta las de los dos, pero no puede crear. Sin *token*, o con el
-`user_id` del *token* cambiado por el de alice, el *gateway* responde 401,
-porque la firma ya no corresponde a los claims. Como en las demás demos, las
-`Orders` se crean solo para el `User` 2: las del `User` 1 son la base de las
-demos de disponibilidad. En [Grafana](https://grafana.com/oss/grafana/), el
-panel `Eventos de Keycloak por segundo` muestra los inicios de sesión.
+el `User`: es de bob; si indica el `User` 1, `Orders` responde `403 Forbidden`.
+bob consulta sus `Orders` y no las de alice, y alice consulta las suyas y no las
+de bob; carol consulta las de los dos, pero no puede crear. Sin *token*, o con
+el `user_id` del *token* cambiado por el de alice, el *gateway* responde
+`401 Unauthorized`, porque la firma ya no corresponde a los claims. Como en las
+demás demos, las `Orders` se crean solo para el `User` 2: las del `User` 1 son
+la base de las demos de disponibilidad. En
+[Grafana](https://grafana.com/oss/grafana/), el panel
+`Eventos de Keycloak por segundo` muestra los inicios de sesión.
 
 > [!TIP]
 >
@@ -1626,11 +1628,11 @@ HTTPS, en
 * **Validación de tokens:** antes de reenviar cada solicitud,
   [`auth_request`](https://nginx.org/en/docs/http/ngx_http_auth_request_module.html#auth_request)
   hace una subsolicitud a `/userinfo` de Keycloak con el *token*. Si Keycloak
-  responde 200, la solicitud sigue; si no, el *gateway* responde 401 y la
-  solicitud no llega al servicio. Después, `identity.js`, en
-  [identity.js](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/ApiGateway/nginxconf/identity.js), lee
-  los claims del *token*, ya validado, y el *gateway* se los pasa al servicio en los
-  encabezados `X-User-Name`, `X-User-Id` y `X-User-Roles`.
+  responde `200 OK`, la solicitud sigue; si no, el *gateway* responde
+  `401 Unauthorized` y la solicitud no llega al servicio. Después,
+  `identity.js`, en [identity.js](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/ApiGateway/nginxconf/identity.js),
+  lee los claims del *token*, ya validado, y el *gateway* se los pasa al
+  servicio en los encabezados `X-User-Name`, `X-User-Id` y `X-User-Roles`.
 * **Compresión:** el *gateway* comprime con
   [gzip](https://nginx.org/en/docs/http/ngx_http_gzip_module.html) las
   respuestas de más de 1 KB, si el cliente lo acepta.
@@ -1667,11 +1669,11 @@ proxy_set_header X-User-Id $user_id;
 
 **Cómo verlo:** la demo [19 de Gateway Offloading](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/19-gateway-offloading.sh)
 muestra que `Orders` no habla TLS y que el *gateway* sí, con su certificado. Sin
-*token*, el *gateway* responde 401, y su *log* muestra que la solicitud no llegó a
-ningún servicio; con *token*, la reenvía. La lista de `Orders` llega unas 15 veces
-más chica por HTTPS que por HTTP, comprimida por el *gateway*. En Grafana, el
-panel `Eventos de Keycloak por segundo` muestra una validación de *token*,
-`user_info_request`, por cada solicitud HTTPS.
+*token*, el *gateway* responde `401 Unauthorized`, y su *log* muestra que la
+solicitud no llegó a ningún servicio; con *token*, la reenvía. La lista de
+`Orders` llega unas 15 veces más chica por HTTPS que por HTTP, comprimida por el
+*gateway*. En Grafana, el panel `Eventos de Keycloak por segundo` muestra una
+validación de *token*, `user_info_request`, por cada solicitud HTTPS.
 
 > [!TIP]
 >
@@ -1695,13 +1697,14 @@ reenviarla, en
 
 * **Rutas:** publica solo las de la aplicación. Las de administración ‑`/chaos`,
   `/patterns`, `/cache`, `/orders/projections/rebuild`‑ y cualquier otra
-  responden 404 sin llegar a los servicios.
+  responden `404 Not Found` sin llegar a los servicios.
 * **Ids:** el de un `Product` tiene 24 caracteres hexadecimales, y el de una
-  `Order` o un `User` es un número; si no, 404.
+  `Order` o un `User` es un número; si no, `404 Not Found`.
 * **Métodos:** cada ruta acepta solo los que usa la aplicación; un `DELETE`
-  responde 403.
+  responde `403 Forbidden`.
 * **Cuerpo:** los `POST` y `PUT` tienen que ser [JSON](https://www.json.org/)
-  ‑415 si no‑ y medir hasta 64 KB ‑413 si no‑.
+  ‑`415 Unsupported Media Type` si no‑ y medir hasta 64 KB
+  ‑`413 Content Too Large` si no‑.
 * **Encabezados de identidad:** el *gateway* arma `X-User-Name`, `X-User-Id` y
   `X-User-Roles` con los claims del *token* y reemplaza los que haya mandado el
   cliente. Un cliente no se puede hacer pasar por otro.
@@ -1752,15 +1755,15 @@ location / {
 ```
 
 **Cómo verlo:** la demo [20 de Gatekeeper](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/20-gatekeeper.sh) compara las dos
-entradas. Por HTTP, las rutas de administración responden 200, y los métodos,
-los cuerpos y los ids inválidos llegan a `Orders`, que los rechaza después de
-recibirlos. Por HTTPS, el *gateway* los rechaza sin llegar a los servicios. alice
-no puede hacerse pasar por bob con encabezados falsos por HTTPS, pero sí por el
-puerto 8000, sin *token*. Al aplicar `docker-compose.gatekeeper.yaml`, el puerto
-8000 deja de responder, y la entrada HTTPS sigue funcionando. Al terminar, el
-*script* vuelve a publicar los puertos. En Grafana, el panel
-`Solicitudes por segundo, por servicio y código HTTP` muestra los rechazos de
-`Orders` por HTTP;
+entradas. Por HTTP, las rutas de administración responden `200 OK`, y los
+métodos, los cuerpos y los ids inválidos llegan a `Orders`, que los rechaza
+después de recibirlos. Por HTTPS, el *gateway* los rechaza sin llegar a los
+servicios. alice no puede hacerse pasar por bob con encabezados falsos por
+HTTPS, pero sí por el puerto 8000, sin *token*. Al aplicar
+`docker-compose.gatekeeper.yaml`, el puerto 8000 deja de responder, y la entrada
+HTTPS sigue funcionando. Al terminar, el *script* vuelve a publicar los puertos.
+En Grafana, el panel `Solicitudes por segundo, por servicio y código HTTP`
+muestra los rechazos de `Orders` por HTTP;
 los de HTTPS no aparecen, porque no llegaron a `Orders`.
 
 > [!TIP]
@@ -1791,11 +1794,11 @@ configura con [envoy.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microser
   [`jwt_authn`](https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/jwt_authn_filter)
   verifica la firma del *token* con las claves públicas de Keycloak, que pide una
   vez cada 5 minutos, además del emisor y el vencimiento. Un *token* inválido
-  recibe 401; sin *token*, la solicitud sigue como anónima.
+  recibe `401 Unauthorized`; sin *token*, la solicitud sigue como anónima.
 * **Autorización:** el filtro
   [`rbac`](https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/rbac_filter)
   deja leer a cualquiera ‑`GET`‑ y exige el rol `admin` para todo lo demás. Si
-  no, 403.
+  no, `403 Forbidden`.
 * **Registro de accesos:** una línea `[SIDECAR]` por solicitud, con el código,
   el usuario del *token* y el motivo del rechazo.
 
@@ -1850,11 +1853,11 @@ policies:
 un `Product` por HTTP, sin identificarse. Por HTTPS, alice lo lee pero no lo
 puede cambiar; carol lo lee y lo cambia. Desde adentro de la red,
 `products-service:8000` acepta cualquier cambio, y el *sidecar*,
-`products-service:9000`, lo rechaza: responde 403 sin *token* y 401 con
-un *token* al que alice le agregó el rol `admin` sin poder volver a firmarlo. El
-registro del *sidecar* muestra cada decisión. En Grafana, el
-panel `Solicitudes en el sidecar de Products, por resultado` muestra las
-permitidas y las rechazadas.
+`products-service:9000`, lo rechaza: responde `403 Forbidden` sin *token* y
+`401 Unauthorized` con un *token* al que alice le agregó el rol `admin` sin
+poder volver a firmarlo. El registro del *sidecar* muestra cada decisión. En
+Grafana, el panel `Solicitudes en el sidecar de Products, por resultado` muestra
+las permitidas y las rechazadas.
 
 > [!TIP]
 >
@@ -1915,13 +1918,14 @@ URL de escritura.
 
 **Cómo verlo:** la demo [22 de Valet Key](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/22-valet-key.sh) sube una imagen
 de 5 MB a través de `Products`, por HTTP; por HTTPS, el *gateway* la rechaza
-con 413. Después carol pide una URL firmada y sube la imagen directamente a
-Azurite. Con esa URL no se puede leer la imagen, ni escribir la de otro
-`Product`, y sin la firma no se puede nada. Una URL que vence a los 5 segundos
-funciona enseguida y no después. Para bajar la imagen, `Products` redirige a una
-URL de lectura. En Grafana, el panel `Bytes de imágenes que recibe Products`
-muestra los 5 MB de la subida sin Valet Key y el panel
-`Claves de imágenes que entrega Products` muestra las URL firmadas.
+con `413 Content Too Large`. Después carol pide una URL firmada y sube la imagen
+directamente a Azurite. Con esa URL no se puede leer la imagen, ni escribir la
+de otro `Product`, y sin la firma no se puede nada. Una URL que vence a los 5
+segundos funciona enseguida y no después. Para bajar la imagen, `Products`
+redirige a una URL de lectura. En Grafana, el panel
+`Bytes de imágenes que recibe Products` muestra los 5 MB de la subida sin Valet
+Key y el panel `Claves de imágenes que entrega Products` muestra las URL
+firmadas.
 
 > [!TIP]
 >
