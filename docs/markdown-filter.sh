@@ -32,6 +32,10 @@
 # el sitio. El filtro hace el mismo cambio, para que el sitio no dependa de ese
 # commit.
 #
+# Si el texto alternativo de una imagen ocupa más de una línea, Doxygen corta el
+# pie de la figura en el salto y muestra el resto como texto suelto, repetido.
+# El filtro une esas líneas.
+#
 # Doxygen no reconoce una cursiva pegada a un guion de no separación, como
 # ‑*on premises*‑, y muestra los asteriscos; GitHub sí la reconoce. El filtro
 # cambia esa cursiva por <em>…</em>, también cuando todavía está pegada a una
@@ -43,6 +47,7 @@ perl -0777 -pe '
       $parts[$i] =~ s/^```math[^\n]*\n(.*?)^```[^\n]*$/\\f[\n$1\\f]/ms;
     } else {
       $parts[$i] =~ s/^(> \[!\w+\]\n)>[ \t]*\n/$1/mg;
+      $parts[$i] =~ s{!\[([^\]]*)\]\(}{my $a = $1; $a =~ s/[ \t]*\n[ \t]*/ /g; "![$a]("}ge;
       my @spans = split /(`[^`\n]*`)/, $parts[$i];
       for my $j (0 .. $#spans) {
         if ($j % 2) {
