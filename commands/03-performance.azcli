@@ -1,7 +1,11 @@
 # Parte 3: demos de los patrones de rendimiento, de la 11 a la 17
 #
-# Las demos de disponibilidad están en 02-availability.azcli, y las de
-# seguridad, en 04-security.azcli.
+# Las pruebas de los servicios a través del API Gateway están en
+# 01-api-gateway.azcli. Las demos de disponibilidad están en
+# 02-availability.azcli, las de seguridad, en 04-security.azcli, las de
+# facilidad de modificación, en 05-modifiability.azcli, las de facilidad de
+# despliegue, en 06-deployability.azcli y las de eficiencia energética, en
+# 07-energy-efficiency.azcli.
 
 # ---------------------------------------------------------------------------
 # Levantar todos los servicios

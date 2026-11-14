@@ -1,8 +1,11 @@
-# Parte 6: demos de las estrategias de despliegue, de la 28 a la 34
+# Parte 6: demos de los patrones de facilidad de despliegue, de la 28 a la 34
 #
-# Las demos de disponibilidad están en 02-availability.azcli, las de
-# rendimiento, en 03-performance.azcli, las de seguridad, en 04-security.azcli y
-# las de facilidad de modificación, en 05-modifiability.azcli.
+# Las pruebas de los servicios a través del API Gateway están en
+# 01-api-gateway.azcli. Las demos de disponibilidad están en
+# 02-availability.azcli, las de rendimiento, en 03-performance.azcli, las de
+# seguridad, en 04-security.azcli, las de facilidad de modificación, en
+# 05-modifiability.azcli y las de eficiencia energética, en
+# 07-energy-efficiency.azcli.
 #
 # Las cuatro demos en este archivo ponen en producción la versión v2 de Users,
 # que corre en users-service-v2 al lado de la versión v1, en users-service. Es

@@ -1,9 +1,11 @@
 # Parte 7: demos de los patrones de eficiencia energética, de la 35 a la 37
 #
-# Las demos de disponibilidad están en 02-availability.azcli, las de
-# rendimiento, en 03-performance.azcli, las de seguridad, en 04-security.azcli,
-# las de facilidad de modificación, en 05-modifiability.azcli y las de facilidad
-# de despliegue, en 06-deployability.azcli.
+# Las pruebas de los servicios a través del API Gateway están en
+# 01-api-gateway.azcli. Las demos de disponibilidad están en
+# 02-availability.azcli, las de rendimiento, en 03-performance.azcli, las de
+# seguridad, en 04-security.azcli, las de facilidad de modificación, en
+# 05-modifiability.azcli y las de facilidad de despliegue, en
+# 06-deployability.azcli.
 #
 # Las tres demos usan el worker de Orders, que consume la cola orders.process.
 # El worker corre en el clúster de Kubernetes de las demos 32 a 34, y usa
