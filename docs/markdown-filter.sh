@@ -32,6 +32,10 @@
 # el sitio. El filtro hace el mismo cambio, para que el sitio no dependa de ese
 # commit.
 #
+# Un código en línea puede ocupar dos líneas del .md, para no pasar de 80
+# columnas. Doxygen deja el salto adentro del código, y el sitio lo muestra
+# cortado. El filtro lo une en una sola línea.
+#
 # Si el texto alternativo de una imagen ocupa más de una línea, Doxygen corta el
 # pie de la figura en el salto y muestra el resto como texto suelto, repetido.
 # El filtro une esas líneas.
@@ -48,6 +52,7 @@ perl -0777 -pe '
     } else {
       $parts[$i] =~ s/^(> \[!\w+\]\n)>[ \t]*\n/$1/mg;
       $parts[$i] =~ s{!\[([^\]]*)\]\(}{my $a = $1; $a =~ s/[ \t]*\n[ \t]*/ /g; "![$a]("}ge;
+      $parts[$i] =~ s{(?<!`)(`+)(?!`)((?:(?!\n[ \t>]*\n).)*?)(?<!`)\1(?!`)}{my ($q, $c) = ($1, $2); $c =~ s/[ \t]*\n[ \t]*(?:>[ \t]?)?[ \t]*/ /g; "$q$c$q"}gse;
       my @spans = split /(`[^`\n]*`)/, $parts[$i];
       for my $j (0 .. $#spans) {
         if ($j % 2) {
