@@ -20,6 +20,10 @@
 # Doxygen convierte en enlace toda URL, aunque esté en código en línea, como
 # `http://localhost`; GitHub no. El filtro le antepone %, que Doxygen no
 # muestra, para que quede como código.
+#
+# En los enlaces a secciones, como [*worker*](PATTERNS.md#…) o [*sidecar*](#…),
+# Doxygen muestra el texto sin procesar, con los asteriscos. El filtro cambia la
+# cursiva de ese texto por <em>…</em>, que Doxygen sí respeta.
 perl -0777 -pe '
   my @parts = split /(^```[^\n]*\n.*?^```[^\n]*$)/ms;
   for my $i (0 .. $#parts) {
@@ -32,6 +36,7 @@ perl -0777 -pe '
         if ($j % 2) { $spans[$j] =~ s{(?<!%)(https?://)}{%$1}g; next; }
         $spans[$j] =~ s/\$([^\s\$](?:[^\$\n]*[^\s\$])?)\$/\\f\$$1\\f\$/g;
         $spans[$j] =~ s/(?<![\w\/%(.\[])((?:ARCHITECTURE|PATTERNS|README)\.md)(?![\w)#])/%$1/g;
+        $spans[$j] =~ s{\[([^\[\]]*)\](?=\((?:#|[\w-]+\.md#))}{my $t = $1; $t =~ s/(?<!\*)\*([^*\s](?:[^*]*[^*\s])?)\*(?!\*)/<em>$1<\/em>/g; "[$t]"}ge;
         $spans[$j] =~ s{\]\(README\.md(#[^)\s]+)?\)}{](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/README.md$1)}g;
       }
       $parts[$i] = join "", @spans;
