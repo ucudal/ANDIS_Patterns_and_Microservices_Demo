@@ -322,7 +322,7 @@ dashboard.
 
 `blue-green.js`, `rolling-upgrade.js` y `canary.js` también sirven para las
 demos 32 a 34, con [Kubernetes](https://kubernetes.io/): el script los apunta al
-clúster, y el panel "Errores de cada versión, según Users" muestra lo que mide
+clúster, y el panel `Errores de cada versión, según Users` muestra lo que mide
 el análisis de [Argo Rollouts](https://argoproj.github.io/rollouts/).
 
 Los nueve de facilidad de modificación y de despliegue, de `strangler-fig.js`

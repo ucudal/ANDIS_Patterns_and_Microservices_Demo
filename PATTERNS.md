@@ -288,9 +288,9 @@ estado por réplica](ARCHITECTURE.md#stateless-y-estado-por-réplica), en
 ![Estados del circuito: cerrado, abierto y
 semiabierto](assets/02-circuit-breaker.svg)
 
-Los eventos `OnOpened`, `OnHalfOpened` y `OnClosed` son los del panel "Eventos
-de resiliencia", y el estado es el del panel "Estado del circuito de cada
-dependencia".
+Los eventos `OnOpened`, `OnHalfOpened` y `OnClosed` son los del panel
+`Eventos de resiliencia`, y el estado es el del panel
+`Estado del circuito de cada dependencia`.
 
 **Código:** la estrategia del *pipeline* de cada dependencia, en
 [Resilience.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/OrdersService/Resilience.cs). Va dentro del
@@ -310,18 +310,19 @@ pipeline.AddCircuitBreaker(new HttpCircuitBreakerStrategyOptions
 });
 ```
 
-**Cómo verlo:** la demo [02 de Circuit Breaker](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/02-circuit-breaker.sh) hace
-que `Products` falle en el 100% de las solicitudes y consulta el detalle 6 veces
-con todos los patrones apagados y 6 con solo el Circuit Breaker prendido. Sin el
-circuito, `Products` recibe 12 llamadas, aunque falle siempre; con el circuito,
-5. Sin reintentos, cada falla cuenta una vez: las dos primeras consultas dicen
-`"no disponible [error HTTP 503]"`, en la tercera el circuito se abre y de ahí
-en adelante responden con `"no disponible [circuito abierto]"` sin llamar a
-`Products`. Cuando `Products` se recupera, el circuito sigue abierto hasta que
-pasan los 15 segundos. Los *logs* de Docker muestran las transiciones ABIERTO →
-SEMIABIERTO → CERRADO. Con el Retry prendido, la primera consulta tardaría unos
-3 segundos, porque reintentaría cada llamada antes de que se abriera el
-circuito.
+**Cómo verlo:** la demo [02 de Circuit
+Breaker](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/02-circuit-breaker.sh)
+hace que `Products` falle en el 100% de las solicitudes y consulta el detalle 6
+veces con todos los patrones apagados y 6 con solo el Circuit Breaker prendido.
+Sin el circuito, `Products` recibe 12 llamadas, aunque falle siempre; con el
+circuito recibe solo 5. Sin reintentos, cada falla cuenta una vez: las dos
+primeras consultas dicen `"no disponible [error HTTP 503]"`, en la tercera el
+circuito se abre y de ahí en adelante responden con `"no disponible [circuito
+abierto]"` sin llamar a `Products`. Cuando `Products` se recupera, el circuito
+sigue abierto hasta que pasan los 15 segundos. Los *logs* de Docker muestran las
+transiciones `ABIERTO` → `SEMIABIERTO` → `CERRADO`. Con el Retry prendido, la
+primera consulta tardaría unos 3 segundos, porque reintentaría cada llamada
+antes de que se abriera el circuito.
 
 > [!TIP]
 >
@@ -534,10 +535,10 @@ segundo por IP, con una ráfaga de 5. Lo que cambia es cómo envía el cliente.
 
 **Cómo verlo:** la demo [05 de Rate Limiting](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/05-rate-limiting.sh) crea 15
 `Orders` de dos formas. Sin Rate Limiting, las envía todas de golpe y reintenta
-las rechazadas cada 1 segundo: hacen falta unas 55 solicitudes y unas 40 reciben
-429. Con Rate Limiting, respeta el límite del *gateway*: 15 solicitudes y ningún
-429. Las dos formas demoran unos 10 segundos, porque el límite del *gateway* fija
-el ritmo máximo.
+las rechazadas cada 1 segundo: hacen falta unas 55 solicitudes y unas 40
+reciben 429. Con Rate Limiting, respeta el límite del *gateway*: 15 solicitudes
+y ningún 429. Las dos formas demoran unos 10 segundos, porque el límite del
+*gateway* fija el ritmo máximo.
 
 #### Health Endpoint Monitoring
 
@@ -598,8 +599,9 @@ detiene la base de datos de `Products`. `/health/products` pasa a 503, con el
 chequeo `products-db` en `Unhealthy`; `Orders` sigue sano, y a los pocos segundos Docker
 marca `products-service` como `unhealthy`. Al levantar la base, todo vuelve a la
 normalidad. Para verlo en vivo, corre [el monitor de
-estado](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/monitor-health.sh) en otra terminal. En Grafana, el panel "Salud
-de los servicios" muestra `products-service` en rojo mientras la base está
+estado](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/monitor-health.sh)
+en otra terminal. En Grafana, el panel `Salud de los servicios` muestra
+`products-service` en rojo mientras la base está
 detenida.
 
 > [!TIP]
@@ -839,7 +841,7 @@ uno confirma la `Order` y el otro la descarta, y la `Order` tiene un solo
 `OrderConfirmed` en su historial y un solo `order.confirmed` en el *outbox*. Al
 salir de la pausa, `Products` reserva el stock y publica su `stock.reserved`, y
 el *worker* lo ignora porque la `Order` ya no está `Pending`. En Grafana, el panel
-"Outbox de Orders y Products" muestra los pendientes de `orders-service` subir
+`Outbox de Orders y Products` muestra los pendientes de `orders-service` subir
 y volver a cero.
 
 > [!TIP]
@@ -964,10 +966,11 @@ vuelve con la compensación; la cuarta pide 12 unidades, el ERP la rechaza y la
 `Order` pasa de `Confirmed` a `Cancelled`, con el stock devuelto. Después
 publica otra vez un `order.created` y un `order.rejected`, y el stock no cambia.
 Los *logs* de `products-service` y de `orders-worker` muestran cada paso con la
-etiqueta `[SAGA]`. En Grafana, en la fila "Saga: stock y reservas", el panel
-"Stock por Product" muestra el stock de Zapatos en 20, después en 18, y la
-caída y la vuelta de cada compensación. El panel "Reservas de stock en el
-último minuto" cuenta las reservas `Reserved`, las `Rejected` y las
+etiqueta `[SAGA]`. En Grafana, en la fila `Saga: stock y reservas`, el panel
+`Stock por Product` muestra el stock de Zapatos en 20, después en 18, y la
+caída y la vuelta de cada compensación. El panel
+`Reservas de stock en el último minuto` cuenta las reservas `Reserved`, las
+`Rejected` y las
 compensaciones `Released`.
 
 > [!TIP]
@@ -994,7 +997,7 @@ absorbido por la cola y throughput que crece al agregar *workers*. El pico se
 genera con [load.js](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/k6/load.js) y
 [load-leveling.js](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/k6/load-leveling.js), y se compara antes y después de cada
 patrón en el *dashboard* de [Grafana](https://grafana.com/oss/grafana/), en la
-fila "Rendimiento: caché, CQRS y outbox".
+fila `Rendimiento: caché, CQRS y outbox`.
 
 ### Qué agrega a las demos de disponibilidad
 
@@ -1594,8 +1597,7 @@ carol consulta las de los dos, pero no puede crear. Sin *token*, o con el
 porque la firma ya no corresponde a los claims. Como en las demás demos, las
 `Orders` se crean solo para el `User` 2: las del `User` 1 son la base de las
 demos de disponibilidad. En [Grafana](https://grafana.com/oss/grafana/), el
-panel "Eventos de Keycloak por
-segundo" muestra los inicios de sesión.
+panel `Eventos de Keycloak por segundo` muestra los inicios de sesión.
 
 > [!TIP]
 >
@@ -1669,7 +1671,7 @@ muestra que `Orders` no habla TLS y que el *gateway* sí, con su certificado. Si
 *token*, el *gateway* responde 401, y su *log* muestra que la solicitud no llegó a
 ningún servicio; con *token*, la reenvía. La lista de `Orders` llega unas 15 veces
 más chica por HTTPS que por HTTP, comprimida por el *gateway*. En Grafana, el
-panel "Eventos de Keycloak por segundo" muestra una validación de *token*,
+panel `Eventos de Keycloak por segundo` muestra una validación de *token*,
 `user_info_request`, por cada solicitud HTTPS.
 
 > [!TIP]
@@ -1757,8 +1759,9 @@ recibirlos. Por HTTPS, el *gateway* los rechaza sin llegar a los servicios. alic
 no puede hacerse pasar por bob con encabezados falsos por HTTPS, pero sí por el
 puerto 8000, sin *token*. Al aplicar `docker-compose.gatekeeper.yaml`, el puerto
 8000 deja de responder, y la entrada HTTPS sigue funcionando. Al terminar, el
-*script* vuelve a publicar los puertos. En Grafana, el panel "Solicitudes por
-segundo, por servicio y código HTTP" muestra los rechazos de `Orders` por HTTP;
+*script* vuelve a publicar los puertos. En Grafana, el panel
+`Solicitudes por segundo, por servicio y código HTTP` muestra los rechazos de
+`Orders` por HTTP;
 los de HTTPS no aparecen, porque no llegaron a `Orders`.
 
 > [!TIP]
@@ -1851,7 +1854,7 @@ puede cambiar; carol lo lee y lo cambia. Desde adentro de la red,
 `products-service:9000`, lo rechaza: responde 403 sin *token* y 401 con
 un *token* al que alice le agregó el rol `admin` sin poder volver a firmarlo. El
 registro del *sidecar* muestra cada decisión. En Grafana, el
-panel "Solicitudes en el sidecar de Products, por resultado" muestra las
+panel `Solicitudes en el sidecar de Products, por resultado` muestra las
 permitidas y las rechazadas.
 
 > [!TIP]
@@ -1912,14 +1915,14 @@ URL de escritura.
 ![Clases de las imágenes de Products](assets/22-valet-key-clases.svg)
 
 **Cómo verlo:** la demo [22 de Valet Key](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/22-valet-key.sh) sube una imagen
-de 5 MB a través de `Products`, por HTTP; por HTTPS, el *gateway* la rechaza con
-413. Después carol pide una URL firmada y sube la imagen directamente a Azurite.
-Con esa URL no se puede leer la imagen, ni escribir la de otro `Product`, y sin
-la firma no se puede nada. Una URL que vence a los 5 segundos funciona enseguida
-y no después. Para bajar la imagen, `Products` redirige a una URL de lectura. En
-Grafana, el panel "Bytes de imágenes que recibe Products" muestra los 5 MB de la
-subida sin Valet Key y el panel "Claves de imágenes que entrega Products"
-muestra las URL firmadas.
+de 5 MB a través de `Products`, por HTTP; por HTTPS, el *gateway* la rechaza
+con 413. Después carol pide una URL firmada y sube la imagen directamente a
+Azurite. Con esa URL no se puede leer la imagen, ni escribir la de otro
+`Product`, y sin la firma no se puede nada. Una URL que vence a los 5 segundos
+funciona enseguida y no después. Para bajar la imagen, `Products` redirige a una
+URL de lectura. En Grafana, el panel `Bytes de imágenes que recibe Products`
+muestra los 5 MB de la subida sin Valet Key y el panel
+`Claves de imágenes que entrega Products` muestra las URL firmadas.
 
 > [!TIP]
 >
@@ -2590,18 +2593,18 @@ docker compose --profile observability up -d --wait
 ./demos/load-modifiability.sh strangler   # también: acl, config, bridge, bff
 ```
 
-Los paneles están en la fila "Facilidad de modificación: antes y después". Estos
+Los paneles están en la fila `Facilidad de modificación: antes y después`. Estos
 resultados son de una corrida en una sola máquina, con pocas solicitudes por
 segundo: ilustran el efecto y no son una prueba de rendimiento.
 
 | Patrón | Qué se hace | Qué mirar | Resultado |
 | ------ | ----------- | --------- | --------- |
-| Strangler Fig | Se migran las tres rutas y se apaga el monolito, con 15 solicitudes por segundo | "Solicitudes de la fachada, por destino" y "Respuestas de la fachada con error" | 1051 solicitudes, sin errores. El tráfico del monolito llega a cero |
-| Strangler Fig | Lo mismo | "Latencia p95 del detalle, por destino" | Sube de unos 8 ms a unos 18 ms: el costo de reemplazar el JOIN por llamadas [HTTP](https://datatracker.ietf.org/doc/html/rfc9110) |
-| Messaging Bridge | Se detiene [ActiveMQ](https://activemq.apache.org/) durante unos 30 segundos, con 2 `Orders` por segundo | "Cola bridge.erp" y "Orders confirmadas por segundo" | La cola llega a 89 mensajes y vuelve a cero. Las 161 `Orders` se aceptaron y se siguieron confirmando durante la caída |
-| Anti-corruption Layer | 10 solicitudes por segundo, mitad a `Orders` y mitad a `Purchases`, y 25 segundos con `Users` demorado 200 ms | "Latencia p95: Orders y `Purchases`" | Sin demora, `Purchases` tarda unos 18 a 33 ms y `Orders`, unos 11 ms: el costo de la capa. Con la demora, `Purchases` sube a unos 420 ms y `Orders` no cambia. Las 700 solicitudes respondieron `200 OK` |
-| External Configuration Store | El mismo límite, por variable de entorno y en el almacén, con 22 solicitudes por segundo | "Solicitudes a Orders por resultado" | Las dos formas pasan de `202 Accepted` a `400 Bad Request`. Con la variable de entorno se perdieron 24 solicitudes de 2531, en los dos momentos en que se recreó el contenedor; con el almacén, ninguna |
-| Backends for Frontends | 20 solicitudes por segundo, mitad de cada cliente, y se redespliega `bff-mobile` | "Respuestas por cliente" | La web respondió `200 OK` las 600 veces. La app recibió 11 `502 Bad Gateway` de 600, mientras se reemplazaba su contenedor |
+| Strangler Fig | Se migran las tres rutas y se apaga el monolito, con 15 solicitudes por segundo | `Solicitudes de la fachada, por destino` y `Respuestas de la fachada con error` | 1051 solicitudes, sin errores. El tráfico del monolito llega a cero |
+| Strangler Fig | Lo mismo | `Latencia p95 del detalle, por destino` | Sube de unos 8 ms a unos 18 ms: el costo de reemplazar el JOIN por llamadas [HTTP](https://datatracker.ietf.org/doc/html/rfc9110) |
+| Messaging Bridge | Se detiene [ActiveMQ](https://activemq.apache.org/) durante unos 30 segundos, con 2 `Orders` por segundo | `Cola bridge.erp` y `Orders confirmadas por segundo` | La cola llega a 89 mensajes y vuelve a cero. Las 161 `Orders` se aceptaron y se siguieron confirmando durante la caída |
+| Anti-corruption Layer | 10 solicitudes por segundo, mitad a `Orders` y mitad a `Purchases`, y 25 segundos con `Users` demorado 200 ms | `Latencia p95: Orders y Purchases` | Sin demora, `Purchases` tarda unos 18 a 33 ms y `Orders`, unos 11 ms: el costo de la capa. Con la demora, `Purchases` sube a unos 420 ms y `Orders` no cambia. Las 700 solicitudes respondieron `200 OK` |
+| External Configuration Store | El mismo límite, por variable de entorno y en el almacén, con 22 solicitudes por segundo | `Solicitudes a Orders por resultado` | Las dos formas pasan de `202 Accepted` a `400 Bad Request`. Con la variable de entorno se perdieron 24 solicitudes de 2531, en los dos momentos en que se recreó el contenedor; con el almacén, ninguna |
+| Backends for Frontends | 20 solicitudes por segundo, mitad de cada cliente, y se redespliega `bff-mobile` | `Respuestas por cliente` | La web respondió `200 OK` las 600 veces. La app recibió 11 `502 Bad Gateway` de 600, mientras se reemplazaba su contenedor |
 
 Las métricas que dependen de quién respondió las informa k6 con el encabezado
 `X-Served-By`, para no tener que instrumentar [nginx](https://nginx.org/). El
@@ -3480,16 +3483,16 @@ docker compose --profile observability up -d --wait
 ./demos/load-deployment.sh bluegreen   # también: rolling, canary, ab
 ```
 
-Los paneles están en la fila "Facilidad de despliegue". Como en las demos
+Los paneles están en la fila `Facilidad de despliegue`. Como en las demos
 anteriores, son resultados de una corrida en una sola máquina, con 20
 solicitudes por segundo: ilustran el efecto y no son una prueba de rendimiento.
 
 | Estrategia | Qué se hace | Qué mirar | Resultado |
 | ---------- | ----------- | --------- | --------- |
-| Blue/Green | Se conmuta a la versión `v2` y, 20 segundos después, se vuelve a la `v1` | "Solicitudes por versión" y "Respuestas con error, por versión" | El tráfico pasa de una versión a la otra de una vez, en cada conmutación. Las 1201 solicitudes respondieron `200 OK` |
+| Blue/Green | Se conmuta a la versión `v2` y, 20 segundos después, se vuelve a la `v1` | `Solicitudes por versión` y `Respuestas con error, por versión` | El tráfico pasa de una versión a la otra de una vez, en cada conmutación. Las 1201 solicitudes respondieron `200 OK` |
 | Rolling Upgrade | Se reemplazan tres instancias de la versión `v1` en tres pasos | Lo mismo | La versión `v2` sube en escalones, un tercio por paso, y cada paso tarda unos 4 segundos. Las 2398 solicitudes respondieron `200 OK` |
 | Canary Testing | 10% y 50% a la versión `v2`, que después falla, y vuelta atrás | Lo mismo | La versión `v2` sigue al porcentaje. Durante la falla, 164 solicitudes de 1801 respondieron `503 Service Unavailable`, todas de la versión `v2`; la versión `v1` no tuvo errores |
-| A/B Testing | Los dos `Users` consultan a la versión `v2`, y la mitad de las consultas de bob traen `X-Segment: beta` | "Respuestas por variante" | alice recibió la B las 601 veces; bob, la A 300 veces y la B las 300 en que trajo el segmento |
+| A/B Testing | Los dos `Users` consultan a la versión `v2`, y la mitad de las consultas de bob traen `X-Segment: beta` | `Respuestas por variante` | alice recibió la B las 601 veces; bob, la A 300 veces y la B las 300 en que trajo el segmento |
 
 Las métricas por versión las informa k6 con el encabezado `X-Version`, para no
 tener que instrumentar [nginx](https://nginx.org/). Las del experimento son de
@@ -3506,15 +3509,15 @@ Compose, solo el perfil `observability`:
 k6 corre en Docker Compose y llega al Gateway del clúster por la red de
 Docker: el *script* suma el nodo de [kind](https://kind.sigs.k8s.io/) a esa red.
 Sus métricas van al mismo Prometheus, así que se ven en los mismos paneles. El
-panel "Errores de cada versión, según Users" lee el Prometheus del clúster:
+panel `Errores de cada versión, según Users` lee el Prometheus del clúster:
 muestra lo que mide el análisis de [Argo
 Rollouts](https://argoproj.github.io/rollouts/), con una línea roja en el 5%.
 
 | Estrategia | Qué se hace | Qué mirar | Resultado |
 | ---------- | ----------- | --------- | --------- |
-| Blue/Green, demo 32 | La versión `v2` en *preview*, `promote` y, 20 segundos después, `undo` | "Solicitudes por versión" y "Respuestas con error, por versión" | El tráfico pasa de una versión a la otra de una vez. Las 1201 solicitudes respondieron `200 OK` |
+| Blue/Green, demo 32 | La versión `v2` en *preview*, `promote` y, 20 segundos después, `undo` | `Solicitudes por versión` y `Respuestas con error, por versión` | El tráfico pasa de una versión a la otra de una vez. Las 1201 solicitudes respondieron `200 OK` |
 | Rolling Upgrade, demo 33 | Con el [Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/): la versión `v2`, después la `v3-bad` y `undo` a mano | Lo mismo | Cada reemplazo tarda unos 7 segundos. La versión `v3` respondió `503 Service Unavailable` 195 veces, hasta el `undo` |
-| Canary Testing, demo 34 | La versión `v2` hasta el 100% y después la `v3-bad` | Lo mismo y "Errores de cada versión, según Users" | La versión `v2` sigue a los pesos del 10% y el 50%, sin errores. La `v3` supera la línea del 5%, y Argo vuelve atrás: 17 respuestas `503` de 3999, todas de la `v3` |
+| Canary Testing, demo 34 | La versión `v2` hasta el 100% y después la `v3-bad` | Lo mismo y `Errores de cada versión, según Users` | La versión `v2` sigue a los pesos del 10% y el 50%, sin errores. La `v3` supera la línea del 5%, y Argo vuelve atrás: 17 respuestas `503` de 3999, todas de la `v3` |
 
 Además de los `503` de la versión `v3`, hubo unas pocas solicitudes sin
 respuesta: 6 de 2400 en Rolling Upgrade y 1 de 3999 en Canary. Coinciden con los
@@ -3554,7 +3557,7 @@ un 31% menos que las réplicas fijas.
 | La conexión con Docker Compose | El *worker* usa [RabbitMQ](https://www.rabbitmq.com/), la base de `Orders`, `Users` y `Products` de Docker Compose: el nodo de [kind](https://kind.sigs.k8s.io/) se conecta a la red de Docker Compose, y los pods llegan a cada servicio por su nombre ‑ver [worker-config.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/k8s/energy/worker-config.yaml)‑. Mientras corre el del clúster, el `orders-worker` de Docker Compose queda en 0 réplicas, para que no compitan por la cola `orders.process`. |
 | [KEDA](https://keda.sh/) | Cambia las réplicas del *worker* según el largo de la cola, en la demo 36, o según una ventana de tiempo, en la 37, y lo puede bajar a 0 réplicas. Se configura con un [ScaledObject](https://keda.sh/docs/latest/reference/scaledobject-spec/), un recurso personalizado que dice qué Deployment escalar y según qué métrica. Por cada ScaledObject, KEDA crea un [HorizontalPodAutoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/), el recurso de Kubernetes que cambia las réplicas según una métrica, y se encarga él mismo del paso de 0 a 1 réplica. Lo instala [k8s-up.sh](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/k8s-up.sh). |
 | La estimación de la energía | [Prometheus](https://prometheus.io/) del clúster lee la CPU que usa cada contenedor y la que reserva. La que usa sale de [cAdvisor](https://github.com/google/cadvisor), incluido en el [kubelet](https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet/), el agente de Kubernetes que arranca los pods en cada nodo. La que reserva sale de [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics), que publica como métricas el estado de los recursos del clúster. Con las dos calcula la potencia de cada pod, con las reglas de `energy.rules.yml`, en [prometheus.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/k8s/base/prometheus.yaml). |
-| Fila "Eficiencia energética" en [Grafana](https://grafana.com/oss/grafana/) | Las réplicas del *worker*, la cola `orders.process`, la potencia estimada de cada pod y la energía del período. |
+| Fila `Eficiencia energética` en [Grafana](https://grafana.com/oss/grafana/) | Las réplicas del *worker*, la cola `orders.process`, la potencia estimada de cada pod y la energía del período. |
 
 Las demos 35 a 37 necesitan a la vez Docker Compose y el clúster: Docker
 necesita al menos 12 GB de memoria. Con menos, la máquina virtual de Docker se
@@ -3609,7 +3612,7 @@ de cada componente, para decidir con esos datos qué apagar o qué reducir.
   con [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics).
 * **Cómo se convierte en energía:** con el modelo de Cloud Carbon Footprint, en
   tres reglas de Prometheus. Una réplica ociosa consume la parte reservada.
-* **Dónde se ve:** en el panel "Potencia estimada del worker, por pod" de
+* **Dónde se ve:** en el panel `Potencia estimada del worker, por pod` de
   Grafana y en Prometheus del clúster, en <http://localhost:30090>.
 
 En Azure, la [Emissions Impact
@@ -3954,8 +3957,8 @@ docker compose --profile observability up -d --wait
 ./demos/load-energy.sh fixed    # también: queue, window
 ```
 
-Los paneles están en la fila "Eficiencia energética". Con el rango del
-*dashboard* en 10 minutos, el panel "Energía estimada del worker en el período"
+Los paneles están en la fila `Eficiencia energética`. Con el rango del
+*dashboard* en 10 minutos, el panel `Energía estimada del worker en el período`
 muestra la de toda la corrida. Cada pico, cada cambio en las réplicas del
 *worker* y, con `window`, cada apertura y cierre de la ventana quedan marcados
 con la etiqueta `energía`. Como en las demás demos, son resultados de una
@@ -3964,8 +3967,8 @@ rendimiento.
 
 | Configuración | Qué se hace | Qué mirar | Energía en 10 minutos |
 | ------------- | ----------- | --------- | --------------------- |
-| `fixed`, como la demo 35 | 3 réplicas fijas | "Potencia estimada del worker, por pod": un piso de unos 0.22 W por pod que no baja nunca | 460 J |
-| `queue`, como la demo 36 | [KEDA](https://keda.sh/) según la cola | "Réplicas del worker en el clúster": 0 entre picos y hasta 6 en cada uno; en la potencia, un salto al arrancar cada pod | 316 J, un 31% menos que `fixed` |
+| `fixed`, como la demo 35 | 3 réplicas fijas | `Potencia estimada del worker, por pod`: un piso de unos 0.22 W por pod que no baja nunca | 460 J |
+| `queue`, como la demo 36 | [KEDA](https://keda.sh/) según la cola | `Réplicas del worker en el clúster`: 0 entre picos y hasta 6 en cada uno; en la potencia, un salto al arrancar cada pod | 316 J, un 31% menos que `fixed` |
 | `window`, como la demo 37 | KEDA según la ventana | Las réplicas: 3 mientras la ventana está abierta, un minuto de cada dos; la cola crece fuera de la ventana y se vacía dentro | 332 J, un 28% menos que `fixed`, casi lo mismo que `queue` |
 
 `window` consume casi lo mismo que `queue` por caminos distintos: tiene 3
