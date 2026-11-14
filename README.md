@@ -308,7 +308,6 @@ dashboard.
 | `load.js` | Carga base para las demos de rendimiento: lecturas mezcladas a una tasa configurable; con `-e DETAILS=view`, el detalle se lee de la vista | Throughput y latencia por servicio; [k6](https://k6.io/) termina con error si no se cumple el objetivo de p95 menor a 500 ms con menos de 1% de errores; comparando las dos corridas, la latencia de `details` contra la de `details view` |
 | `cache-aside.js` | 50 lecturas de `Products` por segundo, con una base que demora 100 ms: 30 segundos con la caché apagada y 30 segundos prendida | La latencia de `product` baja de unos 100 ms a unos 3 ms; las lecturas de la caché pasan de `disabled` a casi todas `hit` |
 | `load-leveling.js` | 10 `POST /orders/` por segundo durante 10 segundos, directamente en `orders-service` | La latencia de `create order` se mantiene baja; la cola `orders.process` crece durante el pico y se vacía a ritmo constante |
-
 | `strangler-fig.js` | 15 lecturas por segundo a la fachada, mientras se migran las rutas | El tráfico pasa del monolito a los servicios, sin errores; la latencia del detalle sube |
 | `external-configuration.js` | 2 `POST /orders/` y 20 lecturas por segundo, mientras se cambia un límite por variable de entorno y en el almacén | Solo la variable de entorno deja solicitudes sin respuesta |
 | `messaging-bridge.js` | 2 `Orders` por segundo, mientras se detiene [ActiveMQ](https://activemq.apache.org/) | La cola `bridge.erp` crece y se vacía; las `Orders` se siguen confirmando |
