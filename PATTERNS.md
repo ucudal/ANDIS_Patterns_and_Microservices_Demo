@@ -414,11 +414,10 @@ se aplica con el atributo `[EnableRateLimiting("throttling")]` en el método
 `GetOrdersForUser` de la clase `OrdersController`, en
 [OrdersController.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/OrdersService/Controllers/OrdersController.cs).
 
-El *gateway* también aplica Throttling, pero por cliente: cada IP puede crear como
-máximo 1 `Order` por segundo, con una ráfaga de hasta 5. Lo que excede el límite
-recibe `429 Too Many Requests` sin llegar a `orders-service`; las consultas no
-tienen límite. Está en
-[nginx.conf](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/ApiGateway/nginxconf/nginx.conf)
+El *gateway* también aplica Throttling, pero por cliente: cada IP puede crear
+como máximo una `Order` por segundo, con una ráfaga de hasta 5. Lo que excede el
+límite recibe `429 Too Many Requests` sin llegar a `orders-service`; las
+consultas no tienen límite. Está en [nginx.conf](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/ApiGateway/nginxconf/nginx.conf)
 ‑[`limit_req_zone`](https://nginx.org/en/docs/http/ngx_http_limit_req_module.html#limit_req_zone)
 y
 [`limit_req`](https://nginx.org/en/docs/http/ngx_http_limit_req_module.html#limit_req)‑.
@@ -499,7 +498,7 @@ proceso por lotes que envía muchos datos a un servicio con límite de capacidad
 del servicio. Rate Limiting y Throttling son las dos caras del mismo límite: el
 servicio aplica Throttling para protegerse, y el cliente aplica Rate Limiting
 para no chocar contra ese Throttling. En esta aplicación, el servicio es el
-*gateway*, con su Throttling por cliente ‑1 `POST /orders/` por segundo por IP,
+*gateway*, con su Throttling por cliente ‑un `POST /orders/` por segundo por IP,
 con una ráfaga de 5; ver [Throttling](#throttling)‑, y el cliente es un proceso
 por lotes que crea `Orders`:
 la demo [05 de Rate Limiting](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/05-rate-limiting.sh) y
@@ -530,12 +529,12 @@ Con Rate Limiting, el cliente respeta el ritmo que acepta el *gateway*:
 
 ![Envío de un lote con Rate Limiting](assets/05-rate-limiting-con.svg)
 
-El límite del *gateway* es el mismo en las dos formas: 1 `POST /orders/` por
+El límite del *gateway* es el mismo en las dos formas: un `POST /orders/` por
 segundo por IP, con una ráfaga de 5. Lo que cambia es cómo envía el cliente.
 
 **Cómo verlo:** la demo [05 de Rate Limiting](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/05-rate-limiting.sh) crea 15
 `Orders` de dos formas. Sin Rate Limiting, las envía todas de golpe y reintenta
-las rechazadas cada 1 segundo: hacen falta unas 55 solicitudes y unas 40
+las rechazadas cada segundo: hacen falta unas 55 solicitudes y unas 40
 reciben 429. Con Rate Limiting, respeta el límite del *gateway*: 15 solicitudes
 y ningún 429. Las dos formas demoran unos 10 segundos, porque el límite del
 *gateway* fija el ritmo máximo.
@@ -2262,8 +2261,8 @@ El método `ExecuteAsync` de la clase `Erp` repite este ciclo:
 Tres detalles del ciclo:
 
 * **Consumidor suscripto:** no consulta la cola cada tanto. El *broker* le entrega
-  cada mensaje en cuanto llega, y la espera de 1 segundo solo sirve para revisar
-  si el servicio se está deteniendo.
+  cada mensaje en cuanto llega, y la espera de un segundo solo sirve para
+  revisar si el servicio se está deteniendo.
 * **Transacción:** el pedido se consume y la factura se envía juntos, o nada. Si
   el ERP se cae en el medio, el *broker* vuelve a entregar el pedido.
 * **Registros inválidos:** solo se registra un aviso y el mensaje se descarta,
@@ -3792,7 +3791,7 @@ más seguidos, conviene dejar réplicas encendidas.
 | ----------- | ------- | ---------- |
 | Escalado a cero | No consume entre picos y se adapta solo a cada pico | El primer mensaje espera a que arranque un pod, y cada arranque consume |
 | Réplicas fijas | El primer mensaje se procesa enseguida | Consume lo mismo con trabajo que sin él |
-| Escalar según la cola, con un mínimo de 1 | Sin demora en el primer mensaje | Una réplica siempre encendida |
+| Escalar según la cola, con un mínimo de una réplica | Sin demora en el primer mensaje | Una réplica siempre encendida |
 
 > [!TIP]
 >
