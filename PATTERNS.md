@@ -84,9 +84,10 @@ mensajes, una caché, un proveedor de identidad, un almacenamiento de archivos,
 un almacén de configuración‑, procesos de `Orders` ‑el *worker* y el
 proyector‑, y servicios que existen para mostrar un patrón ‑el ERP, el
 monolito, `Purchases` y los BFF‑. Todos están en
-[docker-compose.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/docker-compose.yaml); qué hace cada uno está en
-[Servicios y datos](ARCHITECTURE.md#servicios-y-datos) y en [Facilidad de
-modificación](ARCHITECTURE.md#facilidad-de-modificación), en ARCHITECTURE.md.
+[docker-compose.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/docker-compose.yaml);
+lo que hace cada uno está en [Servicios y datos](ARCHITECTURE.md#servicios-y-datos)
+y en [Facilidad de modificación](ARCHITECTURE.md#facilidad-de-modificación), en
+ARCHITECTURE.md.
 
 Las dependencias que más se aprovechan son dos. En `GET /orders/user/{userId}/details`,
 `Orders` llama de forma sincrónica a `Users` y a `Products`: es el punto natural
@@ -161,7 +162,7 @@ sus propias rutas.
 | Stock del [`Product`](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/ProductsService/Models/Product.cs) | Las unidades disponibles. `GET /products/{id}` lo muestra y `PUT /products/{id}/stock` lo fija. |
 | Inyección de fallas | `PUT /users/chaos`, `PUT /products/chaos` y `PUT /orders/chaos` hacen que el servicio falle o demore a propósito, sin reiniciarlo. Así se provocan las situaciones que activan cada patrón. Está en el método `UseChaos` de la clase `ChaosExtensions`, en [Chaos.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/Common/Chaos.cs). Los ajustes quedan en la memoria de la réplica que recibe el `PUT` ‑ver [Stateless y estado por réplica](ARCHITECTURE.md#stateless-y-estado-por-réplica) en ARCHITECTURE.md‑. |
 | Interruptores de los patrones | `PUT /orders/patterns` prende y apaga el Retry, el Circuit Breaker, el Bulkhead y el Throttling de `Orders`, sin reiniciarlo; `DELETE /orders/patterns` los vuelve a prender. Cada demo deja prendido solo su patrón, para que no intervengan los demás. Está en la clase `PatternSettings` y en el método `MapPatterns` de la clase `PatternExtensions`, en [Patterns.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/OrdersService/Patterns.cs). |
-| Observabilidad y carga ‑opcional‑ | [Perfil](https://docs.docker.com/compose/how-tos/profiles/) `observability` de [Docker Compose](https://docs.docker.com/compose/) con [Prometheus](https://prometheus.io/) y un *dashboard* de [Grafana](https://grafana.com/oss/grafana/) ya configurado, y escenarios de carga con [k6](https://k6.io/) en [k6](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/tree/main/k6). Muestra los patrones bajo carga y a lo largo del tiempo. Cómo usarlos está en [Observabilidad y pruebas de carga](README.md#observabilidad-y-pruebas-de-carga), en el README. |
+| Observabilidad y carga ‑opcional‑ | [Perfil](https://docs.docker.com/compose/how-tos/profiles/) `observability` de [Docker Compose](https://docs.docker.com/compose/) con [Prometheus](https://prometheus.io/) y un *dashboard* de [Grafana](https://grafana.com/oss/grafana/) ya configurado, y escenarios de carga con [k6](https://k6.io/) en [k6](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/tree/main/k6). Muestra los patrones bajo carga y a lo largo del tiempo. Las instrucciones para usarlos están en [Observabilidad y pruebas de carga](README.md#observabilidad-y-pruebas-de-carga), en el README. |
 
 Ejemplo de inyección de fallas:
 
@@ -187,7 +188,7 @@ curl -X DELETE http://localhost/products/chaos
 Cada patrón tiene un *script* en [demos](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/tree/main/demos) que provoca la situación y
 muestra el resultado. Los de Retry, Circuit Breaker, Bulkhead y Throttling dejan
 prendido solo su patrón, para que se vea el efecto de cada uno por separado.
-Cómo ejecutarlos está en [Cómo probar los
+Las instrucciones para ejecutarlos están en [Cómo probar los
 patrones](README.md#cómo-probar-los-patrones), en el README. Los eventos de cada
 patrón también aparecen en los *logs* de [Docker](https://www.docker.com/) de
 `orders-service`, con una etiqueta: `[RETRY]`, `[CIRCUIT BREAKER]`,
@@ -211,8 +212,9 @@ segundos, con *jitter*‑. Solo se reintentan los errores transitorios: 5xx, 408
 `Microsoft.Extensions.Http.Resilience`.
 
 Reintentar solo es seguro si la operación es idempotente: una llamada que falla
-por *timeout* pudo haberse ejecutado igual. Cómo lo resuelve la aplicación está
-en [Idempotencia](ARCHITECTURE.md#idempotencia), en ARCHITECTURE.md.
+por *timeout* pudo haberse ejecutado igual. La forma como lo resuelve la
+aplicación está en [Idempotencia](ARCHITECTURE.md#idempotencia), en
+ARCHITECTURE.md.
 
 **Cómo funciona:**
 
@@ -274,8 +276,8 @@ disponible [circuito abierto]"` en lugar del nombre: lo arma el método
 [OrdersController.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/OrdersService/Controllers/OrdersController.cs).
 
 El estado del circuito vive en la memoria de cada proceso: con tres *workers*,
-cada uno tiene sus propios circuitos. Qué estado vive en cada réplica, y qué
-hizo falta para que los componentes se puedan replicar, está en [Stateless y
+cada uno tiene sus propios circuitos. El estado que vive en cada réplica y lo
+que hizo falta para que los componentes se puedan replicar están en [Stateless y
 estado por réplica](ARCHITECTURE.md#stateless-y-estado-por-réplica), en
 ARCHITECTURE.md.
 
@@ -1970,8 +1972,8 @@ etiqueta: `[EXTERNAL CONFIG]` en los servicios, `[MESSAGING BRIDGE]` en
 `[STRANGLER]` en `api-gateway`.
 
 Estas demos no se conectan a ninguna nube: corren con Docker. Cada patrón nombra
-los servicios equivalentes de Azure y de AWS. Cómo verlos bajo carga está en
-[Antes y después en Grafana](#antes-y-después-en-grafana) y cuánto cuesta cada
+los servicios equivalentes de Azure y de AWS. La forma de verlos bajo carga está
+en [Antes y después en Grafana](#antes-y-después-en-grafana) y el costo de cada
 cambio está en [Tamaño del cambio](#tamaño-del-cambio).
 
 Ningún patrón hace que una aplicación sea fácil de cambiar en general. Cada uno
@@ -2812,8 +2814,8 @@ instancia que la atendió y su versión.
 
 Como las demos de facilidad de modificación, estas no se conectan a ninguna
 nube: corren con [Docker](https://www.docker.com/). Cada estrategia nombra los
-servicios equivalentes de Azure y de AWS. Cómo verlas bajo carga está en [Las
-estrategias en Grafana](#las-estrategias-en-grafana).
+servicios equivalentes de Azure y de AWS. La forma de verlas bajo carga está en
+[Las estrategias en Grafana](#las-estrategias-en-grafana).
 
 Cambiar de estrategia de despliegue ‑pasar de Blue/Green a Canary, o cambiar la
 configuración de Canary‑ es reescribir `deployment-routes.conf` en el contenedor
@@ -3563,7 +3565,7 @@ Cada patrón tiene un *script* en [demos](https://github.com/ucudal/ANDIS_Patter
 paso en [07-energy-efficiency.azcli](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/commands/07-energy-efficiency.azcli).
 Necesitan el clúster, que se crea una vez con `./demos/k8s-up.sh`, y Docker
 Compose levantado. Cada *script* marca sus pasos en el *dashboard* de Grafana, con
-la etiqueta `energía`. Cómo ver los tres bajo la misma carga está en [La
+la etiqueta `energía`. La forma de ver los tres bajo la misma carga está en [La
 eficiencia energética en Grafana](#la-eficiencia-energética-en-grafana).
 
 Como las demás demos, estas no se conectan a ninguna nube. Cada patrón nombra
@@ -3746,8 +3748,8 @@ spec:
 KEDA hace dos cosas: enciende y apaga el *worker*, de 0 a 1 réplica y de 1 a 0,
 y crea un
 [HorizontalPodAutoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/)
-de Kubernetes, que decide las réplicas de 1 a 6 con el largo de la cola. Cómo
-llega KEDA a RabbitMQ está en [rabbitmq-auth.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/k8s/energy/rabbitmq-auth.yaml).
+de Kubernetes, que decide las réplicas de 1 a 6 con el largo de la cola. La
+forma como KEDA llega a RabbitMQ está en [rabbitmq-auth.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/k8s/energy/rabbitmq-auth.yaml).
 
 **Cómo verlo:** la demo [36 de escalado a cero](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/36-scale-to-zero.sh)
 empieza con 3 réplicas fijas, como la 35, y mide su potencia. Al aplicar el

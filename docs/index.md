@@ -150,8 +150,8 @@ encuentran como `products-service:9000`.
 | Use Serverless Cloud Services y Scale Logical Components Independently | El [ScaledObject](https://keda.sh/docs/latest/reference/scaledobject-spec/) de [KEDA](https://keda.sh/) en [scaledobject-queue.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/k8s/energy/scaledobject-queue.yaml), que escala el Deployment de [worker.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/k8s/energy/worker.yaml) de 0 a 6 réplicas según la cola `orders.process` |
 | Queue Non-Urgent Processing Requests | El ScaledObject de [scaledobject-window.yaml](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/k8s/energy/scaledobject-window.yaml), con un *trigger* metrics-api: el *worker* solo procesa la cola mientras la ventana está abierta, según la clave `andis/Energy/WindowOpen` de Consul, que publica el método `GetWindow` de la clase `EnergyController`, en [EnergyController.cs](src/OrdersService/Controllers/EnergyController.cs) |
 
-Qué problema resuelve cada patrón, cómo se implementó y qué muestra cada prueba
-está en las secciones [Demos de disponibilidad](../PATTERNS.md#demos-de-disponibilidad),
+El problema que resuelve cada patrón, la forma como se implementó y lo que
+muestra cada prueba están en las secciones [Demos de disponibilidad](../PATTERNS.md#demos-de-disponibilidad),
 [Demos de rendimiento y procesamiento asíncrono](../PATTERNS.md#demos-de-rendimiento-y-procesamiento-asíncrono),
 [Demos de seguridad](../PATTERNS.md#demos-de-seguridad),
 [Demos de facilidad de modificación](../PATTERNS.md#demos-de-facilidad-de-modificación),

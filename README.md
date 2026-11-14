@@ -88,8 +88,8 @@ Los comandos están en la carpeta [commands](commands/), en siete archivos:
   clúster de [Kubernetes](https://kubernetes.io/), que se crea con
   `./demos/k8s-up.sh`, y no usan Docker Compose: la entrada de los clientes al
   clúster está en el puerto 8092 y el Prometheus de ese clúster en el
-  puerto 30090. Qué es cada concepto de Kubernetes, y su análogo en Docker
-  Compose, está en [Conceptos de Kubernetes](PATTERNS.md#conceptos-de-kubernetes),
+  puerto 30090. La explicación de cada concepto de Kubernetes y de su análogo en
+  Docker Compose está en [Conceptos de Kubernetes](PATTERNS.md#conceptos-de-kubernetes),
   en PATTERNS.md.
 * [07-energy-efficiency.azcli](commands/07-energy-efficiency.azcli): demos de
   los patrones de eficiencia energética, de la 35 a la 37. El *worker* de
@@ -107,9 +107,9 @@ El comando [`docker compose
 up`](https://docs.docker.com/reference/cli/docker/compose/up/) con `--wait`
 espera a que todos los contenedores estén sanos según su
 [`healthcheck`](https://docs.docker.com/reference/compose-file/services/#healthcheck).
-Qué es cada concepto de Docker que usan las demos ‑imagen, contenedor,
-servicio, réplicas, red, volumen, perfil‑ está en [Contenedores y Docker
-Compose](PATTERNS.md#contenedores-y-docker-compose), en PATTERNS.md.
+La explicación de cada concepto de Docker que usan las demos ‑imagen,
+contenedor, servicio, réplicas, red, volumen, perfil‑ está en [Contenedores y
+Docker Compose](PATTERNS.md#contenedores-y-docker-compose), en PATTERNS.md.
 
 Las bases de datos se crean con datos de ejemplo la primera vez que se levantan
 los contenedores, con los scripts de `src/*/mysqlinit`, `src/*/mongoinit` y

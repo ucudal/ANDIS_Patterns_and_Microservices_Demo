@@ -1,7 +1,7 @@
 # Demos con Kubernetes
 
-Los manifiestos de las demos 32 a 37. Qué es cada concepto de Kubernetes que
-usan, y su análogo en Docker Compose, está en [Conceptos de
+Los manifiestos de las demos 32 a 37. La explicación de cada concepto de
+Kubernetes que usan y de su análogo en Docker Compose está en [Conceptos de
 Kubernetes](../PATTERNS.md#conceptos-de-kubernetes), en PATTERNS.md.
 
 Las demos 32 a 34 son Blue/Green, Rolling Upgrade y Canary
@@ -9,14 +9,14 @@ Testing en un clúster de [Kubernetes](https://kubernetes.io/). Son las demos 28
 a 30 de Docker Compose, pero los pasos los hace [Argo
 Rollouts](https://argoproj.github.io/rollouts/) o Kubernetes, y en la 33 y la 34
 avanzar o volver atrás lo decide un análisis de las métricas de la versión
-nueva. Qué muestra cada demo está en [Patrones de facilidad de
+nueva. Lo que muestra cada demo está en [Patrones de facilidad de
 despliegue](../PATTERNS.md#patrones-de-facilidad-de-despliegue), en PATTERNS.md,
 mientras que el paso a paso está en [06-deployability.azcli](../commands/06-deployability.azcli).
 
 Las demos 35 a 37 son las de eficiencia energética: el *worker* de `Orders`
 corre en el clúster, [Prometheus](https://prometheus.io/) estima la energía de
 cada pod y [KEDA](https://keda.sh/) cambia sus réplicas según la cola o según
-una ventana. Qué muestra cada demo está en [Patrones de eficiencia
+una ventana. Lo que muestra cada demo está en [Patrones de eficiencia
 energética](../PATTERNS.md#patrones-de-eficiencia-energética), en PATTERNS.md,
 mientras que el paso a paso está en [07-energy-efficiency.azcli](../commands/07-energy-efficiency.azcli).
 

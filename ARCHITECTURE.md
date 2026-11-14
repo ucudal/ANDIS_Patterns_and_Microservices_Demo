@@ -5,8 +5,8 @@ analizarla: qué datos tiene cada servicio, cómo se comunican, qué tan disponi
 es cada operación, cómo se mantienen consistentes los datos y qué decisiones
 tienen costos. Cada sección termina con preguntas para el análisis.
 
-Cómo ejecutar la aplicación está en el [README.md](README.md) y los patrones que
-implementa están en [PATTERNS.md](PATTERNS.md).
+Las instrucciones para ejecutar la aplicación están en el [README.md](README.md)
+y los patrones que implementa están en [PATTERNS.md](PATTERNS.md).
 
 * [Servicios y datos](#servicios-y-datos)
 * [Comunicación entre servicios](#comunicación-entre-servicios)
@@ -1026,15 +1026,15 @@ puede llegar a `Orders`. No hay TLS entre los servicios.
 
 ## Facilidad de modificación
 
-Hay cinco cambios que la aplicación absorbe sin tocar su lógica de dominio; cómo
-se implementó cada uno está en [Demos de facilidad de
+Hay cinco cambios que la aplicación absorbe sin tocar su lógica de dominio; la
+forma como se implementó cada uno está en [Demos de facilidad de
 modificación](PATTERNS.md#demos-de-facilidad-de-modificación), en PATTERNS.md.
 
-Cuánto cuesta cada uno y cómo se midió, está en [Tamaño del
+El costo de cada uno y la forma como se midió están en [Tamaño del
 cambio](PATTERNS.md#tamaño-del-cambio).
 
-Estos son los cambios que los patrones anticipan, no cualquier cambio: qué queda
-afuera de cada uno está en [Patrones de facilidad de
+Estos son los cambios que los patrones anticipan, no cualquier cambio: lo que
+queda afuera de cada uno está en [Patrones de facilidad de
 modificación](PATTERNS.md#patrones-de-facilidad-de-modificación).
 
 | Cambio | Qué se toca | Qué no se toca |
@@ -1084,12 +1084,12 @@ componentes:
 ## Facilidad de despliegue
 
 La demo muestra cuatro formas de poner en producción la versión `v2` de `Users`,
-que conviven con la versión `v1`. Cómo se implementó cada una está en [Demos de
-facilidad de despliegue](PATTERNS.md#demos-de-facilidad-de-despliegue), en
-PATTERNS.md.
+que conviven con la versión `v1`. La forma como se implementó cada una está en
+[Demos de facilidad de despliegue](PATTERNS.md#demos-de-facilidad-de-despliegue),
+en PATTERNS.md.
 
 Las cuatro dependen de que cada servicio se pueda desplegar solo: la versión
-`v2` de `Users` entra y sale de producción sin que `Orders`, `Products` ni los
+`v2` de `Users` entra y sale de producción sin que `Orders`, `Products`, ni los
 demás cambien. Y las cuatro suponen que la versión nueva es compatible con la
 anterior, porque mientras conviven comparten la base y los clientes.
 
@@ -1168,7 +1168,7 @@ componentes:
 ## Eficiencia energética
 
 Las demos 35 a 37 miden la energía que consume el *worker* de `Orders` y la
-reducen. Cómo se implementó cada patrón está en [Demos de eficiencia
+reducen. La forma como se implementó cada patrón está en [Demos de eficiencia
 energética](PATTERNS.md#demos-de-eficiencia-energética), en PATTERNS.md.
 
 El *worker* es el componente donde más se nota: recibe el trabajo en picos, a
