@@ -3994,4 +3994,3 @@ mucha CPU al arrancar. Lo que gana `window` es cuándo consume, no cuánto. Con
 picos cada 90 segundos, en una corrida de 5 minutos, `queue` consumió 473 J,
 más que las réplicas fijas: entre un pico y otro no alcanzaba a recuperar la
 energía de encender las réplicas. Por eso el escenario separa los picos.
-

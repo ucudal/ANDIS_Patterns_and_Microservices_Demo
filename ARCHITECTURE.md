@@ -1307,4 +1307,3 @@ producción.
   de cada base: clústeres y réplicas, como colas quorum de RabbitMQ y réplicas
   de PostgreSQL, MySQL y MongoDB. Sin trazas: trazas distribuidas con
   OpenTelemetry y Jaeger o Grafana Tempo. -->
-

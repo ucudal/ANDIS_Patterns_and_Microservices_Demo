@@ -237,7 +237,7 @@ docker compose logs products-service --since 2m | grep '\[CACHE-ASIDE\]'
 
 docker compose run --rm k6 run /scripts/cache-aside.js
 
-# Resulado en la consola: el threshold de la fase con caché, p(95)<50, aparece
+# Resultado en la consola: el threshold de la fase con caché, p(95)<50, aparece
 # con ✓.
 #
 # Resultado en Grafana:
@@ -347,7 +347,7 @@ done
 
 docker compose run --rm k6 run /scripts/load-leveling.js
 
-# Resultado en onsola: el threshold de "create order", p(95)<200, aparece con ✓.
+# Resultado en consola: el threshold de "create order", p(95)<200, aparece con ✓.
 #
 # Resultado en Grafana:
 # - "Cola orders.process": "esperando" sube a unos 80 durante el pico y baja de
@@ -445,7 +445,7 @@ docker compose up -d --scale orders-worker=6
 docker compose run --rm k6 run /scripts/load-leveling.js
 docker compose up -d --scale orders-worker=3
 
-# Resulado en Grafana:
+# Resultado en Grafana:
 # - "Cola orders.process": "consumidores" sube a 6 y "en proceso" a 6; la cola
 #   se vacía en unos 40 segundos, cerca de la mitad que con 3 réplicas.
 # - "Orders procesadas por segundo, por réplica": 6 franjas, una por réplica,
@@ -780,7 +780,7 @@ curl -s http://localhost/orders/user/665f1c2ab4e8d9a0c1f2e302/details/view | jq 
 docker compose run --rm k6 run -e DETAILS=live /scripts/load.js
 docker compose run --rm k6 run -e DETAILS=view /scripts/load.js
 
-# Resulado en Grafana, comparando la primera corrida con la segunda:
+# Resultado en Grafana, comparando la primera corrida con la segunda:
 # - "Latencia p95 del detalle de Orders: síncrono contra vista": la línea
 #   "orders/user/{userId}/details/view" queda por debajo de la de
 #   "orders/user/{userId}/details". Sin fallas la diferencia es de pocos
@@ -907,7 +907,7 @@ docker compose logs orders-projector --since 2m | grep '\[MATERIALIZED VIEW\]'
 docker compose exec orders-db mysql --default-character-set=utf8mb4 -u ordersusr -pPa55w0rd ordersdb \
   -e "SELECT * FROM order_details ORDER BY order_id DESC LIMIT 10"
 
-# Resulado en Grafana:
+# Resultado en Grafana:
 # - "Cola orders.details-view": durante los 15 segundos en que los proyectores están
 #   detenidos, "consumidores" baja a 0 y "esperando" sube a 2, los eventos
 #   order.created y order.confirmed de la Order nueva; al levantarlos, vuelven a
