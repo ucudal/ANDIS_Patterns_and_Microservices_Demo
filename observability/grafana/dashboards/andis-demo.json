@@ -1,9 +1,10 @@
 {
-  "uid": "ut4-demo1",
-  "title": "ANDIS II - UT4",
+  "uid": "andis-microservices-patterns-demo",
+  "title": "ANDIS Microservices & Patterns Demo",
   "tags": [
-    "andis2",
-    "ut4"
+    "andis",
+    "patterns",
+    "microservices"
   ],
   "timezone": "browser",
   "refresh": "5s",

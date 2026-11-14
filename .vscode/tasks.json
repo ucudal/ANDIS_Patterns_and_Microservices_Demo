@@ -5,7 +5,7 @@
       "label": "build",
       "command": "dotnet",
       "type": "process",
-      "args": ["build", "${workspaceFolder}/ANDIS2_UT4_DEMO1.sln"],
+      "args": ["build", "${workspaceFolder}/ANDIS_Patterns_and_Microservices_Demo.sln"],
       "problemMatcher": "$msCompile"
     },
     {

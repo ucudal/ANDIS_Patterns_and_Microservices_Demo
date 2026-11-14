@@ -9,11 +9,11 @@ width="150"/>
 # Demo de patrones de arquitectura en una arquitectura de microservicios
 
 [![Deploy to
-Pages](https://github.com/ucudal/ANDIS2_UT4_DEMO1/actions/workflows/pages.yaml/badge.svg)](https://github.com/ucudal/ANDIS2_UT4_DEMO1/actions/workflows/pages.yaml)
+Pages](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/actions/workflows/pages.yaml/badge.svg)](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/actions/workflows/pages.yaml)
 
 > [!IMPORTANT]
 > Comienza consultando 📖 [esta
-> documentación](https://ucudal.github.io/ANDIS2_UT4_DEMO1), que te ayudará a
+> documentación](https://ucudal.github.io/ANDIS_Patterns_and_Microservices_Demo), que te ayudará a
 > entender los patrones navegando por el código. Las clases de esta demo están
 > documentadas para explicar qué patrón implementan.
 
