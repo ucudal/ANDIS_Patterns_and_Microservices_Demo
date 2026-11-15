@@ -38,7 +38,9 @@
 #
 # Si el texto alternativo de una imagen ocupa más de una línea, Doxygen corta el
 # pie de la figura en el salto y muestra el resto como texto suelto, repetido.
-# El filtro une esas líneas.
+# Si el texto de un enlace ocupa tres líneas o más, Doxygen no lo reconoce como
+# enlace y muestra los corchetes y la URL. En los dos casos, el filtro une esas
+# líneas.
 #
 # Doxygen no reconoce una cursiva pegada a un guion de no separación, como
 # ‑*on premises*‑, y muestra los asteriscos; GitHub sí la reconoce. El filtro
@@ -52,6 +54,7 @@ perl -0777 -pe '
     } else {
       $parts[$i] =~ s/^(> \[!\w+\]\n)>[ \t]*\n/$1/mg;
       $parts[$i] =~ s{!\[([^\]]*)\]\(}{my $a = $1; $a =~ s/[ \t]*\n[ \t]*/ /g; "![$a]("}ge;
+      $parts[$i] =~ s{(?<!!)\[((?:[^\[\]\n]|\n(?![ \t>]*\n))*\n(?:[^\[\]\n]|\n(?![ \t>]*\n))*)\]\(}{my $a = $1; $a =~ s/[ \t]*\n[ \t]*(?:>[ \t]?)?[ \t]*/ /g; "[$a]("}ge;
       $parts[$i] =~ s{(?<!`)(`+)(?!`)((?:(?!\n[ \t>]*\n).)*?)(?<!`)\1(?!`)}{my ($q, $c) = ($1, $2); $c =~ s/[ \t]*\n[ \t]*(?:>[ \t]?)?[ \t]*/ /g; "$q$c$q"}gse;
       my @spans = split /(`[^`\n]*`)/, $parts[$i];
       for my $j (0 .. $#spans) {
