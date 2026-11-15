@@ -1079,25 +1079,26 @@ VIEW]` en `orders-projector`.
 
 #### Cache-Aside
 
-**Problema:** las lecturas de datos que cambian poco van a la base cada vez, y
-la base se vuelve el cuello de botella de un pico de lecturas.
+**Problema:** las lecturas de datos que cambian poco van a la base cada vez, que
+se vuelve el cuello de botella de un pico de lecturas.
 
 **Implementación:** `Products` busca primero en [Redis](https://redis.io/). Si
 el dato no está ‑*miss*‑, lo lee de [PostgreSQL](https://www.postgresql.org/) y
 lo guarda en Redis por 60 segundos; la próxima lectura sale de Redis ‑*hit*‑. Al
-crear o cambiar un `Product`, `Products` borra de Redis las claves afectadas, y
+crear o cambiar un `Product`, `Products` borra de Redis las claves afectadas y
 la próxima lectura trae el dato nuevo. Es la aplicación la que maneja la caché:
 Redis no sabe nada de PostgreSQL. Si Redis no responde, `Products` lee
-PostgreSQL directamente; la caché acelera, pero no es una dependencia, y por eso
-no entra en `/health`. Está en los métodos `GetOrLoadAsync` e `InvalidateAsync`
-de la clase `ProductCache`, en
+PostgreSQL directamente; la caché acelera, pero no es una dependencia y por eso
+no entra en el chequeo de `/health`. Está en los métodos `GetOrLoadAsync` e
+`InvalidateAsync` de la clase `ProductCache`, en
 [ProductCache.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/ProductsService/ProductCache.cs),
 que usan los métodos `GetProduct` y `UpdateProduct` de la clase
 `ProductsController`, en
 [ProductsController.cs](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/src/ProductsService/Controllers/ProductsController.cs).
 
-Se borra la clave en lugar de escribir el valor nuevo: así la caché nunca guarda
-un valor que PostgreSQL no tiene. La caché está en Redis y no en la memoria de
+Como se dijo antes, al crear o cambiar un `Product` la clave se borra en Redis,
+en lugar de escribir el valor nuevo: esto es para que la caché nunca guarde un
+valor que PostgreSQL no tiene. La caché está en Redis y no en la memoria de
 `Products`, así que la comparten todas las réplicas y una invalidación vale para
 todas ‑ver [Stateless y estado por
 réplica](ARCHITECTURE.md#stateless-y-estado-por-réplica) en `ARCHITECTURE.md`‑.
