@@ -1,14 +1,39 @@
 @startuml
 !include PlantUML.style
-left to right direction
-rectangle "Eventos de una Order\ntabla order_events" as E {
-  rectangle "1 · Se creó\nOrderCreated" as E1
-  rectangle "2 · Se confirmó\nOrderConfirmed" as E2
-}
-database "Estado actual: Confirmed\ntabla orders" as S
-rectangle "Reconstruir la proyección\nPOST /orders/projections/rebuild" as R
+!pragma layout smetana
+rectangle "Cliente\npor el gateway" as P
+rectangle "orders-service y orders-worker\nOrdersController.CreateOrder\nOrderProcessingWorker.ChangeStatusAsync" as C
+database "Eventos de las Orders\ntabla order_events" as ES
+database "Estado actual\ntabla orders" as S
+rectangle "orders-service\nOrdersController.RebuildProjections\nOrderProjection.Replay" as R
+rectangle "orders-service\nOrdersQueriesController" as B
+database "Vista del detalle\ntabla order_details" as RO
+rectangle "ERP" as X
+rectangle "orders-projector\nOrderDetailsProjector" as H1
+rectangle "orders-projector\nOrderDetailsProjector" as H2
+rectangle "messaging-bridge\nOrdersToErpBridge" as H3
+queue "RabbitMQ\nandis.events" as Q
 
-E1 --> E2
-E --> S : se reproducen en orden\nOrderProjection.Replay
-R ..> S : borra orders\ny la vuelve a calcular
+' Filas: los almacenes, los manejadores de eventos y la cola
+C -right-> ES : 3A · guarda el evento,\nen la misma transacción\nque el estado
+ES -[hidden]right-> S
+S -[hidden]right-> RO
+RO -[hidden]right-> X
+H1 -[hidden]right-> H2
+H2 -[hidden]right-> H3
+
+P --> C : 2A · POST /orders/
+P --> B : 1A · GET /orders/user/{userId}/details/view
+B --> RO
+C --> S : 3A · guarda el estado
+C --> Q : 4A · publica con el outbox\norder.created\norder.confirmed\norder.rejected\norder.cancelled
+H1 -up-> ES : 5Aa · agrega OrderInvoiced
+H2 -up-> RO : 5Ab · actualiza la vista
+H3 -up-> X : 5Ac · envía el pedido
+Q -up-> H1 : 5A · order.invoiced
+Q -up-> H2 : 5A · order.*
+Q -up-> H3 : 5A · order.confirmed
+P --> R : 1B · POST /orders/projections/rebuild
+R --> ES : 2B · lee los eventos\nen orden
+R --> S : 3B · borra orders\ny la vuelve a calcular
 @enduml

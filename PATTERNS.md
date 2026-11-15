@@ -767,7 +767,8 @@ Outbox](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/mai
 #### Event Sourcing
 
 **Problema:** si solo se guarda el estado actual, se pierde la historia de cómo
-se llegó a él, y una corrupción de ese estado no tiene vuelta atrás.
+se llegó a él; además, no es posible reconstruir ese estado a momentos pasados
+ni reconstruirlo desde cero al momento actual.
 
 **Implementación:** cada cambio de una `Order` se guarda como un evento
 inmutable en la tabla `order_events`: `OrderCreated`, `OrderConfirmed`,
@@ -786,7 +787,10 @@ los reproduce para obtener el estado.
 
 **Cómo funciona:**
 
-![Eventos de una Order y su proyección](assets/08-event-sourcing.svg)
+![Event Sourcing en la aplicación: los comandos guardan los eventos, y los
+manejadores actualizan la vista y avisan al ERP](assets/08-event-sourcing.svg)
+
+Adaptado de [aquí](https://learn.microsoft.com/en-us/azure/architecture/patterns/event-sourcing).
 
 Los eventos no se modifican ni se borran: un cambio nuevo es un evento nuevo.
 `orders` se puede borrar y recalcular en cualquier momento.
