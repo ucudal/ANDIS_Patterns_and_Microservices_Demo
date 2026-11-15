@@ -28,6 +28,18 @@
 <script type="text/javascript" src="$relpath^doxygen-awesome-fragment-copy-button.js"></script>
 <script type="text/javascript" src="$relpath^doxygen-awesome-paragraph-link.js"></script>
 <script type="text/javascript" src="$relpath^doxygen-awesome-interactive-toc.js"></script>
+<!-- Los enlaces a otros sitios se abren en otra pestaña. Markdown no tiene cómo
+     indicarlo, y GitHub quita el atributo target de los .md. -->
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('a[href^="http"]').forEach((link) => {
+        if (link.host !== window.location.host) {
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+        }
+    });
+});
+</script>
 <script type="text/javascript">
     DoxygenAwesomeFragmentCopyButton.init()
     DoxygenAwesomeDarkModeToggle.init()
