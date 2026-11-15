@@ -681,7 +681,7 @@ devuelve `false` cuando `Users` no responde: el mensaje vuelve a la cola.
 
 Que las réplicas se repartan la cola no evita que dos procesen la misma `Order`.
 El *outbox* de `Products` entrega cada mensaje al menos una vez ‑ver
-[Transactional Outbox](#transactional-outbox)‑, y las dos copias de un
+[Transactional Outbox](#transactional-outbox)‑ y las dos copias de un
 `stock.reserved` pueden llegar a la vez a dos réplicas. Si el *worker*
 preguntara primero si la `Order` sigue `Pending` y la cambiara después, el
 código sería así:
@@ -713,9 +713,9 @@ cambio:
 var changed = await db.Orders
     .Where(o => o.Id == orderId && o.Status == from)                  // pregunta
     .ExecuteUpdateAsync(s => s.SetProperty(o => o.Status, to), ct);   // cambia
-if (changed == 0)
+if (changed == 0) // Si esta réplica no cambió la orden...
 {
-    // Otra réplica ya la procesó: no se agrega ni el evento ni el mensaje.
+    // ...es porque otra réplica ya la procesó: no se agrega ni evento ni mensaje.
     await transaction.RollbackAsync(ct);
     return true;
 }
@@ -737,17 +737,17 @@ copias a la vez:
 3. La segunda deshace su transacción, registra `[COMPETING CONSUMERS] … descarta
    la orden` y no agrega ni el evento ni el mensaje.
 
-`from` es el estado de origen: es `Pending` para confirmar o rechazar y
-`Confirmed` para cancelar. La lectura del principio de `ConfirmAsync` sigue
-estando, sin seguimiento de cambios ‑`AsNoTracking`‑. No decide nada: solo evita
-llamar a `Users` cuando una copia llega después de que la `Order` ya se procesó.
-El índice único de `order_events` por `Order` y tipo de evento queda como
-segunda barrera. Ver [Idempotencia](ARCHITECTURE.md#idempotencia) en
-`ARCHITECTURE.md`.
+En el `Where`, `from` es el estado del que parte la `Order`: es `Pending` para
+confirmar o rechazar y `Confirmed` para cancelar. La lectura del principio de
+`ConfirmAsync` sigue estando, sin seguimiento de cambios ‑`AsNoTracking`‑. No
+decide nada: solo evita llamar a `Users` cuando una copia llega después de que
+la `Order` ya se procesó. El índice único de `order_events` por `Order` y tipo
+de evento queda como segunda barrera. Ver
+[Idempotencia](ARCHITECTURE.md#idempotencia) en `ARCHITECTURE.md`.
 
 **Cómo verlo:** la demo [07 de Competing
 Consumers](https://github.com/ucudal/ANDIS_Patterns_and_Microservices_Demo/blob/main/demos/07-competing-consumers.sh)
-crea 9 `Orders`. Cada *worker* tarda 2 segundos por `Order`, y las 9 se procesan
+crea 9 `Orders`. Cada *worker* tarda 2 segundos por `Order` y las 9 se procesan
 en unos 6 segundos, 3 por réplica. Después crea 9 más y detiene una réplica
 mientras procesa: la `Order` que tenía la termina otra réplica. Para ver la cola
 y sus consumidores, abre la consola de RabbitMQ. Dos copias del mismo
@@ -1432,10 +1432,10 @@ pasaría esto, sin errores visibles:
   y los nombres sin tocar el estado. Aplicados en cualquier orden, los eventos
   dejan el mismo resultado, sin necesidad de numerarlos.
 * **Copias que pasan el chequeo.** Buscar la fila o la factura y después
-  insertarla son dos pasos, y dos copias del mismo mensaje en dos réplicas pasan
-  las dos el chequeo. Con `order.invoiced`, la factura queda dos veces en el
-  historial; con `order.created`, la segunda inserción viola la clave primaria y
-  falla.
+  insertarla son dos pasos; además, dos copias del mismo mensaje en dos réplicas
+  pasan las dos el chequeo. Con `order.invoiced`, la factura queda dos veces en
+  el historial; con `order.created`, la segunda inserción viola la clave
+  primaria y falla.
 
   **Solución:** una sola sentencia atómica. La vista se escribe con un *upsert*,
   [`INSERT … ON DUPLICATE KEY

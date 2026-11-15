@@ -268,9 +268,9 @@ public class OrderProcessingWorker : BackgroundService
         var changed = await db.Orders
             .Where(o => o.Id == orderId && o.Status == from)
             .ExecuteUpdateAsync(s => s.SetProperty(o => o.Status, to), cancellationToken);
-        if (changed == 0)
+        if (changed == 0) // Si esta réplica no cambió la orden...
         {
-            // Otra réplica ya la procesó: no se agrega ni el evento ni el mensaje.
+            // ...es porque otra réplica ya la procesó: no se agrega ni el evento ni el mensaje.
             await transaction.RollbackAsync(cancellationToken);
             _logger.LogInformation("[COMPETING CONSUMERS] Worker {Worker} descarta la orden {OrderId}: no está {Status}",
                 _workerName, orderId, from);
